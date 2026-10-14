@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900">
+ <defs>
+  <radialGradient id="sky"><stop stop-color="#C96363" stop-opacity=".26"/><stop offset="1" stop-color="#090d16"/></radialGradient>
+  <linearGradient id="beam" x2=".8" y2="1"><stop stop-color="#C96363" stop-opacity=".25"/><stop offset="1" stop-color="#C96363" stop-opacity="0"/></linearGradient>
+  <linearGradient id="canvas" x2=".8" y2="1"><stop stop-color="#a3a5a8"/><stop offset=".5" stop-color="#535967"/><stop offset="1" stop-color="#1b2230"/></linearGradient>
+  <linearGradient id="fade" x2="0" y2="1"><stop stop-color="#090d16" stop-opacity="0"/><stop offset="1" stop-color="#090d16"/></linearGradient>
+  <filter id="glow"><feGaussianBlur stdDeviation="9"/></filter>
+  <filter id="grain"><feTurbulence type="fractalNoise" baseFrequency=".75" numOctaves="3" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/><feComponentTransfer><feFuncA type="linear" slope=".09"/></feComponentTransfer><feBlend in="SourceGraphic" mode="soft-light"/></filter>
+  <pattern id="crowd" width="23" height="26" patternUnits="userSpaceOnUse"><circle cx="6" cy="8" r="2" fill="#a8b0c0" opacity=".16"/><circle cx="17" cy="20" r="1" fill="#C96363" opacity=".27"/></pattern>
+ </defs>
+ <rect width="1600" height="900" fill="#0c111b"/>
+ <ellipse cx="1040" cy="330" rx="800" ry="650" fill="url(#sky)"/>
+ <path d="M200 0h70l900 760H760zM650 0h55l680 810H940zM1350 0h35L900 760H630z" fill="url(#beam)"/>
+ <g fill="none" stroke="#86909f" opacity=".09"><path d="M0 250Q800-20 1600 250M0 280Q800 10 1600 280M0 310Q800 40 1600 310"/><path d="M0 335Q800 100 1600 335M0 350Q800 130 1600 350"/></g>
+ <path d="M0 395Q800 150 1600 395V900H0z" fill="url(#crowd)"/>
+ <g fill="#C96363" opacity=".6"><path d="M0 285Q800 60 1600 285v3Q800 64 0 288z"/><path d="M0 402Q800 202 1600 402v2Q800 206 0 405z"/></g>
+ <g fill="#C96363" filter="url(#glow)" opacity=".6"><ellipse cx="390" cy="215" rx="70" ry="7"/><ellipse cx="1140" cy="184" rx="120" ry="8"/><ellipse cx="1445" cy="234" rx="70" ry="7"/></g>
+ <g fill="#e5ddcd" opacity=".7"><path d="M345 214h78v2h-78zM1075 183h124v2h-124zM1418 234h78v2h-78z"/></g>
+ <ellipse cx="1020" cy="810" rx="480" ry="60" fill="#000" opacity=".65"/>
+ <path d="m540 628 495-154 455 149-497 197z" fill="url(#canvas)"/>
+ <path d="m540 628 453 192v81L540 699z" fill="#101726"/><path d="m993 820 497-197v70l-497 208z" fill="#151c29"/>
+ <path d="m540 628 495-154 455 149-497 197z" fill="none" stroke="#9c9c99" stroke-width="2" opacity=".5"/>
+ <g stroke="#090e18" stroke-width="14"><path d="M540 477v214M1035 323v184M1490 472v218M993 664v227"/></g>
+ <g fill="none" stroke="#C96363" stroke-width="3" opacity=".83">
+  <path d="m540 487 495-154 455 149-497 192z"/><path d="m540 533 495-154 455 149-497 192z"/><path d="m540 578 495-154 455 149-497 192z"/>
+ </g>
+ <g fill="#171f2e" stroke="#52576a" stroke-width="1"><rect x="529" y="477" width="25" height="19" rx="5"/><rect x="529" y="525" width="25" height="19" rx="5"/><rect x="529" y="570" width="25" height="19" rx="5"/><rect x="979" y="664" width="29" height="22" rx="5"/><rect x="979" y="710" width="29" height="22" rx="5"/><rect x="979" y="757" width="29" height="22" rx="5"/></g>
+ <path d="m557 654 130 55m-130-42 130 55" stroke="#C96363" stroke-width="1" opacity=".25"/>
+ <text x="1120" y="790" fill="#C96363" font-family="sans-serif" font-size="17" letter-spacing="10" opacity=".5" transform="rotate(-21 1120 790)">WRESTLING VAULT</text>
+ <rect width="1600" height="900" fill="url(#fade)" opacity=".65"/>
+ <rect width="1600" height="900" fill="transparent" filter="url(#grain)" opacity=".7"/>
+</svg>

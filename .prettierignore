@@ -1,0 +1,9 @@
+node_modules
+dist
+dist-electron
+artifacts
+playwright-report
+test-results
+package-lock.json
+public/art
+docs/development-brief.md
