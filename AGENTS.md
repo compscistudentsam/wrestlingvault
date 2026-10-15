@@ -1,7 +1,7 @@
 # Wrestling Vault development instructions
 
 - Read `docs/development-brief.md` and `README.md` before development.
-- The current design is covers only: a full-width cover browser with click-through to a larger cover. No sidebar, search, filters, sorting, grid toggle, match table, settings or future-feature panels. Keep it minimal; this user direction supersedes the original brief’s UI requirements.
+- The current design is covers only: a full-width cover browser with click-through to a larger cover. No sidebar, search, filters, sorting, grid toggle, match table, settings or future-feature panels. The user also authorized a top-centre Random button with a book-like cover-flipping animation. Keep it minimal; this user direction supersedes the original brief’s UI requirements.
 - Only Phase 1 is authorized. Do not implement SQLite, import pipelines, personal collections, analytics, Windows release CI or subsequent phases until the user explicitly approves that phase. Visual revisions remain Phase 1.
 - Use the existing checkout. Cloud tasks are already isolated; do not create a Git worktree unless requested.
 - Develop on the appropriate feature branch. Do not merge phase work into `main` without explicit user approval.

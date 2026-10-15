@@ -91,6 +91,13 @@ try {
   await expect(page.getByRole('searchbox')).toHaveCount(0);
   await expect(page.getByRole('combobox')).toHaveCount(0);
   await expect(page.getByRole('navigation')).toHaveCount(0);
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.evaluate(() => {
+    Math.random = () => 0.25;
+  });
+  await page.getByRole('button', { name: 'Random', exact: true }).click();
+  await expect(page.locator('.flow-cover.is-selected')).toHaveAccessibleName(/Wrestle Kingdom 11/);
+  await expect(page.locator('.page-flip')).toHaveCount(0);
   await page.evaluate(() => document.fonts.ready);
   await page.screenshot({
     path: `artifacts/screenshots/electron-${development ? 'development' : 'production'}.png`,

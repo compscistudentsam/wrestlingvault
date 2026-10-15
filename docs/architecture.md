@@ -12,7 +12,7 @@ The CSP restricts scripts, fonts and images to bundled assets, denies plugins an
 
 ## UI/data separation
 
-The renderer reads twelve bundled samples and has two views: the full-width cover browser and an expanded cover with its title, event/date and source reference. Selection stays in React when navigating back. Hash routes support bundled `file:` loads, browser history and direct match links.
+The renderer reads twelve bundled samples and has two views: the full-width cover browser and an expanded cover with its title, event/date and source reference. Selection stays in React when navigating back. A top-centre Random button picks a target before animating a full pass through the sleeves, using a turning-page overlay and slowing timed steps. Navigation is locked during the animation; route changes and unmounting clear the timer. System reduced motion bypasses the animation. Hash routes support bundled `file:` loads, browser history and direct match links.
 
 Artwork is shared between both views. Original SVG arena illustrations combine with live match typography; missing images retain the CSS backdrop and text. Nearby covers load eagerly and others lazily. The operating system’s reduced-motion preference controls transitions.
 

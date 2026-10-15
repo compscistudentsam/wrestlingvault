@@ -8,11 +8,15 @@ export function CoverFlow({
   selected,
   onSelect,
   onOpen,
+  shuffling = false,
+  flip = null,
 }: {
   records: readonly Match[];
   selected: Match;
   onSelect: (id: string) => void;
   onOpen: (id: string) => void;
+  shuffling?: boolean;
+  flip?: { match: Match; sequence: number; duration: number } | null;
 }) {
   const index = records.findIndex((record) => record.id === selected.id);
   const touchStart = useRef<{ x: number; y: number } | null>(null);
@@ -21,12 +25,18 @@ export function CoverFlow({
   const move = (step: number) =>
     onSelect(records[(index + step + records.length) % records.length].id);
   return (
-    <section className="cover-browser" aria-label="Match covers" aria-roledescription="carousel">
+    <section
+      className={`cover-browser ${shuffling ? 'is-shuffling' : ''}`}
+      aria-label="Match covers"
+      aria-roledescription="carousel"
+      style={flip ? ({ '--flip-duration': `${flip.duration}ms` } as CSSProperties) : undefined}
+    >
       <div
         className="cover-stage"
         tabIndex={0}
         aria-label="Browse match covers with Left and Right arrow keys"
         onKeyDown={(event) => {
+          if (shuffling) return;
           if (['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) {
             event.preventDefault();
             event.currentTarget.focus({ preventScroll: true });
@@ -38,6 +48,7 @@ export function CoverFlow({
           }
         }}
         onWheel={(event) => {
+          if (shuffling) return;
           // Only horizontal gestures browse sleeves; vertical scrolling remains native.
           const delta =
             Math.abs(event.deltaX) > Math.abs(event.deltaY)
@@ -51,10 +62,12 @@ export function CoverFlow({
           }
         }}
         onTouchStart={(event) => {
+          if (shuffling) return;
           touchStart.current = { x: event.touches[0].clientX, y: event.touches[0].clientY };
           swiped.current = false;
         }}
         onTouchEnd={(event) => {
+          if (shuffling) return;
           if (!touchStart.current) return;
           const x = event.changedTouches[0].clientX - touchStart.current.x;
           const y = event.changedTouches[0].clientY - touchStart.current.y;
@@ -94,6 +107,7 @@ export function CoverFlow({
               aria-current={active ? 'true' : undefined}
               aria-hidden={hidden || undefined}
               tabIndex={hidden ? -1 : 0}
+              disabled={shuffling}
               data-hidden={hidden}
               onClick={() => (active ? onOpen(match.id) : onSelect(match.id))}
             >
@@ -104,17 +118,26 @@ export function CoverFlow({
             </button>
           );
         })}
+        {flip && (
+          <div className="page-flip" key={flip.sequence} aria-hidden="true">
+            <Artwork match={flip.match} eager />
+          </div>
+        )}
       </div>
       <div className="selection-bar">
         <button
           className="icon-button"
           aria-label="Previous match"
-          disabled={records.length < 2}
+          disabled={shuffling || records.length < 2}
           onClick={() => move(-1)}
         >
           <ChevronLeft size={20} />
         </button>
-        <div className="selection-caption" aria-live="polite" aria-atomic="true">
+        <div
+          className="selection-caption"
+          aria-live={shuffling ? 'off' : 'polite'}
+          aria-atomic="true"
+        >
           <h2>{selected.title}</h2>
           <p>
             {selected.event} <span>·</span> {yearOf(selected)} <span>·</span>{' '}
@@ -126,7 +149,7 @@ export function CoverFlow({
         <button
           className="icon-button"
           aria-label="Next match"
-          disabled={records.length < 2}
+          disabled={shuffling || records.length < 2}
           onClick={() => move(1)}
         >
           <ChevronRight size={20} />

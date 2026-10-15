@@ -137,3 +137,56 @@ test('capture the simplified library', async ({ page }) => {
   await expect(page.locator('.detail-cover')).toBeVisible();
   await page.screenshot({ path: 'artifacts/screenshots/match-details.png' });
 });
+
+test('Random flips through a full pass and stops on the chosen match', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
+  await page.addInitScript(() => {
+    Math.random = () => 0.25;
+  });
+  await page.goto('/');
+  const random = page.getByRole('button', { name: 'Random', exact: true });
+  await random.click();
+  await expect(random).toBeDisabled();
+  await expect(page.locator('.page-flip')).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Next match', exact: true })).toBeDisabled();
+  await expect(random).toBeEnabled({ timeout: 8000 });
+  await expect(cover(page)).toHaveAccessibleName(/Open Kazuchika Okada.*Wrestle Kingdom 11/);
+  await expect(page.locator('.page-flip')).toHaveCount(0);
+  await expect(page.getByRole('status')).toContainText('Wrestle Kingdom 11');
+  await cover(page).click();
+  await expect(page.locator('.detail-event')).toContainText('Wrestle Kingdom 11');
+  await expect(random).toHaveCount(0);
+});
+
+test('Random supports reduced motion, the current match, and a centred mobile button', async ({
+  page,
+}) => {
+  await page.addInitScript(() => {
+    Math.random = () => 0;
+  });
+  await page.setViewportSize({ width: 430, height: 932 });
+  await page.goto('/');
+  const random = page.getByRole('button', { name: 'Random', exact: true });
+  const box = await random.boundingBox();
+  expect(Math.abs(box!.x + box!.width / 2 - 215)).toBeLessThan(1);
+  await random.click();
+  await expect(random).toBeEnabled();
+  await expect(page.locator('.page-flip')).toHaveCount(0);
+  await expect(cover(page)).toHaveAccessibleName(/Dominion 6.9/);
+  await page.getByRole('button', { name: 'Next match', exact: true }).click();
+  await random.click();
+  await expect(cover(page)).toHaveAccessibleName(/Dominion 6.9/);
+});
+
+test('leaving during a random browse cancels the pending flips', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Random', exact: true }).click();
+  await expect(page.locator('.page-flip')).toBeVisible();
+  await page.evaluate(() => {
+    window.location.hash = '/match/omega-okada-dominion-2018';
+  });
+  await page.getByRole('button', { name: 'Back to covers' }).click();
+  await expect(page.getByRole('button', { name: 'Random', exact: true })).toBeEnabled();
+  await expect(page.locator('.page-flip')).toHaveCount(0);
+});

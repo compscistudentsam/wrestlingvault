@@ -1,8 +1,10 @@
 # Phase 1 — covers only
 
-The latest user request reduces Wrestling Vault to a clickable cover library. The window contains a small brand mark, full-width match covers, previous/next arrows, the selected match’s short caption and its position. Clicking a side cover selects it; clicking the centre opens a larger cover with a title, event/date and rating-source link. Back or Escape returns to the same selection.
+The latest user request reduces Wrestling Vault to a clickable cover library. The window contains a small brand mark, full-width match covers, a top-centre Random button, previous/next arrows, the selected match’s short caption and its position. Clicking a side cover selects it; clicking the centre opens a larger cover with a title, event/date and rating-source link. Back or Escape returns to the same selection.
 
 Sidebar panels, search, filters, sorting, grid options, match tables, settings and future-feature screens have been removed, along with unused components and query code. System reduced-motion preferences, keyboard browsing, trackpad/touch gestures, missing-image fallbacks and the secure Electron boundary remain.
+
+Random selects uniformly from all twelve samples, flicks through at least one full pass and slows to a stop. Browsing controls are locked during the short animation. Reduced motion selects immediately, and leaving the library cancels pending flips.
 
 ## Review on Windows
 
@@ -19,7 +21,7 @@ Dependencies have not changed. A fresh checkout needs `npm.cmd ci` first. Click 
 
 - TypeScript and production frontend/main/preload build passed.
 - 17 unit tests passed, including all security tests; obsolete filtering/collection tests were removed with those features.
-- 10 browser tests passed, covering navigation, selection retention, keyboard/wheel/swipe controls, local assets, missing images, reduced motion and four viewports from 430×932 to 1920×1080.
+- 13 browser tests passed, covering navigation, selection retention, keyboard/wheel/swipe controls, local assets, missing images, reduced motion, random-pick landing/animation/cancellation and four viewports from 430×932 to 1920×1080.
 - Real Electron production/development checks validate cover browsing, click-through, isolated preload, sandboxing and rejection of unsafe IPC. Production also checks CSP network denial.
 - Actual interactive Windows testing remains outstanding.
 

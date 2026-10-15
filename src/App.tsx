@@ -1,5 +1,6 @@
-import { useEffect, useRef, useState } from 'react';
-import { ArrowLeft, ExternalLink } from 'lucide-react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { useReducedMotion } from 'motion/react';
+import { ArrowLeft, ExternalLink, Shuffle } from 'lucide-react';
 import { Artwork } from './components/Artwork';
 import { CoverFlow } from './components/CoverFlow';
 import { formatDate, getSource, matches, type Match } from './data/catalogue';
@@ -12,6 +13,15 @@ export function App() {
     () => matches.find((match) => route === `match/${match.id}`)?.id ?? matches[0].id,
   );
   const main = useRef<HTMLElement>(null);
+  const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const running = useRef(false);
+  const sequence = useRef(0);
+  const [shuffling, setShuffling] = useState(false);
+  const [flip, setFlip] = useState<{ match: Match; sequence: number; duration: number } | null>(
+    null,
+  );
+  const [announcement, setAnnouncement] = useState('');
+  const reducedMotion = useReducedMotion();
   const selected = matches.find((match) => match.id === selectedId) ?? matches[0];
   const detail = route.startsWith('match/')
     ? matches.find((match) => match.id === route.slice(6))
@@ -20,6 +30,53 @@ export function App() {
   const navigate = (next: string) => {
     window.location.hash = `/${next}`;
   };
+  const stopRandom = useCallback(() => {
+    clearTimeout(timer.current);
+    running.current = false;
+    setShuffling(false);
+    setFlip(null);
+  }, []);
+  const randomMatch = () => {
+    if (running.current) return;
+    const target = Math.floor(Math.random() * matches.length);
+    setAnnouncement('Choosing a match…');
+    if (reducedMotion) {
+      setSelectedId(matches[target].id);
+      setAnnouncement(`Selected ${matches[target].title}, ${matches[target].event}`);
+      return;
+    }
+    let cursor = matches.findIndex((match) => match.id === selectedId);
+    const steps = matches.length + ((target - cursor + matches.length) % matches.length);
+    let step = 0;
+    running.current = true;
+    setShuffling(true);
+    const advance = () => {
+      const previous = matches[cursor];
+      cursor = (cursor + 1) % matches.length;
+      const duration = Math.round(80 + 220 * (step / (steps - 1)) ** 3);
+      setSelectedId(matches[cursor].id);
+      setFlip({ match: previous, sequence: ++sequence.current, duration });
+      step += 1;
+      timer.current = setTimeout(
+        () => {
+          if (step < steps) advance();
+          else {
+            stopRandom();
+            setAnnouncement(`Selected ${matches[target].title}, ${matches[target].event}`);
+          }
+        },
+        duration + (step === steps ? 100 : 0),
+      );
+    };
+    advance();
+  };
+  useEffect(() => {
+    stopRandom();
+    return () => clearTimeout(timer.current);
+  }, [route, stopRandom]);
+  useEffect(() => {
+    if (reducedMotion && running.current) stopRandom();
+  }, [reducedMotion, stopRandom]);
   useEffect(() => {
     const update = () => setRoute(window.location.hash.slice(2) || 'library');
     const escape = (event: KeyboardEvent) => {
@@ -40,10 +97,25 @@ export function App() {
   return (
     <div className="app-shell">
       <header className="topbar">
-        <img src="./vault.svg" alt="" />
-        <span>
-          WRESTLING <strong>VAULT</strong>
-          <span className="gold">.</span>
+        <div className="brand">
+          <img src="./vault.svg" alt="" />
+          <span className="brand-name">
+            WRESTLING <strong>VAULT</strong>
+            <span className="gold">.</span>
+          </span>
+        </div>
+        {isLibrary && (
+          <button
+            className="random-button"
+            disabled={shuffling}
+            aria-busy={shuffling}
+            onClick={randomMatch}
+          >
+            <Shuffle size={15} /> Random
+          </button>
+        )}
+        <span className="sr-only" role="status">
+          {announcement}
         </span>
       </header>
       <main ref={main} tabIndex={-1} aria-label={isLibrary ? 'Match library' : 'Match details'}>
@@ -51,6 +123,8 @@ export function App() {
           <CoverFlow
             records={matches}
             selected={selected}
+            shuffling={shuffling}
+            flip={flip}
             onSelect={setSelectedId}
             onOpen={(id) => {
               setSelectedId(id);

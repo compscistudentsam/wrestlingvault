@@ -28,7 +28,7 @@ This is a local application launch, **not an installer**. Windows installer conf
 
 ## Browse
 
-Only match covers are shown. Click a side cover to select it and the centre cover to open a larger view. Use the arrows, Left/Right, Home/End, horizontal trackpad gestures or touch swipes to browse. Enter opens the focused gallery’s selection; Back to covers or Escape returns to the same match.
+Only match covers and browsing controls are shown. The top-centre **Random** button flicks through the sleeves, slowing to a randomly chosen match. With system reduced motion enabled, it selects immediately. Click a side cover to select it and the centre cover to open a larger view. Use the arrows, Left/Right, Home/End, horizontal trackpad gestures or touch swipes to browse. Enter opens the focused gallery’s selection; Back to covers or Escape returns to the same match.
 
 There is no sidebar, search, filter, grid option, match table or settings screen. The operating system’s reduced-motion preference is respected. The twelve sample records, artwork and fonts work offline.
 
