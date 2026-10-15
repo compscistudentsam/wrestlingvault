@@ -2,7 +2,9 @@ import { app, BrowserWindow, ipcMain, session, shell, dialog, protocol, net } fr
 import path from 'node:path';
 import { realpath } from 'node:fs/promises';
 import { randomUUID } from 'node:crypto';
-import { findVideos, inside } from './videos';
+import { inside } from './videos';
+import { scanVideoFolder, type VideoIndex } from './video-index';
+import { matches } from '../src/data/catalogue';
 import { pathToFileURL } from 'node:url';
 import { isTrustedRendererURL, validateExternalURL } from '../src/shared/security';
 
@@ -13,6 +15,7 @@ protocol.registerSchemesAsPrivileged([
   },
 ]);
 let videoRoot: string | null = null;
+let videoIndex: VideoIndex = new Map();
 const videoFiles = new Map<string, string>();
 let window: BrowserWindow | null = null;
 const developmentURL = !app.isPackaged && process.env.WV_DEV_SERVER_URL;
@@ -110,20 +113,33 @@ void app.whenReady().then(() => {
       properties: ['openDirectory'],
     });
     if (choice.canceled) return videoRoot ? { name: path.basename(videoRoot) } : null;
-    videoRoot = await realpath(choice.filePaths[0]);
+    const root = await realpath(choice.filePaths[0]);
+    const indexed = await scanVideoFolder(root);
+    videoRoot = root;
+    videoIndex = indexed;
     videoFiles.clear();
     return { name: path.basename(videoRoot) };
   });
   ipcMain.handle('vault:match-videos', async (event, ...args: unknown[]) => {
     assertSender(event);
     if (args.length !== 1 || typeof args[0] !== 'string') throw new Error('Expected one match ID.');
+    if (!matches.some((match) => match.id === args[0])) throw new Error('Unknown match.');
     if (!videoRoot) return [];
-    const files = await findVideos(videoRoot, args[0]);
+    const files = videoIndex.get(args[0]) ?? [];
     return files.map((file) => {
       const token = randomUUID();
       videoFiles.set(token, file.path);
       return { name: file.name, url: `vault-video://local/${token}` };
     });
+  });
+  ipcMain.handle('vault:video-availability', async (event, ...args: unknown[]) => {
+    assertSender(event);
+    if (args.length) throw new Error('Availability takes no arguments.');
+    if (!videoRoot) return [];
+    const root = videoRoot;
+    const indexed = await scanVideoFolder(root);
+    if (root === videoRoot) videoIndex = indexed;
+    return [...videoIndex].filter(([, files]) => files.length > 0).map(([id]) => id);
   });
   ipcMain.handle('vault:version', (event, ...args: unknown[]) => {
     assertSender(event);

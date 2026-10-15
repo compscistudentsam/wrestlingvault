@@ -3,6 +3,8 @@
 - **Top 50 cover collection:** user-supplied in `Meltzer_Top_50_Match_Covers.zip`. The 50 images are bundled unchanged under `public/art/top50/`. Per-image types, source pages and URLs are preserved in `docs/top50/sources.csv` and `src/data/cover-provenance.json`. The collection includes photographs, graphics and event posters; sourcing does not establish a reuse licence. Ownership remains with the respective rights holders.
 - **Arena illustrations and Vault mark:** original SVG compositions created for this project. They do not depict an actual historical match and contain no imported photographs or promotion logos.
 - **Dominion 6.9 photograph:** `public/art/omega-okada-dominion-2018.jpg`, supplied by the user as `8l67mw0d00v31.jpg` on 15 October 2026 for this match. Photographer and licence were not supplied; no open licence or authorship is asserted.
+- **Netflix Sans:** referenced only through locally installed font names. No Netflix font file is bundled, and no rights to redistribute it are asserted.
+- **Browsing sound effects:** original synthesized Web Audio ticks; no third-party audio recording is bundled.
 - **Inter:** Rasmus Andersson and contributors; SIL Open Font License 1.1. Distributed via `@fontsource/inter`; see the package's `LICENSE`/`LICENSE.txt` file.
 - **Lucide icons:** Lucide contributors; ISC. See `node_modules/lucide-react/LICENSE`.
 - **React:** Meta and contributors; MIT.

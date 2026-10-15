@@ -31,3 +31,11 @@ The renderer uses native video controls and stops playback by unmounting the pla
 ## Supplied catalogue update
 
 The user authorized replacing the sample selection with their supplied top 50. `matches.json` preserves the CSV ranking, with one explicit local image path per match and image-type metadata. `cover-provenance.json` retains source metadata and content hashes. Event posters and wide match graphics are fitted in the cover rather than cropped; three-way matches display all three sides. Existing match IDs and prior folder aliases are retained where the date and participants identify the same match. The cover flow renders only the seven visible sleeves. Random scales frame durations for the larger catalogue and uses a 4.5-second elapsed-time limit to land on its selected target even under rendering load.
+
+## Library controls and flat-folder indexing
+
+The latest user request authorizes search suggestions and animated selection, company filtering, downloaded highlighting, browsing sounds, player skips and Google search links for missing videos. Suggestions are scoped to the company-filtered catalogue; selecting one animates to its exact match ID. Downloaded mode is visual highlighting, retaining missing covers in greyscale while restricting Random to available files.
+
+`electron/video-index.ts` scans the user-selected global folder and optional existing nested directories. It recognizes exact IDs, prior directory aliases and filename participant/event/date clues. Ties remain unmatched. Symlinks are skipped and every canonical file path must remain inside the selected root. Availability IPC returns only matched IDs; file paths remain in the main process and playback continues through opaque media tokens. Rescanning updates the index on demand. Google links use the validated exact HTTPS search host and `/search` path. Synthesized Web Audio ticks require a user gesture and can be muted.
+
+Netflix Sans is selected through local font names only, with bundled Inter as fallback. No proprietary font binary was supplied or downloaded. Keyboard seeking applies only in the player and leaves inputs and selectors alone; explicit buttons and double-click regions provide mouse seeking.

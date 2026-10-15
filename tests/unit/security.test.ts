@@ -17,6 +17,13 @@ describe('external URL boundary', () => {
       ),
     ).toContain('en.wikipedia.org');
   });
+  it('permits only an explicit HTTPS Google search for missing videos', () => {
+    expect(
+      validateExternalURL(
+        'https://www.google.com/search?q=Okada+Omega+Dominion+2018+download+online',
+      ),
+    ).toContain('/search?q=');
+  });
   it.each([
     undefined,
     {},
@@ -29,6 +36,9 @@ describe('external URL boundary', () => {
     'https://iwnerd.com:444/',
     'https://example.com',
     'https://en.wikipedia.org.attacker.example/',
+    'https://www.google.com/url?q=https://example.com',
+    'https://www.google.com/search',
+    'https://google.com.attacker.example/search?q=test',
     'data:text/html,<script>alert(1)</script>',
     'https://iwnerd.com/' + 'a'.repeat(2048),
   ])('rejects invalid or unexpected input %#', (value) => {

@@ -5,42 +5,51 @@ import { Artwork } from './components/Artwork';
 import { CoverFlow } from './components/CoverFlow';
 import { formatDate, getSource, matches, type Match } from './data/catalogue';
 import { validateExternalURL } from './shared/security';
+import { playTick } from './lib/sounds';
 import './shared/api';
 
+const companies = [
+  ...new Set(
+    matches.flatMap((match) => match.promotion.split('/').map((company) => company.trim())),
+  ),
+].sort();
 export function App() {
   const [folder, setFolder] = useState<string | null>(null);
   const [folderError, setFolderError] = useState('');
   const [choosing, setChoosing] = useState(false);
+  const [scanning, setScanning] = useState(false);
   const [folderRevision, setFolderRevision] = useState(0);
-  const chooseFolder = async () => {
-    if (!window.vault?.chooseVideoFolder) {
-      setFolderError('Open the desktop app to choose a local video folder.');
-      return;
-    }
-    setChoosing(true);
-    setFolderError('');
-    try {
-      const selected = await window.vault.chooseVideoFolder();
-      if (selected) {
-        setFolder(selected.name);
-        setFolderRevision((value) => value + 1);
-      }
-    } catch {
-      setFolderError('Could not open that folder. Please choose it again.');
-    } finally {
-      setChoosing(false);
-    }
-  };
-  const startupPrompted = useRef(false);
-  useEffect(() => {
-    if (startupPrompted.current) return;
-    startupPrompted.current = true;
-    if (window.vault?.chooseVideoFolder) void chooseFolder();
-  }, []);
+  const [downloaded, setDownloaded] = useState<Set<string>>(new Set());
+  const [downloadMode, setDownloadMode] = useState(false);
+  const [sound, setSound] = useState(true);
+  const soundRef = useRef(sound);
+  soundRef.current = sound;
+  const [company, setCompany] = useState('All companies');
+  const [query, setQuery] = useState('');
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [suggestion, setSuggestion] = useState(0);
   const [route, setRoute] = useState(() => window.location.hash.slice(2) || 'library');
   const [selectedId, setSelectedId] = useState(
     () => matches.find((match) => route === `match/${match.id}`)?.id ?? matches[0].id,
   );
+  const visible = matches.filter(
+    (match) =>
+      company === 'All companies' ||
+      match.promotion.split('/').some((item) => item.trim() === company),
+  );
+  const selected = visible.find((match) => match.id === selectedId) ?? visible[0];
+  const words = query.toLowerCase().trim().split(/\s+/).filter(Boolean);
+  const suggestions = words.length
+    ? visible
+        .filter((match) =>
+          words.every((word) =>
+            `${match.title} ${match.event} ${match.date} ${match.promotion}`
+              .toLowerCase()
+              .includes(word),
+          ),
+        )
+        .slice(0, 8)
+    : [];
   const main = useRef<HTMLElement>(null);
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const running = useRef(false);
@@ -51,7 +60,6 @@ export function App() {
   );
   const [announcement, setAnnouncement] = useState('');
   const reducedMotion = useReducedMotion();
-  const selected = matches.find((match) => match.id === selectedId) ?? matches[0];
   const detail = route.startsWith('match/')
     ? matches.find((match) => match.id === route.slice(6))
     : undefined;
@@ -65,58 +73,111 @@ export function App() {
     setShuffling(false);
     setFlip(null);
   }, []);
-  const randomMatch = () => {
-    if (running.current) return;
-    const target = Math.floor(Math.random() * matches.length);
-    setAnnouncement('Choosing a match…');
-    if (reducedMotion) {
-      setSelectedId(matches[target].id);
-      setAnnouncement(`Selected ${matches[target].title}, ${matches[target].event}`);
+  const refreshAvailability = async () => {
+    if (!window.vault?.getVideoAvailability) return;
+    setScanning(true);
+    try {
+      setDownloaded(new Set(await window.vault.getVideoAvailability()));
+      setFolderRevision((value) => value + 1);
+    } catch {
+      setFolderError('Could not scan the video folder. Choose it again to retry.');
+    } finally {
+      setScanning(false);
+    }
+  };
+  const chooseFolder = async () => {
+    if (!window.vault?.chooseVideoFolder) {
+      setFolderError('Open the desktop app to choose a local video folder.');
       return;
     }
-    let cursor = matches.findIndex((match) => match.id === selectedId);
-    const steps = matches.length + ((target - cursor + matches.length) % matches.length);
+    setChoosing(true);
+    setFolderError('');
+    try {
+      const choice = await window.vault.chooseVideoFolder();
+      if (choice) {
+        setFolder(choice.name);
+        setFolderRevision((value) => value + 1);
+        await refreshAvailability();
+      }
+    } catch {
+      setFolderError('Could not read that folder. Please choose it again.');
+    } finally {
+      setChoosing(false);
+    }
+  };
+  const startupPrompted = useRef(false);
+  useEffect(() => {
+    if (!startupPrompted.current) {
+      startupPrompted.current = true;
+      if (window.vault?.chooseVideoFolder) void chooseFolder();
+    }
+  }, []);
+  const selectCover = (id: string) => {
+    playTick(soundRef.current);
+    setSelectedId(id);
+  };
+  const browseTo = (target: Match, random = false) => {
+    if (running.current) return;
+    setSearchOpen(false);
+    if (reducedMotion || (target.id === selected.id && !random)) {
+      selectCover(target.id);
+      setAnnouncement(`Selected ${target.title}, ${target.event}`);
+      return;
+    }
+    let cursor = visible.findIndex((match) => match.id === selected.id);
+    const end = visible.findIndex((match) => match.id === target.id);
+    const forward = (end - cursor + visible.length) % visible.length;
+    const direction = random || forward <= visible.length / 2 ? 1 : -1;
+    const steps = random
+      ? visible.length + forward
+      : direction === 1
+        ? forward
+        : visible.length - forward;
+    const total = random ? 4500 : Math.min(1800, 400 + steps * 65);
     let step = 0;
     const startedAt = performance.now();
     running.current = true;
     setShuffling(true);
+    const finish = () => {
+      setSelectedId(target.id);
+      stopRandom();
+      playTick(soundRef.current);
+      setAnnouncement(`Selected ${target.title}, ${target.event}`);
+    };
     const advance = () => {
-      if (performance.now() - startedAt >= 4500) {
-        setSelectedId(matches[target].id);
-        stopRandom();
-        setAnnouncement(`Selected ${matches[target].title}, ${matches[target].event}`);
+      if (performance.now() - startedAt >= total) {
+        finish();
         return;
       }
-      const previous = matches[cursor];
-      cursor = (cursor + 1) % matches.length;
-      const duration = Math.round((4500 / steps) * (0.6 + 1.6 * (step / (steps - 1)) ** 3));
-      setSelectedId(matches[cursor].id);
-      setFlip({ match: previous, sequence: ++sequence.current, duration });
-      step += 1;
-      timer.current = setTimeout(
-        () => {
-          if (step < steps) advance();
-          else {
-            stopRandom();
-            setAnnouncement(`Selected ${matches[target].title}, ${matches[target].event}`);
-          }
-        },
-        duration + (step === steps ? 100 : 0),
+      const previous = visible[cursor];
+      cursor = (cursor + direction + visible.length) % visible.length;
+      const duration = Math.round(
+        (total / Math.max(steps, 1)) * (0.6 + 1.6 * (step / Math.max(steps - 1, 1)) ** 3),
       );
+      setSelectedId(visible[cursor].id);
+      setFlip({ match: previous, sequence: ++sequence.current, duration });
+      playTick(soundRef.current, true);
+      step++;
+      timer.current = setTimeout(() => (step < steps ? advance() : finish()), duration);
     };
     advance();
+  };
+  const randomMatch = () => {
+    const choices = visible.filter((match) => !downloadMode || downloaded.has(match.id));
+    if (choices.length) browseTo(choices[Math.floor(Math.random() * choices.length)], true);
   };
   useEffect(() => {
     stopRandom();
     return () => clearTimeout(timer.current);
-  }, [route, stopRandom]);
+  }, [route, company, stopRandom]);
   useEffect(() => {
     if (reducedMotion && running.current) stopRandom();
   }, [reducedMotion, stopRandom]);
   useEffect(() => {
     const update = () => setRoute(window.location.hash.slice(2) || 'library');
     const escape = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') window.location.hash = '/library';
+      if (event.key === 'Escape' && !(event.target instanceof HTMLInputElement))
+        window.location.hash = '/library';
     };
     window.addEventListener('hashchange', update);
     window.addEventListener('keydown', escape);
@@ -143,24 +204,151 @@ export function App() {
         {isLibrary && (
           <button
             className="random-button"
-            disabled={shuffling}
+            disabled={
+              shuffling || (downloadMode && !visible.some((match) => downloaded.has(match.id)))
+            }
             aria-busy={shuffling}
             onClick={randomMatch}
           >
             <Shuffle size={15} /> Random
           </button>
         )}
-        <button className="folder-button" disabled={choosing} onClick={() => void chooseFolder()}>
-          {choosing
-            ? 'Choosing folder…'
-            : folder
-              ? `Video folder: ${folder}`
-              : 'Choose video folder'}
-        </button>
+        {isLibrary && (
+          <form
+            className="match-search"
+            role="search"
+            onSubmit={(event) => {
+              event.preventDefault();
+              if (suggestions[suggestion]) browseTo(suggestions[suggestion]);
+            }}
+          >
+            <input
+              aria-label="Search matches"
+              role="combobox"
+              aria-autocomplete="list"
+              aria-expanded={searchOpen && Boolean(query.trim())}
+              aria-controls="match-suggestions"
+              aria-activedescendant={
+                searchOpen && suggestions[suggestion]
+                  ? `suggestion-${suggestions[suggestion].id}`
+                  : undefined
+              }
+              placeholder="Search matches…"
+              value={query}
+              disabled={shuffling}
+              onChange={(event) => {
+                setQuery(event.target.value);
+                setSuggestion(0);
+                setSearchOpen(true);
+              }}
+              onFocus={() => setSearchOpen(true)}
+              onBlur={() => setSearchOpen(false)}
+              onKeyDown={(event) => {
+                if (event.key === 'Escape') {
+                  event.preventDefault();
+                  setSearchOpen(false);
+                }
+                if (['ArrowDown', 'ArrowUp'].includes(event.key)) {
+                  event.preventDefault();
+                  setSearchOpen(true);
+                  setSuggestion((value) =>
+                    suggestions.length
+                      ? (value + (event.key === 'ArrowDown' ? 1 : -1) + suggestions.length) %
+                        suggestions.length
+                      : 0,
+                  );
+                }
+              }}
+            />
+            {searchOpen && query.trim() && (
+              <ul id="match-suggestions" role="listbox" aria-label="Match suggestions">
+                {suggestions.length ? (
+                  suggestions.map((match, index) => (
+                    <li
+                      id={`suggestion-${match.id}`}
+                      key={match.id}
+                      role="option"
+                      aria-selected={index === suggestion}
+                      onMouseDown={(event) => event.preventDefault()}
+                      onMouseEnter={() => setSuggestion(index)}
+                      onClick={() => browseTo(match)}
+                    >
+                      <strong>{match.title}</strong>
+                      <span>
+                        {match.event} · {match.date.slice(0, 4)}
+                      </span>
+                    </li>
+                  ))
+                ) : (
+                  <li className="no-results">No matches found in {company.toLowerCase()}.</li>
+                )}
+              </ul>
+            )}
+          </form>
+        )}
         <span className="sr-only" role="status">
           {announcement}
         </span>
       </header>
+      <div className="library-toolbar">
+        {isLibrary && (
+          <>
+            <label className="company-filter">
+              <span className="sr-only">Company</span>
+              <select
+                aria-label="Company"
+                value={company}
+                disabled={shuffling}
+                onChange={(event) => {
+                  setCompany(event.target.value);
+                  setQuery('');
+                  setSearchOpen(false);
+                }}
+              >
+                <option>All companies</option>
+                {companies.map((item) => (
+                  <option key={item}>{item}</option>
+                ))}
+              </select>
+            </label>
+            <button
+              className="toolbar-button"
+              aria-pressed={downloadMode}
+              disabled={!folder || scanning || choosing || shuffling}
+              onClick={() => setDownloadMode((value) => !value)}
+            >
+              Downloaded only
+            </button>
+            <button
+              className="toolbar-button"
+              aria-pressed={!sound}
+              onClick={() => setSound((value) => !value)}
+            >
+              {sound ? 'Mute sounds' : 'Enable sounds'}
+            </button>
+          </>
+        )}
+        <button
+          className="folder-button"
+          disabled={choosing || scanning}
+          onClick={() => void chooseFolder()}
+        >
+          {choosing || scanning
+            ? 'Scanning videos…'
+            : folder
+              ? `Video folder: ${folder}`
+              : 'Choose video folder'}
+        </button>
+        {folder && (
+          <button
+            className="toolbar-button"
+            disabled={scanning || choosing}
+            onClick={() => void refreshAvailability()}
+          >
+            Rescan videos
+          </button>
+        )}
+      </div>
       {folderError && (
         <p className="folder-error" role="alert">
           {folderError}
@@ -169,12 +357,15 @@ export function App() {
       <main ref={main} tabIndex={-1} aria-label={isLibrary ? 'Match library' : 'Match details'}>
         {isLibrary ? (
           <CoverFlow
-            records={matches}
+            records={visible}
             selected={selected}
+            downloaded={downloaded}
+            highlightDownloads={downloadMode}
             shuffling={shuffling}
             flip={flip}
-            onSelect={setSelectedId}
+            onSelect={selectCover}
             onOpen={(id) => {
+              playTick(soundRef.current);
               setSelectedId(id);
               navigate(`match/${id}`);
             }}
@@ -211,6 +402,14 @@ function MatchDetails({
   onChooseFolder: () => void;
   onBack: () => void;
 }) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [seekNotice, setSeekNotice] = useState('');
+  const seek = (seconds: number) => {
+    const video = videoRef.current;
+    if (!video || !Number.isFinite(video.duration)) return;
+    video.currentTime = Math.max(0, Math.min(video.duration, video.currentTime + seconds));
+    setSeekNotice(seconds > 0 ? 'Forward 10 seconds' : 'Back 10 seconds');
+  };
   const [videos, setVideos] = useState<{ name: string; url: string }[]>([]);
   const [active, setActive] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -254,20 +453,61 @@ function MatchDetails({
       {loading ? (
         <p role="status">Looking for videos…</p>
       ) : videos.length ? (
-        <div className="video-player">
-          <video
-            key={videos[active].url}
-            src={videos[active].url}
-            controls
-            autoPlay
-            playsInline
-            aria-label={`${match.title} video`}
-            onError={() =>
-              setPlaybackError(
-                'This video could not be played. Try an MP4 with H.264 video and AAC audio, or a WebM file.',
-              )
+        <div
+          className="video-player"
+          tabIndex={0}
+          aria-label="Video player"
+          onKeyDown={(event) => {
+            if (
+              event.target instanceof HTMLSelectElement ||
+              event.target instanceof HTMLButtonElement
+            )
+              return;
+            if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
+              event.preventDefault();
+              seek(event.key === 'ArrowLeft' ? -10 : 10);
             }
-          />
+          }}
+        >
+          <div className="video-screen">
+            <video
+              ref={videoRef}
+              key={videos[active].url}
+              src={videos[active].url}
+              controls
+              autoPlay
+              playsInline
+              aria-label={`${match.title} video`}
+              onError={() =>
+                setPlaybackError(
+                  'This video could not be played. Try an MP4 with H.264 video and AAC audio, or a WebM file.',
+                )
+              }
+            />
+            <div
+              className="skip-zone skip-zone-left"
+              role="presentation"
+              onMouseDown={(event) => event.currentTarget.parentElement?.parentElement?.focus()}
+              onDoubleClick={() => seek(-10)}
+            />
+            <div
+              className="skip-zone skip-zone-right"
+              role="presentation"
+              onMouseDown={(event) => event.currentTarget.parentElement?.parentElement?.focus()}
+              onDoubleClick={() => seek(10)}
+            />
+          </div>
+          <div className="seek-controls">
+            <button className="button" onClick={() => seek(-10)} aria-label="Back 10 seconds">
+              ← 10s
+            </button>
+            <span role="status" className="seek-notice">
+              {seekNotice || 'Arrow keys or double-click the left/right side to skip'}
+            </span>
+            <button className="button" onClick={() => seek(10)} aria-label="Forward 10 seconds">
+              10s →
+            </button>
+          </div>
           {videos.length > 1 && (
             <label>
               Video{' '}
@@ -301,9 +541,26 @@ function MatchDetails({
                   : 'Choose your video folder to play this match.')}
             </p>
             <p>
-              Inside your video folder, create a folder named <code>{match.id}</code> and put the
-              match video inside.
+              Place the video directly in your chosen folder. Include the wrestlers, event and year
+              in its filename, or use <code>{match.id}.mp4</code>. No subfolders are required.
             </p>
+            <a
+              className="download-search"
+              href={`https://www.google.com/search?q=${encodeURIComponent(`${match.title}, ${match.event}, ${match.date.slice(0, 4)} download online`)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={async (event) => {
+                if (!window.vault) return;
+                event.preventDefault();
+                try {
+                  await window.vault.openExternal(validateExternalURL(event.currentTarget.href));
+                } catch {
+                  setError('Could not open the search.');
+                }
+              }}
+            >
+              Search Google for this match online <ExternalLink size={12} />
+            </a>
             <button className="button" onClick={onChooseFolder}>
               Choose video folder
             </button>

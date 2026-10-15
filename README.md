@@ -28,30 +28,33 @@ This is a local application launch, **not an installer**. Windows installer conf
 
 ## Browse
 
-Only match covers and browsing controls are shown. The top-centre **Random** button flicks through the sleeves, slowing to a randomly chosen match. With system reduced motion enabled, it selects immediately. Click a side cover to select it and the centre cover to open a larger view. Use the arrows, Left/Right, Home/End, horizontal trackpad gestures or touch swipes to browse. Enter opens the focused gallery’s selection; Back to covers or Escape returns to the same match.
+The library contains 50 supplied match covers in rating order. Click a side cover to select it and the centre cover to play its local video. Left/Right, Home/End, trackpad gestures and touch swipes also browse the covers.
 
-There is no sidebar, search, filter, grid option, match table or settings screen. The operating system’s reduced-motion preference is respected. All 50 match records, cover images and fonts work offline. Covers follow the supplied rank order, highest rating first.
+- **Search**, at the top right, suggests matches by wrestler, event, year or company. Use Up/Down to choose a suggestion and Enter to flip to it. Click a suggestion for the same animation. Escape closes suggestions. Search follows the selected company.
+- **Company**, at the top left, shows only that company's matches. Co-promoted events appear under each participating company. **All companies** restores the full catalogue.
+- **Random** spins through covers with synthesized wheel ticks. Ordinary browsing uses a short click. **Mute sounds** silences both. Reduced motion jumps straight to the result.
+- **Downloaded only** keeps all covers visible but greys out those without a matched local video. Random then chooses only matched videos. Pick a video folder to enable this control; **Rescan videos** updates availability after files are added or removed.
 
-PowerShell users should use `npm.cmd` to avoid the script-wrapper execution-policy error without changing system policy.
+Netflix Sans is the preferred font when installed on the host. No Netflix Sans font files were supplied, so the app uses its bundled Inter fallback when that proprietary font is unavailable. Exact offline bundling requires supplied font files with appropriate reuse rights. No external font request is made.
 
 ## Local video playback
 
-The desktop app asks for your video folder on each launch. Cancel to browse covers without playing; use **Choose video folder** in the header to retry or switch folders. Clicking the centre cover opens the in-app player. Files stay on your computer.
-
-Create one subfolder per match. Use the match ID shown in the missing-video screen, for example:
+The desktop app asks for one global video folder on each launch. Put videos directly in it; **no match subfolders are required**. Existing subfolders remain supported. Match identification ignores punctuation/case, recognizes wrestler surnames and uses event/year/date clues to distinguish repeated matchups. Examples:
 
 ```text
 Wrestling Videos/
-  omega-okada-dominion-2018/
-    match.mp4
-  omega-okada-wk11-2017/
-    part1.mp4
-    part2.mp4
+  Okada vs Omega - Dominion 6.9 - 2018.mp4
+  Ospreay vs Bryan Danielson - Dynasty - 2024.mp4
+  omega-okada-wk11-2017.mp4
 ```
 
-Full names such as `Kenny Omega vs. Kazuchika Okada - Dominion 6.9 in Osaka-jo Hall - 2018-06-09` also work. A title-only folder works, but use IDs for repeated opponents to avoid showing the same video for different events. Videos must be directly inside the match folder. Multiple parts appear in a selector, sorted by filename. Playback uses native controls for pause, volume, seeking and fullscreen; returning to covers stops playback.
+For an exact, unambiguous match, name a file after the match ID shown in its missing-video message. Ambiguous files such as `Okada vs Omega.mp4` are left unmatched rather than assigned to the wrong event. Videos stay on your computer. The app scans within the chosen folder (up to eight nested levels), skips symbolic links and keeps filesystem access in Electron's main process. Availability means a recognized local file exists, not that its codec has been validated. Use **Rescan videos** after changing the files.
 
-MP4 (H.264/AAC) and WebM are recommended. M4V, MOV and MKV files are discoverable, but playback depends on Electron's supported codecs; the app does not transcode. Browser previews cannot select or play desktop-local videos. No video folder choice or playback history is persisted.
+Click a cover to open the in-app player. Use its **← 10s / 10s →** buttons, Left/Right keys while the player is focused, or double-click the left/right side of the video to skip ten seconds. Native controls provide pause, volume, seeking and fullscreen. Multiple files/parts appear in a selector, ordered by filename. Back or Escape stops playback and returns to covers.
+
+Missing-video descriptions include a Google search link using the match name, event, year and `download online`. Searches open in the system browser; the app does not download videos itself.
+
+MP4 (H.264/AAC) and WebM are recommended. M4V, MOV and MKV are discoverable, but playback depends on Electron's codecs; the app does not transcode. Browser previews cannot scan local folders. Folder choice and playback history are session-only.
 
 ## Data and artwork limitations
 

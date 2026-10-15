@@ -51,6 +51,28 @@ test('startup selection, local playback, seeking, parts, and returning to covers
   await expect
     .poll(() => video.evaluate((node) => (node as HTMLVideoElement).currentTime))
     .toBeGreaterThanOrEqual(1.9);
+  await page.getByRole('button', { name: 'Forward 10 seconds' }).click();
+  await expect
+    .poll(() => video.evaluate((node) => (node as HTMLVideoElement).currentTime))
+    .toBeGreaterThanOrEqual(11.9);
+  await page.getByRole('button', { name: 'Back 10 seconds' }).click();
+  await expect
+    .poll(() => video.evaluate((node) => (node as HTMLVideoElement).currentTime))
+    .toBeLessThan(2.1);
+  await page.getByLabel('Video player', { exact: true }).focus();
+  await page.keyboard.press('ArrowRight');
+  await expect
+    .poll(() => video.evaluate((node) => (node as HTMLVideoElement).currentTime))
+    .toBeGreaterThanOrEqual(11.9);
+  await page.keyboard.press('ArrowLeft');
+  await expect
+    .poll(() => video.evaluate((node) => (node as HTMLVideoElement).currentTime))
+    .toBeLessThan(2.1);
+  await page.locator('.skip-zone-right').dblclick();
+  await expect.poll(() => page.evaluate(() => Boolean(document.fullscreenElement))).toBe(false);
+  await expect
+    .poll(() => video.evaluate((node) => (node as HTMLVideoElement).currentTime))
+    .toBeGreaterThanOrEqual(11.9);
   await expect(page.getByRole('combobox')).toHaveValue('0');
   await page.getByRole('button', { name: 'Back to covers' }).click();
   await expect(video).toHaveCount(0);
@@ -69,4 +91,7 @@ test('cancelled folder selection offers recovery and an exact match folder name'
     page.locator('.video-empty').getByRole('button', { name: 'Choose video folder' }),
   ).toBeVisible();
   await expect(page.locator('video')).toHaveCount(0);
+  await expect(
+    page.getByRole('link', { name: 'Search Google for this match online' }),
+  ).toHaveAttribute('href', /google.com\/search\?q=.*Dominion.*2018.*download%20online/);
 });

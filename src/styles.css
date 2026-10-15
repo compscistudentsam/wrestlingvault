@@ -734,3 +734,211 @@ main {
   margin: 0;
   font-size: 2.5cqw;
 }
+
+/* Netflix Sans is proprietary: use an installed copy without redistributing it. */
+@font-face {
+  font-family: 'Netflix Sans';
+  src: local('Netflix Sans'), local('NetflixSans-Regular');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Netflix Sans';
+  src: local('Netflix Sans Medium'), local('NetflixSans-Medium');
+  font-weight: 500 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Netflix Sans';
+  src: local('Netflix Sans Bold'), local('NetflixSans-Bold');
+  font-weight: 700 900;
+  font-style: normal;
+  font-display: swap;
+}
+:root {
+  font-family: 'Netflix Sans', 'Inter', Arial, sans-serif;
+}
+@theme {
+  --font-sans: 'Netflix Sans', 'Inter', Arial, sans-serif;
+}
+input,
+select {
+  font: inherit;
+}
+.topbar {
+  position: relative;
+  z-index: 40;
+}
+.match-search {
+  position: relative;
+  grid-column: 3;
+  justify-self: end;
+  width: min(100%, 320px);
+  letter-spacing: 0;
+}
+.match-search input {
+  width: 100%;
+  border: 1px solid #655936;
+  border-radius: 5px;
+  background: #1b1d22;
+  color: #f4eddc;
+  padding: 9px 12px;
+  font-size: 13px;
+}
+.match-search ul {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+  z-index: 60;
+  width: min(410px, 90vw);
+  max-height: 370px;
+  overflow-y: auto;
+  background: #181a20;
+  border: 1px solid #665535;
+  border-radius: 6px;
+  padding: 5px;
+  margin: 0;
+  list-style: none;
+  box-shadow: 0 12px 40px #000b;
+}
+.match-search li {
+  padding: 10px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+.match-search li[aria-selected='true'] {
+  background: #e8b95b24;
+}
+.match-search strong {
+  display: block;
+  font-size: 13px;
+  line-height: 1.4;
+}
+.match-search li span {
+  display: block;
+  margin-top: 4px;
+  color: #bdb7aa;
+  font-size: 11px;
+}
+.match-search .no-results {
+  cursor: default;
+  color: #c9c2b5;
+}
+.library-toolbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 9px 24px;
+  background: #101115;
+  border-bottom: 1px solid #ffffff0b;
+  font-size: 11px;
+}
+.company-filter select {
+  background: #20232b;
+  color: #eee6d4;
+  border: 1px solid #665936;
+  border-radius: 5px;
+  padding: 7px 10px;
+}
+.toolbar-button {
+  padding: 7px 10px;
+  border: 1px solid #ffffff24;
+  border-radius: 5px;
+}
+.toolbar-button[aria-pressed='true'] {
+  background: #e8b95b20;
+  border-color: #e8b95b;
+  color: #e8c078;
+}
+.library-toolbar .folder-button {
+  max-width: 32%;
+  padding: 7px 10px;
+}
+.flow-cover.is-unavailable .artwork {
+  filter: grayscale(1) brightness(0.5);
+}
+.flow-cover.is-unavailable .cover-open::before {
+  content: 'Not downloaded · ';
+}
+.seek-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 12px 0;
+}
+.seek-notice {
+  font-size: 11px;
+  color: #b9b4aa;
+  text-align: center;
+}
+.download-search {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--gold);
+  margin: 12px 0;
+  text-decoration: underline;
+}
+.video-empty > .button {
+  display: block;
+  margin: 0 auto;
+}
+@media (max-width: 700px) {
+  .topbar {
+    padding: 10px 12px;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    gap: 7px;
+  }
+  .match-search {
+    width: 100%;
+  }
+  .match-search input {
+    font-size: 11px;
+    padding: 8px 6px;
+  }
+  .brand-name {
+    display: none;
+  }
+  .library-toolbar {
+    padding: 8px 12px;
+    gap: 6px;
+    font-size: 10px;
+  }
+  .library-toolbar .folder-button {
+    max-width: 48%;
+    margin-left: 0;
+  }
+  .seek-controls {
+    flex-wrap: wrap;
+  }
+  .seek-notice {
+    order: 3;
+    width: 100%;
+  }
+}
+
+@media (max-height: 720px) {
+  .cover-stage {
+    --cover-width: min(40vw, 38vh, 400px);
+  }
+}
+
+.video-screen {
+  position: relative;
+}
+.skip-zone {
+  position: absolute;
+  top: 0;
+  bottom: 48px;
+  width: 50%;
+}
+.skip-zone-left {
+  left: 0;
+}
+.skip-zone-right {
+  right: 0;
+}

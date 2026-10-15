@@ -6,11 +6,15 @@ import { formatRating, yearOf, type Match } from '../data/catalogue';
 export function CoverFlow({
   records,
   selected,
+  downloaded = new Set<string>(),
+  highlightDownloads = false,
   onSelect,
   onOpen,
   shuffling = false,
   flip = null,
 }: {
+  downloaded?: Set<string>;
+  highlightDownloads?: boolean;
   records: readonly Match[];
   selected: Match;
   onSelect: (id: string) => void;
@@ -95,7 +99,8 @@ export function CoverFlow({
           return (
             <button
               key={match.id}
-              className={`flow-cover ${active ? 'is-selected' : ''}`}
+              className={`flow-cover ${active ? 'is-selected' : ''}${highlightDownloads && !downloaded.has(match.id) ? ' is-unavailable' : ''}`}
+              data-downloaded={downloaded.has(match.id)}
               style={
                 {
                   '--offset': offset,

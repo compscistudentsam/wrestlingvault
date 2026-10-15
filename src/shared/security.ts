@@ -3,6 +3,7 @@ const allowedHosts = new Set([
   'iwnerd.com',
   'wrestlepurists.com',
   'en.wikipedia.org',
+  'www.google.com',
 ]);
 
 /** Only the sample dataset's public reference sites are available to the renderer. */
@@ -23,6 +24,11 @@ export function validateExternalURL(value: unknown): string {
   ) {
     throw new Error('This reference destination is not allowed.');
   }
+  if (
+    url.hostname === 'www.google.com' &&
+    (url.pathname !== '/search' || !url.searchParams.get('q'))
+  )
+    throw new Error('Only Google search links are allowed.');
   return url.href;
 }
 

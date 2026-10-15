@@ -1,7 +1,8 @@
 # Wrestling Vault development instructions
 
 - Read `docs/development-brief.md` and `README.md` before development.
-- The current design is covers only: a full-width cover browser with click-through to a larger cover. No sidebar, search, filters, sorting, grid toggle, match table, settings or future-feature panels. The user also authorized a top-centre Random button with a book-like cover-flipping animation. Keep it minimal; this user direction supersedes the original brief’s UI requirements.
+- The user now authorizes search with suggestions, animated selection, company filtering, downloaded highlighting, synthesized browsing sounds, flat-folder video matching, player skipping, Google search links for missing videos and Netflix Sans when available. This supersedes the prior no-search/no-filter UI restriction.
+- The previous design was covers only: a full-width cover browser with click-through to a larger cover. No sidebar, search, filters, sorting, grid toggle, match table, settings or future-feature panels. The user also authorized a top-centre Random button with a book-like cover-flipping animation. Keep it minimal; this user direction supersedes the original brief’s UI requirements.
 - The user additionally authorized local video playback: select a video folder on startup and play match videos inside the app. Keep file access in the Electron main process and expose only validated match IDs and opaque media URLs.
 - The user authorized replacing the twelve examples with the supplied top 50 catalogue and associated cover images, in supplied rank order. Preserve image provenance, stable IDs for existing matches and local video-folder compatibility.
 - Only Phase 1 is authorized. Do not implement SQLite, import pipelines, personal collections, analytics, Windows release CI or subsequent phases until the user explicitly approves that phase. Visual revisions remain Phase 1.

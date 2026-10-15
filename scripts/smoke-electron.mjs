@@ -68,6 +68,7 @@ try {
   expect(await page.evaluate(() => Object.keys(window.vault).sort())).toEqual([
     'chooseVideoFolder',
     'getMatchVideos',
+    'getVideoAvailability',
     'getVersion',
     'openExternal',
   ]);
