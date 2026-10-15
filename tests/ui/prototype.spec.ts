@@ -71,7 +71,7 @@ test('keyboard wrapping, horizontal wheel and touch browsing work', async ({ pag
 });
 
 test('missing images keep readable cover art', async ({ page }) => {
-  await page.route('**/art/*.svg', (route) => route.abort());
+  await page.route('**/art/*', (route) => route.abort());
   await page.goto('/');
   await expect(cover(page).locator('.artwork')).toHaveAttribute('data-fallback', 'true');
   await expect(cover(page).locator('img')).toHaveCount(0);

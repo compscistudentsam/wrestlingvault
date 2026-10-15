@@ -1,14 +1,19 @@
 import { useState } from 'react';
 import { formatRating, yearOf, type Match } from '../data/catalogue';
 
-/** Original illustrated match sleeves; no remote assets or match photography. */
+/** Bundled match sleeves with user-supplied photography where available. */
 export function Artwork({ match, eager = false }: { match: Match; eager?: boolean }) {
   const [failed, setFailed] = useState(false);
+  const photo = match.id === 'omega-okada-dominion-2018';
   return (
-    <div className={`artwork artwork-${match.accent}`} data-fallback={failed} aria-hidden="true">
+    <div
+      className={`artwork artwork-${match.accent}${photo && !failed ? ' artwork-photo' : ''}`}
+      data-fallback={failed}
+      aria-hidden="true"
+    >
       {!failed && (
         <img
-          src={`./art/${match.art}.svg`}
+          src={photo ? './art/omega-okada-dominion-2018.jpg' : `./art/${match.art}.svg`}
           alt=""
           loading={eager ? 'eager' : 'lazy'}
           decoding="async"

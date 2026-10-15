@@ -38,7 +38,7 @@ PowerShell users should use `npm.cmd` to avoid the script-wrapper execution-poli
 
 There are **12 sample records from 1989–2024**. They are not a complete historical archive. Rating references are linked to IWNerd or WrestlePurists, but their pages were blocked by the development environment's network policy. The expanded cover view labels verification as pending. Do not treat reference-linked records as independently verified. See [data provenance](docs/data-provenance.md) for the outstanding review.
 
-All arena imagery is original vector artwork, not photography of the matches. It requires no third-party photograph licence. Each card preserves readable typography and a themed CSS backdrop if an asset fails. No copyrighted photo collection was scraped. Descriptions are original short summaries; no source article text is reproduced. Sources open in the system browser and require a connection. No verified viewing links are currently provided.
+The Dominion 6.9 (2018) cover uses the user-supplied match photograph; other covers use original vector arena artwork. Photo provenance is recorded in `docs/THIRD_PARTY_NOTICES.md`. Each card preserves readable typography and a themed CSS backdrop if an asset fails. No copyrighted photo collection was scraped. Descriptions are original short summaries; no source article text is reproduced. Sources open in the system browser and require a connection. No verified viewing links are currently provided.
 
 ## Checks
 
