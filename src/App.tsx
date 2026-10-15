@@ -77,12 +77,19 @@ export function App() {
     let cursor = matches.findIndex((match) => match.id === selectedId);
     const steps = matches.length + ((target - cursor + matches.length) % matches.length);
     let step = 0;
+    const startedAt = performance.now();
     running.current = true;
     setShuffling(true);
     const advance = () => {
+      if (performance.now() - startedAt >= 4500) {
+        setSelectedId(matches[target].id);
+        stopRandom();
+        setAnnouncement(`Selected ${matches[target].title}, ${matches[target].event}`);
+        return;
+      }
       const previous = matches[cursor];
       cursor = (cursor + 1) % matches.length;
-      const duration = Math.round(80 + 220 * (step / (steps - 1)) ** 3);
+      const duration = Math.round((4500 / steps) * (0.6 + 1.6 * (step / (steps - 1)) ** 3));
       setSelectedId(matches[cursor].id);
       setFlip({ match: previous, sequence: ++sequence.current, duration });
       step += 1;
@@ -308,7 +315,7 @@ function MatchDetails({
         {match.event} · {formatDate(match.date)}
       </p>
       <div className="source-box">
-        <span>Sample · Verification pending</span>
+        <span>Supplied collection · Verification pending</span>
         <a
           href={validateExternalURL(source.url)}
           target="_blank"

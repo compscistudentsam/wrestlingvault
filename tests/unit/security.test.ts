@@ -10,6 +10,13 @@ describe('external URL boundary', () => {
       validateExternalURL('https://wrestlepurists.com/dave-meltzer-match-ratings-database/'),
     ).toContain('wrestlepurists.com');
   });
+  it('allows the supplied collection rating reference', () => {
+    expect(
+      validateExternalURL(
+        'https://en.wikipedia.org/wiki/List_of_professional_wrestling_matches_rated_5_or_more_stars_by_Dave_Meltzer',
+      ),
+    ).toContain('en.wikipedia.org');
+  });
   it.each([
     undefined,
     {},
@@ -21,6 +28,7 @@ describe('external URL boundary', () => {
     'https://user:password@iwnerd.com/',
     'https://iwnerd.com:444/',
     'https://example.com',
+    'https://en.wikipedia.org.attacker.example/',
     'data:text/html,<script>alert(1)</script>',
     'https://iwnerd.com/' + 'a'.repeat(2048),
   ])('rejects invalid or unexpected input %#', (value) => {

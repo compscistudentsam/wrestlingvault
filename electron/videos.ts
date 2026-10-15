@@ -22,7 +22,13 @@ export async function findVideos(root: string, id: unknown) {
   if (!match) throw new Error('Unknown match.');
   const entries = await readdir(root, { withFileTypes: true });
   // IDs are unambiguous, including repeated opponents at different events.
-  const names = [match.id, folderName(match), `${match.title} - ${match.event}`, match.title];
+  const names = [
+    match.id,
+    folderName(match),
+    `${match.title} - ${match.event}`,
+    ...match.videoFolderAliases,
+    match.title,
+  ];
   const folder = names
     .map((name) =>
       entries.find(

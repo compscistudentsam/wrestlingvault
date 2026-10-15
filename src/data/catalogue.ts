@@ -3,6 +3,10 @@ import records from './matches.json';
 export type Match = (typeof records)[number];
 export const matches: readonly Match[] = records;
 export const sources = {
+  suppliedCollection: {
+    name: 'User-supplied top 50 · reported Meltzer ratings',
+    url: 'https://en.wikipedia.org/wiki/List_of_professional_wrestling_matches_rated_5_or_more_stars_by_Dave_Meltzer',
+  },
   iwnerd: {
     name: 'IWNerd · Dave Meltzer five-star match list',
     url: 'https://www.iwnerd.com/dave-meltzer-5-star-matches-list/',

@@ -30,7 +30,7 @@ This is a local application launch, **not an installer**. Windows installer conf
 
 Only match covers and browsing controls are shown. The top-centre **Random** button flicks through the sleeves, slowing to a randomly chosen match. With system reduced motion enabled, it selects immediately. Click a side cover to select it and the centre cover to open a larger view. Use the arrows, Left/Right, Home/End, horizontal trackpad gestures or touch swipes to browse. Enter opens the focused gallery’s selection; Back to covers or Escape returns to the same match.
 
-There is no sidebar, search, filter, grid option, match table or settings screen. The operating system’s reduced-motion preference is respected. The twelve sample records, artwork and fonts work offline.
+There is no sidebar, search, filter, grid option, match table or settings screen. The operating system’s reduced-motion preference is respected. All 50 match records, cover images and fonts work offline. Covers follow the supplied rank order, highest rating first.
 
 PowerShell users should use `npm.cmd` to avoid the script-wrapper execution-policy error without changing system policy.
 
@@ -55,9 +55,13 @@ MP4 (H.264/AAC) and WebM are recommended. M4V, MOV and MKV files are discoverabl
 
 ## Data and artwork limitations
 
-There are **12 sample records from 1989–2024**. They are not a complete historical archive. Rating references are linked to IWNerd or WrestlePurists, but their pages were blocked by the development environment's network policy. The expanded cover view labels verification as pending. Do not treat reference-linked records as independently verified. See [data provenance](docs/data-provenance.md) for the outstanding review.
+The catalogue contains the **50 matches supplied in `Meltzer_Top_50_Match_Covers.zip`**, ordered exactly by its `sources.csv`: rating descending, then date ascending, with same-day ties ordered by match name. The supplied selection runs from 1989 to 2026 and stops partway through the matches tied at 5.5 stars. It is a supplied selection, not an independently verified or official ranked list.
 
-The Dominion 6.9 (2018) cover uses the user-supplied match photograph; other covers use original vector arena artwork. Photo provenance is recorded in `docs/THIRD_PARTY_NOTICES.md`. Each card preserves readable typography and a themed CSS backdrop if an asset fails. No copyrighted photo collection was scraped. Descriptions are original short summaries; no source article text is reproduced. Sources open in the system browser and require a connection. No verified viewing links are currently provided.
+Every card uses its corresponding supplied photo, match graphic or event poster. Full images are fitted inside the cover so landscape graphics and poster text are retained. The Flair/Steamboat illustration is a rivalry image, not a verified photograph of the exact Landover bout. The application retains readable names and a CSS backdrop if a cover fails to load.
+
+Original CSV, collection notes and per-image provenance are preserved in `docs/top50/` and `src/data/cover-provenance.json`. Image ownership/licences were not supplied. See [data provenance](docs/data-provenance.md) and [asset notices](docs/THIRD_PARTY_NOTICES.md). No match footage is included; videos come from your selected local folder.
+
+Seven existing matches retain their original IDs for video-folder compatibility. Their former title/event folder names also remain supported. The other five-star examples have been replaced by the supplied top 50. For new matches, use the folder ID shown by the player when a video is missing.
 
 ## Checks
 
@@ -86,7 +90,7 @@ src/data/                 Local samples, provenance links and formatting
 src/components/           Cover flow and portrait artwork
 src/App.tsx               Cover browser and expanded match view
 src/styles.css            Tailwind theme and responsive component styles
-public/art/               Original, bundled vector arena illustrations
+public/art/               Bundled supplied covers and arena fallbacks
 scripts/                  Development/build orchestration and Electron smoke test
 tests/unit/               Data-integrity and security-boundary tests
 tests/ui/                 Browser interaction, responsive and screenshot checks

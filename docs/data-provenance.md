@@ -1,33 +1,18 @@
-# Phase 1 data provenance
+# Supplied top 50 catalogue
 
-The JSON catalogue contains 12 deliberately small, manually authored historical sample records. Ratings are attributed to Dave Meltzer; these are not CAGEMATCH community scores. Descriptions are original, concise and avoid disclosing results.
+The user supplied `Meltzer_Top_50_Match_Covers.zip` and explicitly requested its 50 matches and corresponding images in the supplied ranking order. This replaces the earlier twelve-example catalogue; it does not introduce a scraper, import pipeline or database.
 
-**Status: reference-linked; source verification pending.** The cloud egress proxy returned HTTP 403 when the development task requested the two reference pages. No page content, robots policy or terms could be inspected. No scraping, automated import, bulk extraction, copyright-image download or redistribution agreement is claimed. No source was marked checked merely because its URL exists.
+Records are copied from the archive's `sources.csv`, not inferred from similar opponent names or researched independently. The supplied ordering is rating descending, date ascending, then match title for same-day ties. It includes 50 entries from 1989 to 2026 and cuts off among matches tied at 5.5 stars. It is not claimed to be a complete archive or an official ranked list published by Dave Meltzer.
 
-The development brief requests verified samples. The remaining acceptance action is to open permitted references, check the records individually, correct disagreements, record an access date and, when available, the original Wrestling Observer issue. Until then the application explicitly distinguishes samples from verified archive entries. This is a data-review limitation, not a dependency for designing or launching the prototype.
+**Status: user-supplied, reference-linked; independent verification pending.** The archive cites Wikipedia's list of matches rated five or more stars. Dates are held/taped dates according to the supplied notes, which may differ from broadcast dates. Unavailable venue, championship and stipulation metadata is left empty; existing metadata for matching prior records is retained with its prior unverified status.
 
-## References supplied for review
+## Image matching and provenance
 
-1. IWNerd, [Dave Meltzer five-star matches](https://www.iwnerd.com/dave-meltzer-5-star-matches-list/).
-2. WrestlePurists, [Dave Meltzer Match Ratings Database](https://wrestlepurists.com/dave-meltzer-match-ratings-database/).
+- [Original CSV](top50/sources.csv) contains rank, rating, date, participants, promotion, event, original image filename, image type, source page and original image URL.
+- [Original collection notes](top50/collection-notes.txt) explain the supplied selection and image limitations.
+- `src/data/cover-provenance.json` maps every CSV row to its application match ID, bundled image path and SHA-256 digest. Image bytes are copied unchanged.
+- `public/art/top50/01.jpg` through `50.jpg` correspond exactly to the CSV ranks. Repeated opponents are distinguished by date and event, not their image filenames alone.
 
-These are secondary reference pages, not licensed bulk-data APIs. They may change or paginate records. A source-page link is not an assertion that all fields are documented on that page.
+The artwork mixes match photographs, promotional graphics and event posters. A poster is not presented as a photograph of the bout. The supplied Flair/Steamboat image depicts the rivalry; the collection does not verify that it shows the specific Landover match. Source URLs establish provenance, not a reuse licence or independent verification.
 
-| Match                 | Date       | Event                        | Listed sample rating | Review reference |
-| --------------------- | ---------- | ---------------------------- | -------------------: | ---------------- |
-| Steamboat / Flair     | 1989-04-02 | Clash of the Champions VI    |                  5.0 | IWNerd           |
-| Bret Hart / Owen Hart | 1994-08-29 | SummerSlam                   |                  5.0 | IWNerd           |
-| Michaels / Undertaker | 1997-10-05 | Badd Blood                   |                  5.0 | IWNerd           |
-| Punk / Cena           | 2011-07-17 | Money in the Bank            |                  5.0 | IWNerd           |
-| Okada / Omega         | 2017-01-04 | Wrestle Kingdom 11           |                  6.0 | IWNerd           |
-| Okada / Omega         | 2017-06-11 | Dominion 6.11                |                 6.25 | IWNerd           |
-| Omega / Okada         | 2017-08-12 | G1 Climax 27                 |                  6.0 | IWNerd           |
-| Omega / Okada         | 2018-06-09 | Dominion 6.9                 |                  7.0 | IWNerd           |
-| Ospreay / Takagi      | 2019-06-05 | Best of the Super Juniors 26 |                 5.75 | IWNerd           |
-| Gunther / Sheamus     | 2022-09-03 | Clash at the Castle          |                  5.0 | IWNerd           |
-| Omega / Ospreay       | 2023-06-25 | Forbidden Door               |                  6.0 | WrestlePurists   |
-| Danielson / Ospreay   | 2024-04-21 | Dynasty                      |                  6.5 | WrestlePurists   |
-
-Venue, championship and stipulation fields also require review. Missing duration and watch links are omitted instead of invented. Unspecified championships are omitted; an empty field does not establish an independently verified absence.
-
-The current interface browses the samples in bundled order. Search, filters, sorting and collection shortcuts have been removed at the user’s request.
+Seven matches from the earlier catalogue retain stable IDs, and previous folder-name aliases are retained for local video lookup. The remaining former five-star examples are outside this supplied selection.

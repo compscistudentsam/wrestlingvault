@@ -91,6 +91,7 @@ export function CoverFlow({
           if (offset < -records.length / 2) offset += records.length;
           const active = offset === 0;
           const hidden = Math.abs(offset) > 3;
+          if (hidden) return null;
           return (
             <button
               key={match.id}

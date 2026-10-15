@@ -705,3 +705,32 @@ main {
   overflow-wrap: anywhere;
   color: #d2b361;
 }
+
+/* Fit the complete supplied artwork, including landscape graphics and event posters. */
+.artwork-collection > img {
+  top: 25%;
+  bottom: auto;
+  height: 43%;
+  object-fit: contain;
+  object-position: center;
+}
+.artwork-collection::before {
+  background: linear-gradient(180deg, #05080b44, transparent 30%, transparent 65%, #05080be6);
+}
+.poster-side {
+  display: flex;
+  flex-direction: column;
+  gap: 1cqw;
+}
+.artwork-collection .poster-type {
+  bottom: 12%;
+  font-size: 8cqw;
+  gap: 0.6cqw;
+}
+.artwork-collection .poster-three-way {
+  font-size: 6cqw;
+}
+.artwork-collection .poster-versus {
+  margin: 0;
+  font-size: 2.5cqw;
+}

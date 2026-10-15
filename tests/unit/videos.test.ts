@@ -28,3 +28,16 @@ it('does not consider sibling directories or the root itself inside the selected
   expect(inside('/videos', '/videos')).toBe(false);
   expect(inside('/videos', '/videos/match/video.mp4')).toBe(true);
 });
+
+it('keeps previous video folder names working and prefers an exact match ID over a title alias', async () => {
+  const root = await realpath(await mkdtemp(path.join(os.tmpdir(), 'vault-video-')));
+  temporary.push(root);
+  const legacy = 'Bryan Danielson vs. Will Ospreay';
+  const id = 'danielson-ospreay-dynasty-2024';
+  await mkdir(path.join(root, legacy));
+  await writeFile(path.join(root, legacy, 'legacy.mp4'), 'test');
+  expect((await findVideos(root, id)).map((file) => file.name)).toEqual(['legacy.mp4']);
+  await mkdir(path.join(root, id));
+  await writeFile(path.join(root, id, 'correct.mp4'), 'test');
+  expect((await findVideos(root, id)).map((file) => file.name)).toEqual(['correct.mp4']);
+});

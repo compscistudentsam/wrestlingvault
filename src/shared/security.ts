@@ -1,4 +1,9 @@
-const allowedHosts = new Set(['www.iwnerd.com', 'iwnerd.com', 'wrestlepurists.com']);
+const allowedHosts = new Set([
+  'www.iwnerd.com',
+  'iwnerd.com',
+  'wrestlepurists.com',
+  'en.wikipedia.org',
+]);
 
 /** Only the sample dataset's public reference sites are available to the renderer. */
 export function validateExternalURL(value: unknown): string {
