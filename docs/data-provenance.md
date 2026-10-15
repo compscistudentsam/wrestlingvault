@@ -30,12 +30,4 @@ These are secondary reference pages, not licensed bulk-data APIs. They may chang
 
 Venue, championship and stipulation fields also require review. Missing duration and watch links are omitted instead of invented. Unspecified championships are omitted; an empty field does not establish an independently verified absence.
 
-## Collection rules
-
-- **Highest rated:** all samples sorted by Meltzer rating descending, then match date descending; ordering reflects only the sample set.
-- **Six stars & above:** the same ordering, restricted to ratings at least 6.0.
-- **New Japan:** NJPW and co-promoted NJPW records.
-- **WWE classics:** WWF and WWE records together; recorded names remain intact.
-- **Before 2000:** matches before 2000, in rating/date order; its collection shortcut sets the “Before 2000” era filter.
-
-Empty collections are omitted. No subjective “hidden gems” algorithm or complete historical ranking is represented. Phase 1 uses JSON; database-driven selection begins only in the authorised database phase.
+The current interface browses the samples in bundled order. Search, filters, sorting and collection shortcuts have been removed at the user’s request.

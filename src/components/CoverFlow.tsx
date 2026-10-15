@@ -134,9 +134,6 @@ export function CoverFlow({
         <span className="selection-count">
           {String(index + 1).padStart(2, '0')} / {String(records.length).padStart(2, '0')}
         </span>
-        <button className="button button-gold selection-open" onClick={() => onOpen(selected.id)}>
-          Details <ArrowUpRight size={15} />
-        </button>
       </div>
     </section>
   );

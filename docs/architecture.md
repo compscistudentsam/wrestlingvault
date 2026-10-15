@@ -12,18 +12,12 @@ The CSP restricts scripts, fonts and images to bundled assets, denies plugins an
 
 ## UI/data separation
 
-Pure functions own catalogue filtering and collection membership. Components receive records; UI code performs no filesystem or database operations. The JSON shape is an intentionally small view model, not the future SQLite schema. Duplicate match titles use stable unique IDs incorporating the event/year. Quarter-star ratings use exact binary-representable increments of 0.25, and display preserves precision.
+The renderer reads twelve bundled samples and has two views: the full-width cover browser and an expanded cover with its title, event/date and source reference. Selection stays in React when navigating back. Hash routes support bundled `file:` loads, browser history and direct match links.
 
-Session UI state stays in React. A future persistence adapter can replace the sample provider without exposing SQL or arbitrary filesystem access to the renderer. There is no mock watchlist presented as persistent functionality.
+Artwork is shared between both views. Original SVG arena illustrations combine with live match typography; missing images retain the CSS backdrop and text. Nearby covers load eagerly and others lazily. The operating system’s reduced-motion preference controls transitions.
 
-The artwork component shares one portrait-sleeve pipeline between the cover flow, grid and details. Original arena illustrations combine with event/name typography and a match-specific palette; failures retain the CSS backdrop and live text. No remote asset loading is implemented. Cover selection, filters and view live above the library/detail routes so returning from a match preserves the browsing context. The compact table and cover flow derive from the same filtered, sorted records.
+## Current scope
 
-All sample data is synchronous and bundled, so the interface does not simulate loading with an artificial delay or show a misleading skeleton. Add meaningful skeletons when real asynchronous data is introduced. Fonts are bundled locally and use `font-display: swap` from Fontsource. Only Latin subsets needed by this prototype are imported. Artwork near the selected cover and the detail cover loads eagerly; other covers are lazy-loaded.
+The latest user request explicitly reduces the product to clickable match covers. Sidebar navigation, search, filtering, sorting, collection shortcuts, grid/table views, settings and future-feature screens are removed along with their unused components and query code. The earlier development brief’s broader UI requirements are superseded by this request.
 
-## Scope
-
-No database, ingestion, personal collection, generated analytics, recommendation engine, backend, updater or release pipeline is present. The installed electron-builder package is reserved for the authorised release phase. shadcn/ui and Recharts are not added just to populate the dependency list; native semantic controls are sufficient for this phase.
-
-## Current visual direction
-
-The user’s October 2026 reference replaces the initial text-heavy streaming homepage with a compact media-library layout: portrait match covers, a large central selection with angled neighbouring sleeves, and a linked match list. Marketing headings, repeated descriptions, large future-action panels and the large hero are removed. Match context and source information remain available inside details; the library retains a short sample/verification status. This is a Phase 1 revision, not authorization for later phases.
+No database, ingestion, personal persistence, analytics, backend or release workflow has been added. This remains a Phase 1 visual revision; do not begin later phases or merge into main without explicit approval.

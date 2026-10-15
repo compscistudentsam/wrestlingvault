@@ -44,7 +44,7 @@ try {
       (text.includes('Content Security Policy') || text.includes('connect-src'));
     if (!expectedRejection) errors.push(text);
   });
-  await expect(page.getByRole('heading', { name: 'All matches', exact: true })).toBeVisible();
+  await expect(page.locator('.flow-cover.is-selected')).toBeVisible();
   const flags = await application.evaluate(({ BrowserWindow }) => {
     const preferences = BrowserWindow.getAllWindows()[0].webContents.getLastWebPreferences();
     return {
@@ -81,20 +81,16 @@ try {
     }),
   ).toBe('rejected');
   await page.getByRole('button', { name: 'Next match', exact: true }).click();
-  await expect(page.locator('.selection-caption h2')).toContainText('Bryan Danielson');
-  await page.getByRole('button', { name: 'Details', exact: true }).click();
+  await expect(page.locator('.selection-caption h2')).toContainText('CM Punk');
+  await page.locator('.flow-cover.is-selected').click();
   await expect(
-    page.getByRole('heading', { name: 'Bryan Danielson vs. Will Ospreay', exact: true, level: 1 }),
+    page.getByRole('heading', { name: 'CM Punk vs. John Cena', exact: true, level: 1 }),
   ).toBeVisible();
-  await page
-    .getByRole('navigation')
-    .getByRole('button', { name: 'All Matches', exact: true })
-    .click();
-  await page.getByRole('searchbox').fill('1994');
-  await expect(page.locator('.match-grid .match-card')).toHaveCount(1);
-  await page.getByRole('searchbox').fill('');
-  await page.getByRole('navigation').getByRole('button', { name: 'Discover', exact: true }).click();
-  await expect(page.locator('.selection-caption h2')).toBeVisible();
+  await page.getByRole('button', { name: 'Back to covers', exact: true }).click();
+  await expect(page.locator('.flow-cover.is-selected')).toHaveAccessibleName(/Open CM Punk/);
+  await expect(page.getByRole('searchbox')).toHaveCount(0);
+  await expect(page.getByRole('combobox')).toHaveCount(0);
+  await expect(page.getByRole('navigation')).toHaveCount(0);
   await page.evaluate(() => document.fonts.ready);
   await page.screenshot({
     path: `artifacts/screenshots/electron-${development ? 'development' : 'production'}.png`,
@@ -127,7 +123,7 @@ try {
   }
   expect(errors).toEqual([]);
   console.log(
-    `Electron ${development ? 'development' : 'production'} smoke passed: rendered UI, navigation, search, isolated preload, IPC validation, ${development ? 'Vite' : 'bundled offline'} assets.`,
+    `Electron ${development ? 'development' : 'production'} smoke passed: cover browsing, click-through, isolated preload, IPC validation, ${development ? 'Vite' : 'bundled offline'} assets.`,
   );
 } finally {
   await application?.close();

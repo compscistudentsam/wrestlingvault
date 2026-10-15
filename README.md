@@ -26,24 +26,17 @@ npm.cmd start
 
 This is a local application launch, **not an installer**. Windows installer configuration, Windows CI and distribution remain in Phase 6. No release is published automatically. Signing and Windows SmartScreen behaviour must be assessed during release work.
 
-## What works in Phase 1
+## Browse
 
-- Compact dark library with portrait match sleeves and a cover-flow browser.
-- Click a side cover to select it; click the centre cover or Details to open the match.
-- Browse with the arrows, Left/Right, Home/End, horizontal trackpad gestures, or touch swipes. Enter on the focused gallery opens the selected match.
-- The compact match list and covers stay in sync. Click a row to select it, use its arrow to open it, or double-click the row.
-- Switch to a cover grid. Returning from details preserves your selection, filters and view.
-- Search, promotion/decade/rating filters, sorting and collection shortcuts use the 12 bundled sample records. WWF remains labelled WWF inside the combined WWE filter.
-- Reduced motion, visible keyboard focus, Ctrl+K search and responsive desktop/laptop layouts.
-- Isolated Electron renderer, narrow validated IPC, restricted navigation and deny-by-default permissions.
+Only match covers are shown. Click a side cover to select it and the centre cover to open a larger view. Use the arrows, Left/Right, Home/End, horizontal trackpad gestures or touch swipes to browse. Enter opens the focused gallery’s selection; Back to covers or Escape returns to the same match.
 
-The sidebar’s **More** section contains the future Promotions, Wrestlers, Timeline, Statistics and My Watchlist destinations, each explicitly unavailable. Personal actions remain disabled. There is no database, import pipeline, personal persistence, analytics or installer in this phase.
+There is no sidebar, search, filter, grid option, match table or settings screen. The operating system’s reduced-motion preference is respected. The twelve sample records, artwork and fonts work offline.
 
-PowerShell users should use `npm.cmd` as shown above. This avoids the `npm.ps1` execution-policy error without changing system policy.
+PowerShell users should use `npm.cmd` to avoid the script-wrapper execution-policy error without changing system policy.
 
 ## Data and artwork limitations
 
-There are **12 sample records from 1989–2024**. They are not a complete historical archive. Rating references are linked to IWNerd or WrestlePurists, but their pages were blocked by the development environment's network policy. The UI therefore labels verification as pending. Do not treat reference-linked records as independently verified. See [data provenance](docs/data-provenance.md) for the outstanding review.
+There are **12 sample records from 1989–2024**. They are not a complete historical archive. Rating references are linked to IWNerd or WrestlePurists, but their pages were blocked by the development environment's network policy. The expanded cover view labels verification as pending. Do not treat reference-linked records as independently verified. See [data provenance](docs/data-provenance.md) for the outstanding review.
 
 All arena imagery is original vector artwork, not photography of the matches. It requires no third-party photograph licence. Each card preserves readable typography and a themed CSS backdrop if an asset fails. No copyrighted photo collection was scraped. Descriptions are original short summaries; no source article text is reproduced. Sources open in the system browser and require a connection. No verified viewing links are currently provided.
 
@@ -70,13 +63,13 @@ Screenshots and test reports are generated in ignored `artifacts/screenshots`, `
 ```text
 electron/                 Main process and sandbox-compatible preload
 src/shared/               Typed IPC contract and security validation
-src/data/                 Local samples, provenance links, pure query functions
-src/components/           Cover flow, library/list, portrait artwork and cards
-src/App.tsx               Navigation, catalogue and detail/settings screens
+src/data/                 Local samples, provenance links and formatting
+src/components/           Cover flow and portrait artwork
+src/App.tsx               Cover browser and expanded match view
 src/styles.css            Tailwind theme and responsive component styles
 public/art/               Original, bundled vector arena illustrations
 scripts/                  Development/build orchestration and Electron smoke test
-tests/unit/               Query, data-integrity and security-boundary tests
+tests/unit/               Data-integrity and security-boundary tests
 tests/ui/                 Browser interaction, responsive and screenshot checks
 ```
 
