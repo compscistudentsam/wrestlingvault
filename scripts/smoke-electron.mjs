@@ -66,6 +66,8 @@ try {
   expect(await page.evaluate(() => typeof window.require)).toBe('undefined');
   expect(await page.evaluate(() => typeof window.process)).toBe('undefined');
   expect(await page.evaluate(() => Object.keys(window.vault).sort())).toEqual([
+    'chooseVideoFolder',
+    'getMatchVideos',
     'getVersion',
     'openExternal',
   ]);

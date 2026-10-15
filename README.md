@@ -34,6 +34,25 @@ There is no sidebar, search, filter, grid option, match table or settings screen
 
 PowerShell users should use `npm.cmd` to avoid the script-wrapper execution-policy error without changing system policy.
 
+## Local video playback
+
+The desktop app asks for your video folder on each launch. Cancel to browse covers without playing; use **Choose video folder** in the header to retry or switch folders. Clicking the centre cover opens the in-app player. Files stay on your computer.
+
+Create one subfolder per match. Use the match ID shown in the missing-video screen, for example:
+
+```text
+Wrestling Videos/
+  omega-okada-dominion-2018/
+    match.mp4
+  omega-okada-wk11-2017/
+    part1.mp4
+    part2.mp4
+```
+
+Full names such as `Kenny Omega vs. Kazuchika Okada - Dominion 6.9 in Osaka-jo Hall - 2018-06-09` also work. A title-only folder works, but use IDs for repeated opponents to avoid showing the same video for different events. Videos must be directly inside the match folder. Multiple parts appear in a selector, sorted by filename. Playback uses native controls for pause, volume, seeking and fullscreen; returning to covers stops playback.
+
+MP4 (H.264/AAC) and WebM are recommended. M4V, MOV and MKV files are discoverable, but playback depends on Electron's supported codecs; the app does not transcode. Browser previews cannot select or play desktop-local videos. No video folder choice or playback history is persisted.
+
 ## Data and artwork limitations
 
 There are **12 sample records from 1989–2024**. They are not a complete historical archive. Rating references are linked to IWNerd or WrestlePurists, but their pages were blocked by the development environment's network policy. The expanded cover view labels verification as pending. Do not treat reference-linked records as independently verified. See [data provenance](docs/data-provenance.md) for the outstanding review.
@@ -52,7 +71,7 @@ npm.cmd run test:desktop
 npm.cmd run test:desktop -- --development
 ```
 
-The desktop smoke tests open and close a real Electron window. The production smoke test requires `npm run build` first. On Linux, a working X11 display (or Xvfb) and Electron system libraries are required. `WV_CHROMIUM_PATH` can select an existing Chromium binary for browser tests; the default uses Playwright's browser. `npm run dev:web` starts the renderer alone for browser inspection and does not exercise Electron's preload.
+The desktop smoke tests open and close a real Electron window. Cancel the startup video-folder dialog when running these checks interactively. The production smoke test requires `npm run build` first. On Linux, a working X11 display (or Xvfb) and Electron system libraries are required. `WV_CHROMIUM_PATH` can select an existing Chromium binary for browser tests; the default uses Playwright's browser. `npm run dev:web` starts the renderer alone for browser inspection and does not exercise Electron's preload.
 
 On Linux, development and desktop smoke tests use Chromium's user-namespace sandbox via `--disable-setuid-sandbox`; they never pass `--no-sandbox`. The host must permit user namespaces. In this cloud executor, its outer filesystem sandbox makes `/proc/self/uid_map` read-only, so native desktop commands require execution outside that outer shell sandbox. This preserves Chromium's own renderer sandbox. Browser-only work remains available inside the ordinary shell sandbox. For a production Electron launch on Linux, use `npm start -- --disable-setuid-sandbox` under the same host requirements. Windows needs no Linux flags.
 

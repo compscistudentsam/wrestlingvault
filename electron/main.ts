@@ -1,8 +1,19 @@
-import { app, BrowserWindow, ipcMain, session, shell } from 'electron';
+import { app, BrowserWindow, ipcMain, session, shell, dialog, protocol, net } from 'electron';
 import path from 'node:path';
+import { realpath } from 'node:fs/promises';
+import { randomUUID } from 'node:crypto';
+import { findVideos, inside } from './videos';
 import { pathToFileURL } from 'node:url';
 import { isTrustedRendererURL, validateExternalURL } from '../src/shared/security';
 
+protocol.registerSchemesAsPrivileged([
+  {
+    scheme: 'vault-video',
+    privileges: { standard: true, secure: true, stream: true, supportFetchAPI: true },
+  },
+]);
+let videoRoot: string | null = null;
+const videoFiles = new Map<string, string>();
 let window: BrowserWindow | null = null;
 const developmentURL = !app.isPackaged && process.env.WV_DEV_SERVER_URL;
 if (developmentURL && developmentURL !== 'http://127.0.0.1:5173/') {
@@ -75,6 +86,45 @@ void app.whenReady().then(() => {
       (_details, callback) => callback({ cancel: true }),
     );
   }
+  protocol.handle('vault-video', async (request) => {
+    const url = new URL(request.url);
+    const file = url.hostname === 'local' ? videoFiles.get(url.pathname.slice(1)) : undefined;
+    if (!file || !videoRoot || !['GET', 'HEAD'].includes(request.method))
+      return new Response(null, { status: 404 });
+    try {
+      const resolved = await realpath(file);
+      if (!inside(videoRoot, resolved)) return new Response(null, { status: 403 });
+      return await net.fetch(pathToFileURL(resolved).href, {
+        method: request.method,
+        headers: request.headers,
+      });
+    } catch {
+      return new Response(null, { status: 404 });
+    }
+  });
+  ipcMain.handle('vault:choose-video-folder', async (event, ...args: unknown[]) => {
+    assertSender(event);
+    if (args.length) throw new Error('Folder request takes no arguments.');
+    const choice = await dialog.showOpenDialog(window!, {
+      title: 'Choose your wrestling video folder',
+      properties: ['openDirectory'],
+    });
+    if (choice.canceled) return videoRoot ? { name: path.basename(videoRoot) } : null;
+    videoRoot = await realpath(choice.filePaths[0]);
+    videoFiles.clear();
+    return { name: path.basename(videoRoot) };
+  });
+  ipcMain.handle('vault:match-videos', async (event, ...args: unknown[]) => {
+    assertSender(event);
+    if (args.length !== 1 || typeof args[0] !== 'string') throw new Error('Expected one match ID.');
+    if (!videoRoot) return [];
+    const files = await findVideos(videoRoot, args[0]);
+    return files.map((file) => {
+      const token = randomUUID();
+      videoFiles.set(token, file.path);
+      return { name: file.name, url: `vault-video://local/${token}` };
+    });
+  });
   ipcMain.handle('vault:version', (event, ...args: unknown[]) => {
     assertSender(event);
     if (args.length) throw new Error('Version request takes no arguments.');

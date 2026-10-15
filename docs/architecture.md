@@ -21,3 +21,9 @@ Artwork is shared between both views. Original SVG arena illustrations combine w
 The latest user request explicitly reduces the product to clickable match covers. Sidebar navigation, search, filtering, sorting, collection shortcuts, grid/table views, settings and future-feature screens are removed along with their unused components and query code. The earlier development brief’s broader UI requirements are superseded by this request.
 
 No database, ingestion, personal persistence, analytics, backend or release workflow has been added. This remains a Phase 1 visual revision; do not begin later phases or merge into main without explicit approval.
+
+## Local video playback
+
+The user additionally authorized a folder picker on startup and in-app video playback. The main process owns the selected directory for the session. A narrow IPC method accepts only bundled match IDs and enumerates video files in matching immediate subdirectories. Canonical paths must remain within the selected root; symbolic-link entries are excluded. The renderer receives display names and opaque `vault-video://local/` tokens, never arbitrary filesystem access. The protocol resolves only issued tokens, rechecks path containment and delegates file delivery to Electron's file fetch, including byte-range requests for seeking. The CSP permits the media scheme without granting remote media access.
+
+The renderer uses native video controls and stops playback by unmounting the player when returning to covers. Multiple files appear in a selector. Missing folders, cancellation, unreadable directories and unsupported media have recoverable messages. Selection is session-only; there is no database, persistence, transcoding or ingestion pipeline.

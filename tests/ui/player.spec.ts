@@ -1,0 +1,72 @@
+import { test, expect } from '@playwright/test';
+import { readFile } from 'node:fs/promises';
+
+test('startup selection, local playback, seeking, parts, and returning to covers', async ({
+  page,
+}) => {
+  const bytes = await readFile('tests/fixtures/playback.webm');
+  await page.route('**/test-match.webm*', async (route) => {
+    const range = route.request().headers()['range'];
+    const start = Number(range?.match(/bytes=(\d+)/)?.[1] ?? 0);
+    await route.fulfill({
+      status: range ? 206 : 200,
+      contentType: 'video/webm',
+      headers: {
+        'Accept-Ranges': 'bytes',
+        ...(range ? { 'Content-Range': `bytes ${start}-${bytes.length - 1}/${bytes.length}` } : {}),
+      },
+      body: bytes.subarray(start),
+    });
+  });
+  await page.addInitScript(() => {
+    let calls = 0;
+    Object.assign(window, {
+      vault: {
+        chooseVideoFolder: async () => {
+          calls++;
+          (window as unknown as { folderCalls: number }).folderCalls = calls;
+          return { name: 'My matches' };
+        },
+        getMatchVideos: async () => [
+          { name: 'part1.webm', url: '/test-match.webm' },
+          { name: 'part2.webm', url: '/test-match.webm?part=2' },
+        ],
+      },
+    });
+  });
+  await page.goto('/');
+  await expect(page.getByRole('button', { name: 'Video folder: My matches' })).toBeVisible();
+  await page.locator('.flow-cover.is-selected').click();
+  const video = page.locator('video');
+  await expect(video).toBeVisible();
+  await expect
+    .poll(() => video.evaluate((node) => (node as HTMLVideoElement).readyState))
+    .toBeGreaterThanOrEqual(2);
+  await video.evaluate(async (node) => {
+    const media = node as HTMLVideoElement;
+    await media.play();
+    media.pause();
+    media.currentTime = 2;
+  });
+  await expect
+    .poll(() => video.evaluate((node) => (node as HTMLVideoElement).currentTime))
+    .toBeGreaterThanOrEqual(1.9);
+  await expect(page.getByRole('combobox')).toHaveValue('0');
+  await page.getByRole('button', { name: 'Back to covers' }).click();
+  await expect(video).toHaveCount(0);
+});
+
+test('cancelled folder selection offers recovery and an exact match folder name', async ({
+  page,
+}) => {
+  await page.addInitScript(() =>
+    Object.assign(window, { vault: { chooseVideoFolder: async () => null } }),
+  );
+  await page.goto('/');
+  await page.locator('.flow-cover.is-selected').click();
+  await expect(page.locator('.video-empty')).toContainText('omega-okada-dominion-2018');
+  await expect(
+    page.locator('.video-empty').getByRole('button', { name: 'Choose video folder' }),
+  ).toBeVisible();
+  await expect(page.locator('video')).toHaveCount(0);
+});

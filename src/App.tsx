@@ -8,6 +8,35 @@ import { validateExternalURL } from './shared/security';
 import './shared/api';
 
 export function App() {
+  const [folder, setFolder] = useState<string | null>(null);
+  const [folderError, setFolderError] = useState('');
+  const [choosing, setChoosing] = useState(false);
+  const [folderRevision, setFolderRevision] = useState(0);
+  const chooseFolder = async () => {
+    if (!window.vault?.chooseVideoFolder) {
+      setFolderError('Open the desktop app to choose a local video folder.');
+      return;
+    }
+    setChoosing(true);
+    setFolderError('');
+    try {
+      const selected = await window.vault.chooseVideoFolder();
+      if (selected) {
+        setFolder(selected.name);
+        setFolderRevision((value) => value + 1);
+      }
+    } catch {
+      setFolderError('Could not open that folder. Please choose it again.');
+    } finally {
+      setChoosing(false);
+    }
+  };
+  const startupPrompted = useRef(false);
+  useEffect(() => {
+    if (startupPrompted.current) return;
+    startupPrompted.current = true;
+    if (window.vault?.chooseVideoFolder) void chooseFolder();
+  }, []);
   const [route, setRoute] = useState(() => window.location.hash.slice(2) || 'library');
   const [selectedId, setSelectedId] = useState(
     () => matches.find((match) => route === `match/${match.id}`)?.id ?? matches[0].id,
@@ -114,10 +143,22 @@ export function App() {
             <Shuffle size={15} /> Random
           </button>
         )}
+        <button className="folder-button" disabled={choosing} onClick={() => void chooseFolder()}>
+          {choosing
+            ? 'Choosing folder…'
+            : folder
+              ? `Video folder: ${folder}`
+              : 'Choose video folder'}
+        </button>
         <span className="sr-only" role="status">
           {announcement}
         </span>
       </header>
+      {folderError && (
+        <p className="folder-error" role="alert">
+          {folderError}
+        </p>
+      )}
       <main ref={main} tabIndex={-1} aria-label={isLibrary ? 'Match library' : 'Match details'}>
         {isLibrary ? (
           <CoverFlow
@@ -132,7 +173,13 @@ export function App() {
             }}
           />
         ) : detail ? (
-          <MatchDetails key={detail.id} match={detail} onBack={() => navigate('library')} />
+          <MatchDetails
+            key={`${detail.id}-${folderRevision}`}
+            match={detail}
+            folder={folder}
+            onChooseFolder={() => void chooseFolder()}
+            onBack={() => navigate('library')}
+          />
         ) : (
           <div className="empty-state">
             <h1>Match not found</h1>
@@ -146,7 +193,41 @@ export function App() {
   );
 }
 
-function MatchDetails({ match, onBack }: { match: Match; onBack: () => void }) {
+function MatchDetails({
+  match,
+  folder,
+  onChooseFolder,
+  onBack,
+}: {
+  match: Match;
+  folder: string | null;
+  onChooseFolder: () => void;
+  onBack: () => void;
+}) {
+  const [videos, setVideos] = useState<{ name: string; url: string }[]>([]);
+  const [active, setActive] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [playbackError, setPlaybackError] = useState('');
+  const [lookupError, setLookupError] = useState('');
+  useEffect(() => {
+    let current = true;
+    setLoading(true);
+    const load = async () => {
+      try {
+        const found =
+          folder && window.vault?.getMatchVideos ? await window.vault.getMatchVideos(match.id) : [];
+        if (current) setVideos(found);
+      } catch {
+        if (current) setLookupError('Could not read your video folder. Choose it again to retry.');
+      } finally {
+        if (current) setLoading(false);
+      }
+    };
+    void load();
+    return () => {
+      current = false;
+    };
+  }, [folder, match.id]);
   const [error, setError] = useState('');
   const source = getSource(match);
   const openReference = async (event: React.MouseEvent<HTMLAnchorElement>) => {
@@ -163,9 +244,65 @@ function MatchDetails({ match, onBack }: { match: Match; onBack: () => void }) {
       <button className="back-button" onClick={onBack}>
         <ArrowLeft size={16} /> Back to covers
       </button>
-      <div className="detail-cover">
-        <Artwork match={match} eager />
-      </div>
+      {loading ? (
+        <p role="status">Looking for videos…</p>
+      ) : videos.length ? (
+        <div className="video-player">
+          <video
+            key={videos[active].url}
+            src={videos[active].url}
+            controls
+            autoPlay
+            playsInline
+            aria-label={`${match.title} video`}
+            onError={() =>
+              setPlaybackError(
+                'This video could not be played. Try an MP4 with H.264 video and AAC audio, or a WebM file.',
+              )
+            }
+          />
+          {videos.length > 1 && (
+            <label>
+              Video{' '}
+              <select
+                value={active}
+                onChange={(event) => {
+                  setActive(Number(event.target.value));
+                  setPlaybackError('');
+                }}
+              >
+                {videos.map((video, index) => (
+                  <option key={video.url} value={index}>
+                    {video.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+          )}
+          {playbackError && <p role="alert">{playbackError}</p>}
+        </div>
+      ) : (
+        <>
+          <div className="detail-cover">
+            <Artwork match={match} eager />
+          </div>
+          <div className="video-empty">
+            <p>
+              {lookupError ||
+                (folder
+                  ? 'No video found for this match.'
+                  : 'Choose your video folder to play this match.')}
+            </p>
+            <p>
+              Inside your video folder, create a folder named <code>{match.id}</code> and put the
+              match video inside.
+            </p>
+            <button className="button" onClick={onChooseFolder}>
+              Choose video folder
+            </button>
+          </div>
+        </>
+      )}
       <h1>{match.title}</h1>
       <p className="detail-event">
         {match.event} · {formatDate(match.date)}

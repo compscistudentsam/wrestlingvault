@@ -30,3 +30,7 @@ Current screenshots are generated in ignored `artifacts/screenshots/discover-des
 The twelve samples remain reference-linked and unverified; see [data provenance](data-provenance.md). Covers use original illustrations, not actual match photography. No database, ingestion, personal persistence, analytics or installer is included.
 
 Work remains on `feature/phase-1-ui`. Explicit approval is required before Phase 2 or a merge into `main`.
+
+## Local player revision
+
+Added the user-authorized session folder picker and in-app match video player. Validation: 19 unit tests, 15 browser tests (including generated-video playback and seeking), TypeScript and production build passed. The native Electron folder picker and custom media protocol still need interactive Windows validation; this environment has no desktop display.

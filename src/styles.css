@@ -660,3 +660,48 @@ main {
   font-size: 10cqw;
   text-shadow: 0 2px 12px #000;
 }
+
+.folder-button {
+  margin-left: auto;
+  max-width: 30%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  background: #20252c;
+  color: #eee4ca;
+  border: 1px solid #887249;
+  padding: 8px 12px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+.folder-error {
+  text-align: center;
+  color: #efb4a7;
+}
+.video-player {
+  width: min(1100px, 94vw);
+  margin: 16px auto;
+}
+.video-player video {
+  display: block;
+  width: 100%;
+  max-height: 70vh;
+  background: #000;
+}
+.video-player select {
+  background: #20252c;
+  color: #fff;
+  padding: 8px;
+  margin: 10px;
+  max-width: 80%;
+}
+.video-empty {
+  max-width: 650px;
+  padding: 16px;
+  text-align: center;
+  line-height: 1.6;
+}
+.video-empty code {
+  overflow-wrap: anywhere;
+  color: #d2b361;
+}
