@@ -24,6 +24,11 @@ describe('external URL boundary', () => {
       ),
     ).toContain('/search?q=');
   });
+  it('allows CAGEMATCH record links for the supplied catalogue', () => {
+    expect(validateExternalURL('https://www.cagematch.net/?id=111&nr=8034')).toContain(
+      'cagematch.net',
+    );
+  });
   it.each([
     undefined,
     {},
@@ -36,6 +41,7 @@ describe('external URL boundary', () => {
     'https://iwnerd.com:444/',
     'https://example.com',
     'https://en.wikipedia.org.attacker.example/',
+    'https://www.cagematch.net.attacker.example/?id=111',
     'https://www.google.com/url?q=https://example.com',
     'https://www.google.com/search',
     'https://google.com.attacker.example/search?q=test',

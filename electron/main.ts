@@ -44,7 +44,6 @@ function createWindow() {
     minHeight: 640,
     backgroundColor: '#10131B',
     title: 'Wrestling Vault',
-    icon: path.join(__dirname, developmentURL ? '../public/wwf-logo.png' : '../dist/wwf-logo.png'),
     autoHideMenuBar: true,
     show: false,
     webPreferences: {

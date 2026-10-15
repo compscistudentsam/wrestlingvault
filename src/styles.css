@@ -944,8 +944,8 @@ select {
 }
 
 .topbar .brand img {
-  width: 56px;
-  height: 36px;
+  width: 26px;
+  height: 26px;
   object-fit: contain;
 }
 .video-player {
@@ -986,10 +986,15 @@ select {
 }
 @media (max-width: 700px) {
   .topbar .brand img {
-    width: 46px;
-    height: 30px;
+    width: 26px;
+    height: 26px;
   }
   .video-screen {
     height: max(200px, calc(100dvh - 330px));
   }
+}
+
+.artwork-collection .poster-team {
+  font-size: 4.5cqw;
+  letter-spacing: -0.15cqw;
 }

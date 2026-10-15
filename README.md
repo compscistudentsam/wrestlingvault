@@ -28,9 +28,10 @@ This is a local application launch, **not an installer**. Windows installer conf
 
 ## Browse
 
-The library contains 50 supplied match covers in rating order. Click a side cover to select it and the centre cover to play its local video. Left/Right, Home/End, trackpad gestures and touch swipes also browse the covers.
+The library contains 100 supplied match covers in CAGEMATCH rank order. Click a side cover to select it and the centre cover to play its local video. Left/Right, Home/End, trackpad gestures and touch swipes also browse the covers.
 
 - **Search**, at the top right, suggests matches by wrestler, event, year or company. Use Up/Down to choose a suggestion and Enter to flip to it. Click a suggestion for the same animation. Escape closes suggestions. Search follows the selected company.
+- **Star rating** filters by the supplied WON star rating, including **Unrated** for the eight entries without a matched rating. It combines with company filtering and scopes search/Random to the remaining records. It does not filter on CAGEMATCH scores out of ten.
 - **Company**, at the top left, shows only that company's matches. Co-promoted events appear under each participating company. **All companies** restores the full catalogue.
 - **Random** spins through covers with synthesized wheel ticks. Ordinary browsing uses a short click. **Mute sounds** silences both. Reduced motion jumps straight to the result.
 - **Downloaded only** keeps all covers visible but greys out those without a matched local video. Random then chooses only matched videos. Pick a video folder to enable this control; **Rescan videos** updates availability after files are added or removed.
@@ -58,13 +59,13 @@ MP4 (H.264/AAC) and WebM are recommended. M4V, MOV and MKV are discoverable, but
 
 ## Data and artwork limitations
 
-The catalogue contains the **50 matches supplied in `Meltzer_Top_50_Match_Covers.zip`**, ordered exactly by its `sources.csv`: rating descending, then date ascending, with same-day ties ordered by match name. The supplied selection runs from 1989 to 2026 and stops partway through the matches tied at 5.5 stars. It is a supplied selection, not an independently verified or official ranked list.
+The library is the user's **CAGEMATCH top 100 snapshot from 16 October 2026**, replacing the previous 50-match selection. The supplied rank order is preserved. CAGEMATCH community scores out of ten and Wrestling Observer Newsletter star ratings are stored separately; star ratings are copied from the filename suffixes and checked against the supplied CSV. Eight entries have no matched star rating and remain explicitly **Unrated**, rather than being assigned zero or excluded.
 
-Every card uses its corresponding supplied photo, match graphic or event poster. Full images are fitted inside the cover so landscape graphics and poster text are retained. The Flair/Steamboat illustration is a rivalry image, not a verified photograph of the exact Landover bout. The application retains readable names and a CSS backdrop if a cover fails to load.
+Each of the 100 matches uses its own supplied image, with its original format and bytes retained. The images include event/tournament posters, match graphics, photographs, programme/DVD covers and other artwork. An event poster is not a claim that the image depicts the exact bout. Full source metadata and image notes are preserved in `docs/cagematch-top100/INDEX.csv`, the supplied collection notes and `src/data/cover-provenance.json`.
 
-Original CSV, collection notes and per-image provenance are preserved in `docs/top50/` and `src/data/cover-provenance.json`. Image ownership/licences were not supplied. See [data provenance](docs/data-provenance.md) and [asset notices](docs/THIRD_PARTY_NOTICES.md). No match footage is included; videos come from your selected local folder.
+The supplied snapshot is not independently verified and rankings can change. CAGEMATCH match-record links are available in the player details. See [data provenance](docs/data-provenance.md) and [asset notices](docs/THIRD_PARTY_NOTICES.md). No match footage is included. Videos continue to come from the selected global folder, with no subfolders required.
 
-Seven existing matches retain their original IDs for video-folder compatibility. Their former title/event folder names also remain supported. The other five-star examples have been replaced by the supplied top 50. For new matches, use the folder ID shown by the player when a video is missing.
+Twenty-seven shared matches retain their previous match IDs and video-name aliases. Matches outside the new selection have been removed from the active catalogue. Newly added matches have stable IDs based on their supplied CAGEMATCH record IDs.
 
 ## Checks
 
@@ -108,4 +109,4 @@ No installation step edits sample data or other source files. Dependencies and g
 
 Work lives on `feature/phase-1-ui`. **Do not merge into `main` or begin Phase 2 without explicit user approval.** Passing checks does not supply approval. Visual revisions remain part of Phase 1. The full requested product direction is recorded in [the development brief](docs/development-brief.md).
 
-The header, window icon and favicon use the WWF logo supplied by the user. The Wrestling Vault application name remains unchanged.
+The original Vault mark and favicon are restored. The WWF logo has been removed.

@@ -3,7 +3,7 @@ import { useReducedMotion } from 'motion/react';
 import { ArrowLeft, ExternalLink, Shuffle } from 'lucide-react';
 import { Artwork } from './components/Artwork';
 import { CoverFlow } from './components/CoverFlow';
-import { formatDate, getSource, matches, type Match } from './data/catalogue';
+import { formatDate, formatRating, getSource, matches, type Match } from './data/catalogue';
 import { validateExternalURL } from './shared/security';
 import { playTick } from './lib/sounds';
 import './shared/api';
@@ -24,6 +24,7 @@ export function App() {
   const [sound, setSound] = useState(true);
   const soundRef = useRef(sound);
   soundRef.current = sound;
+  const [rating, setRating] = useState('all');
   const [company, setCompany] = useState('All companies');
   const [query, setQuery] = useState('');
   const [searchOpen, setSearchOpen] = useState(false);
@@ -34,10 +35,12 @@ export function App() {
   );
   const visible = matches.filter(
     (match) =>
-      company === 'All companies' ||
-      match.promotion.split('/').some((item) => item.trim() === company),
+      (company === 'All companies' ||
+        match.promotion.split('/').some((item) => item.trim() === company)) &&
+      (rating === 'all' ||
+        (rating === 'unrated' ? match.rating === null : match.rating === Number(rating))),
   );
-  const selected = visible.find((match) => match.id === selectedId) ?? visible[0];
+  const selected = visible.find((match) => match.id === selectedId) ?? visible[0] ?? matches[0];
   const words = query.toLowerCase().trim().split(/\s+/).filter(Boolean);
   const suggestions = words.length
     ? visible
@@ -169,7 +172,7 @@ export function App() {
   useEffect(() => {
     stopRandom();
     return () => clearTimeout(timer.current);
-  }, [route, company, stopRandom]);
+  }, [route, company, rating, stopRandom]);
   useEffect(() => {
     if (reducedMotion && running.current) stopRandom();
   }, [reducedMotion, stopRandom]);
@@ -195,7 +198,7 @@ export function App() {
     <div className="app-shell">
       <header className="topbar">
         <div className="brand">
-          <img src="./wwf-logo.png" alt="WWF" />
+          <img src="./vault.svg" alt="" />
           <span className="brand-name">
             WRESTLING <strong>VAULT</strong>
             <span className="gold">.</span>
@@ -205,7 +208,9 @@ export function App() {
           <button
             className="random-button"
             disabled={
-              shuffling || (downloadMode && !visible.some((match) => downloaded.has(match.id)))
+              shuffling ||
+              !visible.length ||
+              (downloadMode && !visible.some((match) => downloaded.has(match.id)))
             }
             aria-busy={shuffling}
             onClick={randomMatch}
@@ -311,6 +316,33 @@ export function App() {
                 ))}
               </select>
             </label>
+            <label className="company-filter">
+              <span className="sr-only">Star rating</span>
+              <select
+                aria-label="Star rating"
+                value={rating}
+                disabled={shuffling}
+                onChange={(event) => {
+                  setRating(event.target.value);
+                  setQuery('');
+                  setSearchOpen(false);
+                }}
+              >
+                <option value="all">All star ratings</option>
+                {[
+                  ...new Set(
+                    matches.flatMap((match) => (match.rating === null ? [] : [match.rating])),
+                  ),
+                ]
+                  .sort((a, b) => b - a)
+                  .map((value) => (
+                    <option key={value} value={value}>
+                      {formatRating(value)} stars
+                    </option>
+                  ))}
+                <option value="unrated">Unrated</option>
+              </select>
+            </label>
             <button
               className="toolbar-button"
               aria-pressed={downloadMode}
@@ -356,20 +388,36 @@ export function App() {
       )}
       <main ref={main} tabIndex={-1} aria-label={isLibrary ? 'Match library' : 'Match details'}>
         {isLibrary ? (
-          <CoverFlow
-            records={visible}
-            selected={selected}
-            downloaded={downloaded}
-            highlightDownloads={downloadMode}
-            shuffling={shuffling}
-            flip={flip}
-            onSelect={selectCover}
-            onOpen={(id) => {
-              playTick(soundRef.current);
-              setSelectedId(id);
-              navigate(`match/${id}`);
-            }}
-          />
+          visible.length ? (
+            <CoverFlow
+              records={visible}
+              selected={selected}
+              downloaded={downloaded}
+              highlightDownloads={downloadMode}
+              shuffling={shuffling}
+              flip={flip}
+              onSelect={selectCover}
+              onOpen={(id) => {
+                playTick(soundRef.current);
+                setSelectedId(id);
+                navigate(`match/${id}`);
+              }}
+            />
+          ) : (
+            <div className="empty-state">
+              <h1>No matches match these filters</h1>
+              <button
+                className="button"
+                onClick={() => {
+                  setCompany('All companies');
+                  setRating('all');
+                  setQuery('');
+                }}
+              >
+                Reset filters
+              </button>
+            </div>
+          )
         ) : detail ? (
           <MatchDetails
             key={`${detail.id}-${folderRevision}`}
@@ -660,7 +708,7 @@ function MatchDetails({
         {match.event} · {formatDate(match.date)}
       </p>
       <div className="source-box">
-        <span>Supplied collection · Verification pending</span>
+        <span>CAGEMATCH {match.cagematchScore.toFixed(2)} / 10 · Verification pending</span>
         <a
           href={validateExternalURL(source.url)}
           target="_blank"

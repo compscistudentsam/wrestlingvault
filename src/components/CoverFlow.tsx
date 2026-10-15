@@ -148,7 +148,8 @@ export function CoverFlow({
           <p>
             {selected.event} <span>·</span> {yearOf(selected)} <span>·</span>{' '}
             <span className="gold">
-              <Star size={11} fill="currentColor" /> {formatRating(selected.rating)}
+              {selected.rating !== null && <Star size={11} fill="currentColor" />}{' '}
+              {formatRating(selected.rating)}
             </span>
           </p>
         </div>

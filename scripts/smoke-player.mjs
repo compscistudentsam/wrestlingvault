@@ -57,6 +57,9 @@ try {
     length: '100',
     bytes: [...bytes.subarray(100, 200)],
   });
+  await page.getByRole('button', { name: 'Next match', exact: true }).click();
+  await page.getByRole('button', { name: 'Next match', exact: true }).click();
+  await expect(page.locator('.flow-cover.is-selected')).toHaveAccessibleName(/Dominion 6.9/);
   await page.locator('.flow-cover.is-selected').click();
   const video = page.locator('video');
   await expect.poll(() => video.evaluate((node) => node.readyState)).toBeGreaterThanOrEqual(2);

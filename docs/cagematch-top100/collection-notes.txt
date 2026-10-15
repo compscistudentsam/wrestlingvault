@@ -1,0 +1,15 @@
+WRESTLING VAULT — CAGEMATCH TOP 100 IMAGE COLLECTION
+Snapshot: 16 October 2026
+Ranking: https://www.cagematch.net/?id=111&view=statistics
+Category: Top 100 with at least 100 votes (default list).
+
+100 images, one per ranked match. Filenames contain rank, Cagematch date, full fixture, and event. Event titles are shortened for usable filenames; linked Cagematch records provide the original titles.
+
+Posters are prioritised. Alternatives include match graphics, programme/DVD covers, match photographs, video stills, and artwork for podcasts about the exact match. Tournament artwork covers the correct tournament year, but may not identify the individual night. Entry 50 uses official rivalry compilation artwork; entry 58 uses a build-up photograph. These distinctions are recorded in INDEX.csv and the gallery.
+
+Extract this ZIP, then open GALLERY.html for a visual index. INDEX.csv includes match/event links, original image sources, dimensions and image types. Rankings and ratings can change after this snapshot. Dates follow Cagematch, including recording dates for taped TV shows. Original image aspect ratios and formats are preserved.
+
+Artwork remains the property of its respective rights holders. Source links are supplied for reference; inclusion does not grant reuse rights.
+
+STAR RATINGS
+Each image filename ends with its Wrestling Observer Newsletter (WON) star rating as listed in the original Cagematch ranking snapshot. Decimal suffixes preserve quarter stars: 5.25_stars = 5¼ stars; 5.5_stars = 5½ stars; 5.75_stars = 5¾ stars. no_rating means no WON rating was listed. These are separate from Cagematch user scores out of 10.

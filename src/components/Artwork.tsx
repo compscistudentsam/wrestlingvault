@@ -23,10 +23,12 @@ export function Artwork({ match, eager = false }: { match: Match; eager?: boolea
       <div className="cover-lines" />
       <div className="cover-top">
         <span>{match.promotion}</span>
-        <span>★★★★★</span>
+        <span>{match.rating === null ? 'UNRATED' : 'WON STARS'}</span>
       </div>
       <div className="cover-event">{match.event.replace(' in Osaka-jo Hall', '')}</div>
-      <div className={`poster-type${match.shortNames.length > 2 ? ' poster-three-way' : ''}`}>
+      <div
+        className={`poster-type${match.shortNames.length > 2 ? ' poster-three-way' : ''}${match.shortNames.some((name) => name.length > 20) ? ' poster-team' : ''}`}
+      >
         {match.shortNames.map((name, index) => (
           <span className="poster-side" key={`${name}-${index}`}>
             {index > 0 && <span className="poster-versus">VS</span>}
@@ -36,7 +38,7 @@ export function Artwork({ match, eager = false }: { match: Match; eager?: boolea
       </div>
       <div className="cover-bottom">
         <span>{yearOf(match)}</span>
-        <span>★ {formatRating(match.rating)}</span>
+        <span>{match.rating === null ? 'Unrated' : `★ ${formatRating(match.rating)}`}</span>
       </div>
       <div className="cover-spine" />
     </div>

@@ -84,24 +84,30 @@ try {
     }),
   ).toBe('rejected');
   await page.getByRole('button', { name: 'Next match', exact: true }).click();
-  await expect(page.locator('.selection-caption h2')).toContainText('Will Ospreay');
+  await expect(page.locator('.selection-caption h2')).toContainText('Kenta Kobashi');
   await page.locator('.flow-cover.is-selected').click();
   await expect(
-    page.getByRole('heading', { name: 'Will Ospreay vs. Bryan Danielson', exact: true, level: 1 }),
+    page.getByRole('heading', {
+      name: 'Kenta Kobashi vs. Mitsuharu Misawa',
+      exact: true,
+      level: 1,
+    }),
   ).toBeVisible();
   await page.getByRole('button', { name: 'Back to covers', exact: true }).click();
   await expect(page.locator('.flow-cover.is-selected')).toHaveAccessibleName(
-    /Open Will Ospreay.*Dynasty/,
+    /Open Kenta Kobashi.*Navigate For Evolution/,
   );
   await expect(page.getByRole('searchbox')).toHaveCount(0);
-  await expect(page.getByRole('combobox')).toHaveCount(2);
+  await expect(page.getByRole('combobox')).toHaveCount(3);
   await expect(page.getByRole('navigation')).toHaveCount(0);
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.evaluate(() => {
     Math.random = () => 0.25;
   });
   await page.getByRole('button', { name: 'Random', exact: true }).click();
-  await expect(page.locator('.flow-cover.is-selected')).toHaveAccessibleName(/High Stakes/);
+  await expect(page.locator('.flow-cover.is-selected')).toHaveAccessibleName(
+    /New Beginning In Osaka/,
+  );
   await expect(page.locator('.page-flip')).toHaveCount(0);
   await page.evaluate(() => document.fonts.ready);
   await page.screenshot({

@@ -4,6 +4,7 @@ const allowedHosts = new Set([
   'wrestlepurists.com',
   'en.wikipedia.org',
   'www.google.com',
+  'www.cagematch.net',
 ]);
 
 /** Only the sample dataset's public reference sites are available to the renderer. */

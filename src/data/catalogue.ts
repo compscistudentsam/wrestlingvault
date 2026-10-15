@@ -2,23 +2,12 @@ import records from './matches.json';
 
 export type Match = (typeof records)[number];
 export const matches: readonly Match[] = records;
-export const sources = {
-  suppliedCollection: {
-    name: 'User-supplied top 50 · reported Meltzer ratings',
-    url: 'https://en.wikipedia.org/wiki/List_of_professional_wrestling_matches_rated_5_or_more_stars_by_Dave_Meltzer',
-  },
-  iwnerd: {
-    name: 'IWNerd · Dave Meltzer five-star match list',
-    url: 'https://www.iwnerd.com/dave-meltzer-5-star-matches-list/',
-  },
-  wrestlepurists: {
-    name: 'WrestlePurists · Dave Meltzer match ratings database',
-    url: 'https://wrestlepurists.com/dave-meltzer-match-ratings-database/',
-  },
-} as const;
-export const getSource = (match: Match) => sources[match.sourceId as keyof typeof sources];
-export const formatRating = (rating: number) =>
-  Number.isInteger(rating) ? rating.toFixed(1) : String(rating);
+export const getSource = (match: Match) => ({
+  name: 'CAGEMATCH · supplied snapshot',
+  url: match.sourceUrl,
+});
+export const formatRating = (rating: number | null) =>
+  rating === null ? 'Unrated' : Number.isInteger(rating) ? rating.toFixed(1) : String(rating);
 export const formatDate = (date: string) =>
   new Intl.DateTimeFormat('en-GB', {
     day: 'numeric',

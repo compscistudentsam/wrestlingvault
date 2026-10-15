@@ -106,12 +106,12 @@ test('cancelled folder selection offers recovery and an exact match folder name'
   );
   await page.goto('/');
   await page.locator('.flow-cover.is-selected').click();
-  await expect(page.locator('.video-empty')).toContainText('omega-okada-dominion-2018');
+  await expect(page.locator('.video-empty')).toContainText('omega-okada-wk11-2017');
   await expect(
     page.locator('.video-empty').getByRole('button', { name: 'Choose video folder' }),
   ).toBeVisible();
   await expect(page.locator('video')).toHaveCount(0);
   await expect(
     page.getByRole('link', { name: 'Search Google for this match online' }),
-  ).toHaveAttribute('href', /google.com\/search\?q=.*Dominion.*2018.*download%20online/);
+  ).toHaveAttribute('href', /google.com\/search\?q=.*Wrestle.*2017.*download%20online/);
 });

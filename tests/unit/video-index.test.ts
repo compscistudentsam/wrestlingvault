@@ -55,3 +55,19 @@ it('supports exact IDs, nested existing folders and refuses symbolic-link direct
   expect(index.get('danielson-ospreay-dynasty-2024')).toHaveLength(1);
   expect(index.get('omega-okada-wk11-2017')).toHaveLength(0);
 });
+
+it('matches the new library participant names while keeping prior shared-match identifiers', async () => {
+  const root = await realpath(await mkdtemp(path.join(os.tmpdir(), 'vault-library-')));
+  temporary.push(root);
+  await writeFile(
+    path.join(root, 'Cash Wheeler Dax Harwood vs Jay Briscoe Mark Briscoe Final Battle 2022.mp4'),
+    'test',
+  );
+  await writeFile(
+    path.join(root, 'Kenta Kobashi vs Mitsuharu Misawa Navigate For Evolution 2003.mp4'),
+    'test',
+  );
+  const index = await scanVideoFolder(root);
+  expect(index.get('ftr-briscoes-final-battle-2022-12-10')).toHaveLength(1);
+  expect(index.get('cagematch-2510')).toHaveLength(1);
+});

@@ -14,11 +14,8 @@ test('only the cover browser is displayed, with working local art', async ({ pag
     if (response.status() >= 400) errors.push(`${response.status()} ${response.url()}`);
   });
   await page.goto('/');
-  await expect(page.getByRole('img', { name: 'WWF', exact: true })).toHaveAttribute(
-    'src',
-    './wwf-logo.png',
-  );
-  await expect(cover(page)).toHaveAccessibleName(/Open Kazuchika Okada.*Dominion 6.9/);
+  await expect(page.locator('.brand img')).toHaveAttribute('src', './vault.svg');
+  await expect(cover(page)).toHaveAccessibleName(/Open Kazuchika Okada.*Wrestle Kingdom 11/);
   await expect(cover(page).locator('img')).toHaveJSProperty('complete', true);
   await expect(cover(page).locator('img')).not.toHaveJSProperty('naturalWidth', 0);
   await expect(page.locator('.flow-cover')).toHaveCount(7);
@@ -26,56 +23,60 @@ test('only the cover browser is displayed, with working local art', async ({ pag
   await expect(page.getByRole('combobox', { name: 'Search matches' })).toBeVisible();
   await expect(page.getByRole('combobox', { name: 'Company' })).toBeVisible();
   await page.getByRole('button', { name: 'Next match', exact: true }).click();
-  await expect(cover(page)).toHaveAccessibleName(/Open Will Ospreay.*Dynasty/);
+  await expect(cover(page)).toHaveAccessibleName(/Open Kenta Kobashi.*Navigate For Evolution/);
   await page.getByRole('button', { name: 'Previous match', exact: true }).click();
-  await expect(cover(page)).toHaveAccessibleName(/Open Kazuchika Okada.*Dominion 6.9/);
+  await expect(cover(page)).toHaveAccessibleName(/Open Kazuchika Okada.*Wrestle Kingdom 11/);
   expect(errors).toEqual([]);
 });
 
 test('side covers select, centre opens, and back keeps the selected event', async ({ page }) => {
   await page.goto('/');
-  await page.getByRole('button', { name: /Select Will Ospreay.*Dynasty/ }).click();
+  await page.getByRole('button', { name: /Select Kenta Kobashi.*Navigate For Evolution/ }).click();
   await cover(page).click();
   await expect(
-    page.getByRole('heading', { name: 'Will Ospreay vs. Bryan Danielson', exact: true, level: 1 }),
+    page.getByRole('heading', {
+      name: 'Kenta Kobashi vs. Mitsuharu Misawa',
+      exact: true,
+      level: 1,
+    }),
   ).toBeVisible();
-  await expect(page.locator('.detail-event')).toContainText('Dynasty');
+  await expect(page.locator('.detail-event')).toContainText('Navigate For Evolution');
   await expect(page.getByRole('link', { name: 'Rating source' })).toHaveAttribute(
     'rel',
     'noopener noreferrer',
   );
   await page.getByRole('button', { name: 'Back to covers' }).click();
-  await expect(cover(page)).toHaveAccessibleName(/Open Will Ospreay.*Dynasty/);
+  await expect(cover(page)).toHaveAccessibleName(/Open Kenta Kobashi.*Navigate For Evolution/);
   await page.locator('.cover-stage').focus();
   await page.keyboard.press('End');
   await page.keyboard.press('Enter');
-  await expect(page.locator('.detail-event')).toContainText('WrestleDream');
+  await expect(page.locator('.detail-event')).toContainText('Galaxy Stars');
   await page.keyboard.press('Escape');
-  await expect(cover(page)).toHaveAccessibleName(/WrestleDream/);
+  await expect(cover(page)).toHaveAccessibleName(/Galaxy Stars/);
 });
 
 test('keyboard wrapping, horizontal wheel and touch browsing work', async ({ page }) => {
   await page.goto('/');
-  await page.getByRole('button', { name: /Select Will Ospreay.*Dynasty/ }).focus();
+  await page.getByRole('button', { name: /Select Kenta Kobashi.*Navigate For Evolution/ }).focus();
   await page.keyboard.press('ArrowLeft');
   await expect(page.locator('.cover-stage')).toBeFocused();
-  await expect(cover(page)).toHaveAccessibleName(/WrestleDream/);
+  await expect(cover(page)).toHaveAccessibleName(/Galaxy Stars/);
   await page.keyboard.press('ArrowRight');
-  await expect(cover(page)).toHaveAccessibleName(/Dominion 6.9/);
+  await expect(cover(page)).toHaveAccessibleName(/Wrestle Kingdom 11/);
   await page.keyboard.press('End');
-  await expect(cover(page)).toHaveAccessibleName(/WrestleDream/);
+  await expect(cover(page)).toHaveAccessibleName(/Galaxy Stars/);
   await page.keyboard.press('Home');
-  await expect(cover(page)).toHaveAccessibleName(/Dominion 6.9/);
+  await expect(cover(page)).toHaveAccessibleName(/Wrestle Kingdom 11/);
   await page.locator('.cover-stage').hover();
   await page.mouse.wheel(150, 0);
-  await expect(cover(page)).toHaveAccessibleName(/Open Will Ospreay.*Dynasty/);
+  await expect(cover(page)).toHaveAccessibleName(/Open Kenta Kobashi.*Navigate For Evolution/);
   await page
     .locator('.cover-stage')
     .dispatchEvent('touchstart', { touches: [{ identifier: 1, clientX: 400, clientY: 250 }] });
   await page
     .locator('.cover-stage')
     .dispatchEvent('touchend', { changedTouches: [{ identifier: 1, clientX: 200, clientY: 255 }] });
-  await expect(cover(page)).toHaveAccessibleName(/Open Will Ospreay.*All In/);
+  await expect(cover(page)).toHaveAccessibleName(/Open Kazuchika Okada.*Dominion 6.9/);
 });
 
 test('missing images keep readable cover art', async ({ page }) => {
@@ -125,10 +126,10 @@ test('invalid routes recover and animation respects system preferences', async (
   await page
     .getByRole('button', { name: 'Next match', exact: true })
     .click({ clickCount: 2, delay: 60 });
-  await expect(cover(page)).toHaveAccessibleName(/Open Will Ospreay.*All In/);
+  await expect(cover(page)).toHaveAccessibleName(/Open Kazuchika Okada.*Dominion 6.9/);
   await cover(page).click();
   await expect(
-    page.getByRole('heading', { name: 'Will Ospreay vs. Kenny Omega', exact: true }),
+    page.getByRole('heading', { name: 'Kazuchika Okada vs. Kenny Omega', exact: true }),
   ).toBeVisible();
 });
 
@@ -158,11 +159,11 @@ test('Random flips through a full pass and stops on the chosen match', async ({ 
   await expect(page.locator('.page-flip')).toBeVisible();
   await expect(page.getByRole('button', { name: 'Next match', exact: true })).toBeDisabled();
   await expect(random).toBeEnabled({ timeout: 8000 });
-  await expect(cover(page)).toHaveAccessibleName(/Open Michael Oku.*High Stakes/);
+  await expect(cover(page)).toHaveAccessibleName(/Open Bryan Danielson.*New Beginning In Osaka/);
   await expect(page.locator('.page-flip')).toHaveCount(0);
-  await expect(page.getByRole('status')).toContainText('High Stakes');
+  await expect(page.getByRole('status')).toContainText('The New Beginning In Osaka');
   await cover(page).click();
-  await expect(page.locator('.detail-event')).toContainText('High Stakes');
+  await expect(page.locator('.detail-event')).toContainText('The New Beginning In Osaka');
   await expect(random).toHaveCount(0);
 });
 
@@ -180,10 +181,10 @@ test('Random supports reduced motion, the current match, and a centred mobile bu
   await random.click();
   await expect(random).toBeEnabled();
   await expect(page.locator('.page-flip')).toHaveCount(0);
-  await expect(cover(page)).toHaveAccessibleName(/Dominion 6.9/);
+  await expect(cover(page)).toHaveAccessibleName(/Wrestle Kingdom 11/);
   await page.getByRole('button', { name: 'Next match', exact: true }).click();
   await random.click();
-  await expect(cover(page)).toHaveAccessibleName(/Dominion 6.9/);
+  await expect(cover(page)).toHaveAccessibleName(/Wrestle Kingdom 11/);
 });
 
 test('leaving during a random browse cancels the pending flips', async ({ page }) => {
@@ -199,12 +200,12 @@ test('leaving during a random browse cancels the pending flips', async ({ page }
   await expect(page.locator('.page-flip')).toHaveCount(0);
 });
 
-test('all 50 ranked cards decode, including repeat matchups and the three-way finale', async ({
+test('all 100 ranked cards decode, including repeat matchups and the final match', async ({
   page,
 }) => {
   await page.goto('/');
   const images = matches.map((match) => `./art/${match.image}`);
-  expect(new Set(images).size).toBe(50);
+  expect(new Set(images).size).toBe(100);
   const decoded = await page.evaluate(
     async (urls) =>
       Promise.all(
@@ -222,13 +223,11 @@ test('all 50 ranked cards decode, including repeat matchups and the three-way fi
     images,
   );
   expect(decoded.every(Boolean)).toBe(true);
-  await expect(page.locator('.selection-count')).toHaveText('01 / 50');
+  await expect(page.locator('.selection-count')).toHaveText('01 / 100');
   await page.locator('.cover-stage').focus();
   await page.keyboard.press('End');
-  await expect(page.locator('.selection-count')).toHaveText('50 / 50');
-  await expect(cover(page).locator('.poster-type')).toContainText('RICOCHET');
+  await expect(page.locator('.selection-count')).toHaveText('100 / 100');
+  await expect(cover(page).locator('.poster-type')).toContainText('IWATANI');
   await cover(page).click();
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText(
-    'Konosuke Takeshita vs. Will Ospreay vs. Ricochet',
-  );
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Io Shirai vs. Mayu Iwatani');
 });

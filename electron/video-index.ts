@@ -18,12 +18,15 @@ function score(label: string, match: Match) {
   const text = ` ${normalized(label)} `;
   const compact = text.replaceAll(' ', '');
   if (compact.includes(normalized(match.id).replaceAll(' ', ''))) return 10000;
-  const sideGroups = match.shortNames.map((side) =>
-    normalized(side)
-      .split(' ')
-      .filter((word) => !['jr'].includes(word)),
+  const participantMatch = match.videoNameGroups.some((names) =>
+    names.every((side) =>
+      normalized(side)
+        .split(' ')
+        .filter((word) => word !== 'jr')
+        .every((word) => text.includes(` ${word} `)),
+    ),
   );
-  if (!sideGroups.every((words) => words.every((word) => text.includes(` ${word} `)))) return 0;
+  if (!participantMatch) return 0;
   const date = match.date;
   const dateMatch = compact.includes(date.replaceAll('-', ''));
   const years: string[] = text.match(/\b(?:19|20)\d{2}\b/g) ?? [];
@@ -38,7 +41,9 @@ function score(label: string, match: Match) {
   // Repeated opponents require a complete event name or a year plus event clues.
   const repeated =
     matches.filter(
-      (other) => [...other.shortNames].sort().join('|') === [...match.shortNames].sort().join('|'),
+      (other) =>
+        other.wrestlers.map(normalized).sort().join('|') ===
+        match.wrestlers.map(normalized).sort().join('|'),
     ).length > 1;
   if (!dateMatch && repeated && !completeEvent && (!years.length || !eventClue)) return 0;
   return (
