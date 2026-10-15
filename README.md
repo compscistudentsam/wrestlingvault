@@ -1,6 +1,6 @@
 # Wrestling Vault
 
-A cinematic wrestling archive for Windows, built with Electron, React and TypeScript. This is **Phase 1: the visual foundation and desktop prototype**, not the complete archive.
+A wrestling match library with cover art for Windows, built with Electron, React and TypeScript. This is **Phase 1: the visual foundation and desktop prototype**, not the complete archive.
 
 ## Run on Windows 10/11
 
@@ -9,8 +9,8 @@ Install [Node.js 24 LTS](https://nodejs.org/) and Git, then open PowerShell:
 ```powershell
 git clone --branch feature/phase-1-ui https://github.com/compscistudentsam/wrestlingvault.git
 cd wrestlingvault
-npm ci
-npm run dev
+npm.cmd ci
+npm.cmd run dev
 ```
 
 The first Electron launch downloads its runtime with checksum verification. Internet access is needed for installation. The app then browses its bundled sample data, fonts and artwork offline. No API keys, accounts, database service, or paid APIs are needed.
@@ -20,24 +20,26 @@ The first Electron launch downloads its runtime with checksum verification. Inte
 To review the production frontend inside Electron:
 
 ```powershell
-npm run build
-npm start
+npm.cmd run build
+npm.cmd start
 ```
 
 This is a local application launch, **not an installer**. Windows installer configuration, Windows CI and distribution remain in Phase 6. No release is published automatically. Signing and Windows SmartScreen behaviour must be assessed during release work.
 
 ## What works in Phase 1
 
-- Dark-and-gold desktop interface with original arena illustrations and locally bundled Inter fonts.
-- Discover spotlight with manual previous/next and direct selection; no autoplay.
-- Five collections derived from the sample records, horizontal scrolling, keyboard arrows and hover emphasis.
-- Match detail navigation, historical context written without match results, fractional star ratings and source links.
-- Search across names, titles, events, promotions and years; combined promotion, decade and minimum-rating filters; rating/date/title sorting; empty states and reset.
-- WWF records appear under the WWE filter while preserving the original recorded promotion.
-- Responsive navigation, visible keyboard focus, search shortcut, session reduced-motion switch and system reduced-motion support.
-- Strictly limited Electron preload API, validated IPC, isolated renderer, sandbox, restricted navigation and deny-by-default permissions.
+- Compact dark library with portrait match sleeves and a cover-flow browser.
+- Click a side cover to select it; click the centre cover or Details to open the match.
+- Browse with the arrows, Left/Right, Home/End, horizontal trackpad gestures, or touch swipes. Enter on the focused gallery opens the selected match.
+- The compact match list and covers stay in sync. Click a row to select it, use its arrow to open it, or double-click the row.
+- Switch to a cover grid. Returning from details preserves your selection, filters and view.
+- Search, promotion/decade/rating filters, sorting and collection shortcuts use the 12 bundled sample records. WWF remains labelled WWF inside the combined WWE filter.
+- Reduced motion, visible keyboard focus, Ctrl+K search and responsive desktop/laptop layouts.
+- Isolated Electron renderer, narrow validated IPC, restricted navigation and deny-by-default permissions.
 
-Promotions, Wrestlers, Timeline, Statistics and My Watchlist have clearly labelled unavailable screens. Watchlist buttons are disabled. No SQLite, ingestion, user collections, personal tracking, recommendations, statistics or installer has been implemented.
+The sidebar’s **More** section contains the future Promotions, Wrestlers, Timeline, Statistics and My Watchlist destinations, each explicitly unavailable. Personal actions remain disabled. There is no database, import pipeline, personal persistence, analytics or installer in this phase.
+
+PowerShell users should use `npm.cmd` as shown above. This avoids the `npm.ps1` execution-policy error without changing system policy.
 
 ## Data and artwork limitations
 
@@ -48,13 +50,13 @@ All arena imagery is original vector artwork, not photography of the matches. It
 ## Checks
 
 ```powershell
-npm run typecheck
-npm test
-npm run build
-npx playwright install chromium
-npm run test:ui
-npm run test:desktop
-npm run test:desktop -- --development
+npm.cmd run typecheck
+npm.cmd test
+npm.cmd run build
+npx.cmd playwright install chromium
+npm.cmd run test:ui
+npm.cmd run test:desktop
+npm.cmd run test:desktop -- --development
 ```
 
 The desktop smoke tests open and close a real Electron window. The production smoke test requires `npm run build` first. On Linux, a working X11 display (or Xvfb) and Electron system libraries are required. `WV_CHROMIUM_PATH` can select an existing Chromium binary for browser tests; the default uses Playwright's browser. `npm run dev:web` starts the renderer alone for browser inspection and does not exercise Electron's preload.
@@ -69,7 +71,7 @@ Screenshots and test reports are generated in ignored `artifacts/screenshots`, `
 electron/                 Main process and sandbox-compatible preload
 src/shared/               Typed IPC contract and security validation
 src/data/                 Local samples, provenance links, pure query functions
-src/components/           Reusable hero, artwork, cards and carousels
+src/components/           Cover flow, library/list, portrait artwork and cards
 src/App.tsx               Navigation, catalogue and detail/settings screens
 src/styles.css            Tailwind theme and responsive component styles
 public/art/               Original, bundled vector arena illustrations

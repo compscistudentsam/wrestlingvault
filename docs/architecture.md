@@ -16,10 +16,14 @@ Pure functions own catalogue filtering and collection membership. Components rec
 
 Session UI state stays in React. A future persistence adapter can replace the sample provider without exposing SQL or arbitrary filesystem access to the renderer. There is no mock watchlist presented as persistent functionality.
 
-The artwork component shares one pipeline between hero and landscape cards. Bundled original illustration variants use the match's palette; image failures fall back to CSS colour, texture and live text. Optional approved photography and portrait layouts can extend that component after asset rights and product needs are established. No remote asset loading is implemented.
+The artwork component shares one portrait-sleeve pipeline between the cover flow, grid and details. Original arena illustrations combine with event/name typography and a match-specific palette; failures retain the CSS backdrop and live text. No remote asset loading is implemented. Cover selection, filters and view live above the library/detail routes so returning from a match preserves the browsing context. The compact table and cover flow derive from the same filtered, sorted records.
 
-All sample data is synchronous and bundled, so the interface does not simulate loading with an artificial delay or show a misleading skeleton. Add meaningful skeletons when real asynchronous data is introduced. Fonts are bundled locally and use `font-display: swap` from Fontsource. Only Latin subsets needed by this prototype are imported. Images are lazy-loaded except the featured hero.
+All sample data is synchronous and bundled, so the interface does not simulate loading with an artificial delay or show a misleading skeleton. Add meaningful skeletons when real asynchronous data is introduced. Fonts are bundled locally and use `font-display: swap` from Fontsource. Only Latin subsets needed by this prototype are imported. Artwork near the selected cover and the detail cover loads eagerly; other covers are lazy-loaded.
 
 ## Scope
 
 No database, ingestion, personal collection, generated analytics, recommendation engine, backend, updater or release pipeline is present. The installed electron-builder package is reserved for the authorised release phase. shadcn/ui and Recharts are not added just to populate the dependency list; native semantic controls are sufficient for this phase.
+
+## Current visual direction
+
+The user’s October 2026 reference replaces the initial text-heavy streaming homepage with a compact media-library layout: portrait match covers, a large central selection with angled neighbouring sleeves, and a linked match list. Marketing headings, repeated descriptions, large future-action panels and the large hero are removed. Match context and source information remain available inside details; the library retains a short sample/verification status. This is a Phase 1 revision, not authorization for later phases.

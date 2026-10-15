@@ -1,67 +1,64 @@
 # Phase 1 review
 
-## Implemented
+## Current design
 
-The Electron desktop shell, cinematic Discover page, featured-match navigation, five horizontal sample-driven collections, reusable artwork/cards, match details, basic combined search/filtering, settings/about information, keyboard focus and reduced-motion handling are implemented. Future navigation destinations clearly explain their unavailability. Personal collection actions are disabled, with their intended phase shown.
+The latest user reference changes the initial streaming homepage to a compact media library. Discover now opens a cover-flow browser: portrait match sleeves surround a large central selection, with a linked match list below. The interface removes the welcome copy, slogans, repeated descriptions and large future-action panels. No person/video overlay or music visualizer is included.
 
-The historical sample is limited to 12 reference-linked entries. Verification remains pending because the reference sites are blocked by the cloud network policy. This is an outstanding requirement of the brief; it is not silently treated as passed.
+Side covers select a match; the centre cover and Details button open its profile. Arrow buttons, Left/Right, Home/End, horizontal trackpad gestures and touch swipes browse the covers. The table follows the selection; its row buttons and double-click open the corresponding event. A grid toggle presents the same results as portrait covers. Filters, view and selection survive a trip into match details.
 
-The workspace was recovered successfully on 14 October 2026. The build, 23 unit tests, 13 browser tests and both real-Electron smoke modes passed again after recovery. IWNerd, WrestlePurists and the GitHub API still returned proxy denials, including outside the shell sandbox, despite the domain additions appearing in saved configuration. No additional credentials were requested, and source verification has not been claimed.
+The sidebar provides collection and promotion shortcuts. More contains clearly unavailable future destinations. Match descriptions and source attribution remain in the compact detail page. The footer keeps the sample/verification status visible. Artwork uses original illustrated sleeves, not actual match photographs.
 
-The direct `npm run dev` check exposed Playwright's default implicit `--no-sandbox` launch flag. The smoke launcher now explicitly sets `chromiumSandbox: true` and asserts that `--no-sandbox` is absent. Linux launches select the user-namespace sandbox and require permission to write their own `/proc/self/uid_map`, which the cloud's outer shell filesystem sandbox blocks. Native desktop validation therefore runs outside that outer shell sandbox while retaining Chromium's renderer sandbox. The cloud also emits D-Bus warnings because desktop system services are absent; these are separate from renderer errors and did not prevent the exercised workflows.
+## Validation — 15 October 2026
 
-## Automated validation in this task
+| Check                                                | Result                                  |
+| ---------------------------------------------------- | --------------------------------------- |
+| TypeScript                                           | Passed                                  |
+| Production frontend, Electron main and preload build | Passed                                  |
+| Unit tests                                           | 23 passed                               |
+| Browser tests                                        | 17 passed                               |
+| Production Electron on Linux Xvfb                    | Passed                                  |
+| Development Electron on Linux Xvfb                   | Passed                                  |
+| Formatting and Git whitespace                        | Passed                                  |
+| Interactive Windows testing                          | Not performed in this Linux environment |
 
-| Check                                                            | Result                                                                       |
-| ---------------------------------------------------------------- | ---------------------------------------------------------------------------- |
-| TypeScript                                                       | Passed                                                                       |
-| Vite production frontend and bundled Electron main/preload build | Passed                                                                       |
-| Vitest                                                           | 23 unit tests passed                                                         |
-| Playwright Chromium                                              | 13 browser tests passed                                                      |
-| Electron production frontend on Linux Xvfb                       | Passed; real Electron window, source API validation, no renderer Node access |
-| Electron development frontend on Linux Xvfb                      | Passed; Vite-connected real Electron window                                  |
-| Renderer sandbox and context isolation                           | Asserted enabled at runtime; no `--no-sandbox` override used                 |
-| Runtime dependency audit                                         | 0 reported vulnerabilities (`npm audit --omit=dev`)                          |
-| Actual interactive Windows testing                               | Not performed in the Linux environment                                       |
-| Windows installer / release                                      | Not implemented; Phase 6                                                     |
-| Live source-reference verification                               | Blocked by environment network allowlist                                     |
+Browser tests exercise cover selection, linked rows, opening the correct event when match names repeat, returning with the same filters/view/selection, keyboard wrapping and focus, wheel/swipe gestures, combined filters, sorting, reset/empty results, a single-result gallery, grid navigation, future destinations, reduced motion, failed artwork, search shortcuts and rapid animated navigation. Cover flow, grid and details are checked at 1920×1080, 1366×768, 960×640 and 430×932.
 
-Browser tests exercise hero controls, carousel arrows/keyboard scrolling, hover emphasis, card/detail navigation, source-link attributes, combined filters, sorting/reset/empty states, future-page navigation, missing-art fallbacks, focus/search shortcuts, normal and reduced motion, unknown routes, and screenshots. Viewports checked: 1920×1080, 1366×768, 960×640 and 430×932.
+Both Electron smoke modes open real windows, exercise navigation/search and assert context isolation, renderer sandboxing, no renderer Node access, the exact preload API and rejection of unsafe IPC. Production checks the actual CSP violation for a blocked remote request. Linux uses the Chromium user-namespace sandbox; `--no-sandbox` is never passed. Native checks run outside the cloud executor’s outer filesystem sandbox because that outer layer blocks the namespace’s `/proc/self/uid_map` write. Ordinary browser/build checks use normal permissions.
 
-The smoke test exercises the actual narrow preload API and rejects a `file:` URL. Production renderer network access is explicitly tested as blocked. Test rejection of network access generates an expected CSP diagnostic; ordinary renderer errors cause the test to fail. All source-reference links remain subject to human source review; URL-policy tests do not establish reference correctness.
+## Review on Windows
 
-## Visual review
+Close the running app. From your existing checkout in PowerShell:
 
-After `npm run test:ui`, inspect:
+```powershell
+git pull --ff-only origin feature/phase-1-ui
+npm.cmd run dev
+```
 
-- `artifacts/screenshots/discover-desktop.png`
-- `artifacts/screenshots/discover-laptop.png`
-- `artifacts/screenshots/discover-collections.png`
-- `artifacts/screenshots/collection.png`
-- `artifacts/screenshots/match-details.png`
+No dependencies changed in this revision. For a fresh clone, run `npm.cmd ci` first. `npm.cmd` avoids PowerShell’s script-wrapper execution-policy error without changing system policy.
 
-Desktop smoke tests also capture `electron-production.png` and `electron-development.png`. These are Linux captures, not evidence of Windows testing. Artifact files are ignored in Git.
+1. Click a side sleeve, then the centre sleeve. Return and confirm the same match remains selected.
+2. Use the gallery arrows, keyboard arrows and the row list. Open two Omega/Okada matches from different events.
+3. Switch between Covers and Grid. Search “Omega”, combine filters, and reset.
+4. Try a laptop resolution and Windows scaling at 125%/150%; scroll the match list.
+5. Check reduced motion in Settings and the OS. Browse offline after installation.
 
-## Review on your Windows PC
+## Screenshots
 
-1. Follow the Windows launch instructions in the README.
-2. Open Discover. Compare the typography, arena art, spacing and gold accents with the intended design.
-3. Use the spotlight arrows and all three direct selectors. Open a match and return.
-4. Scroll the carousels by mouse/touchpad, arrows and keyboard. Hover or focus a card.
-5. Search “Omega”, combine the NJPW and 7+ rating filters, then test a search with no matches and reset.
-6. Filter WWE/WWF to the 1990s. Confirm the original WWF identity is retained on the cards.
-7. Visit every sidebar destination. Later-phase pages and personal actions must clearly say unavailable.
-8. Use Tab, Shift+Tab, Ctrl+K and Escape. Confirm focus visibility. Test both the in-app and Windows reduced-motion preferences.
-9. Test at 1920×1080 and a laptop resolution, plus Windows display scaling at 125% and 150%. Scroll to the bottom of each page.
-10. Disconnect the network after installation. Browse records/artwork; only external references should need the network.
-11. Close the application and reopen with `npm start` after a production build.
+Browser captures are generated in ignored `artifacts/screenshots/`:
 
-## Remaining limitations and approval gate
+- `discover-desktop.png` — cover flow and compact list at 1920×1080.
+- `discover-laptop.png` — the same interface at 1366×768.
+- `collection.png` — portrait cover grid.
+- `match-details.png` — compact match profile.
 
-- Rating and ancillary historical facts require source verification once the reference domains are permitted. No unverified sample is presented as an independently verified record.
-- No licensed match photographs have been supplied; the visuals use clearly labelled original arena illustrations.
-- There is no full database, data import, watchlist, personal persistence, recommendation system, analytics or installer in Phase 1.
-- Actual Windows behaviour and display scaling need the manual review above.
-- GitHub PR creation depends on API access and repository permissions. The local feature-branch change remains reviewable even if API access is unavailable.
+Desktop smoke checks also capture `electron-production.png` and `electron-development.png`. These are Linux captures, not evidence of Windows testing. Screenshots and test outputs are not committed.
 
-**Stop after Phase 1. Explicit user approval of the design is required before any Phase 2 development or merge into `main`.**
+## Remaining limitations
+
+The catalogue is still 12 manually authored, reference-linked samples. Independent historical verification remains outstanding; see [data provenance](data-provenance.md). The reference hosts were blocked during the original work. This visual revision does not claim source verification, completeness, photo licensing or access to match video.
+
+Git push works. GitHub API access still returned `Forbidden` on 15 October 2026, so a PR cannot be created through the API. The feature branch is reviewable at [main...feature/phase-1-ui](https://github.com/compscistudentsam/wrestlingvault/compare/main...feature/phase-1-ui).
+
+No database, imports, personal persistence, analytics, installer or later-phase functionality has been added. Work stays on `feature/phase-1-ui`.
+
+**Explicit design approval is required before Phase 2 or merging into `main`.**

@@ -1,6 +1,7 @@
 # Wrestling Vault development instructions
 
 - Read `docs/development-brief.md` and `README.md` before development.
+- The current visual direction is a compact media library with cover flow, portrait match sleeves and a linked match list, following the user’s reference. Keep library text minimal; see `docs/architecture.md`.
 - Only Phase 1 is authorized. Do not implement SQLite, import pipelines, personal collections, analytics, Windows release CI or subsequent phases until the user explicitly approves that phase. Visual revisions remain Phase 1.
 - Use the existing checkout. Cloud tasks are already isolated; do not create a Git worktree unless requested.
 - Develop on the appropriate feature branch. Do not merge phase work into `main` without explicit user approval.

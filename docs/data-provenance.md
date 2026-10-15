@@ -28,14 +28,14 @@ These are secondary reference pages, not licensed bulk-data APIs. They may chang
 | Omega / Ospreay       | 2023-06-25 | Forbidden Door               |                  6.0 | WrestlePurists   |
 | Danielson / Ospreay   | 2024-04-21 | Dynasty                      |                  6.5 | WrestlePurists   |
 
-Venue, championship and stipulation fields also require review. Missing duration and watch links are omitted instead of invented. Unspecified championships read “No championship listed,” rather than implying that an independently verified absence has been established.
+Venue, championship and stipulation fields also require review. Missing duration and watch links are omitted instead of invented. Unspecified championships are omitted; an empty field does not establish an independently verified absence.
 
 ## Collection rules
 
-- **Greatness, without a ceiling:** all samples sorted by Meltzer rating descending, then match date descending; ranks reflect only the sample set.
-- **Six stars. And then some:** the same ordering, restricted to ratings at least 6.0.
-- **The fighting spirit of Japan:** NJPW and co-promoted NJPW records.
-- **Larger than life:** WWF and WWE records together; recorded names remain intact.
-- **Before the modern era:** matches before 2000, in rating/date order; its explore action sets the “Before 2000” era filter.
+- **Highest rated:** all samples sorted by Meltzer rating descending, then match date descending; ordering reflects only the sample set.
+- **Six stars & above:** the same ordering, restricted to ratings at least 6.0.
+- **New Japan:** NJPW and co-promoted NJPW records.
+- **WWE classics:** WWF and WWE records together; recorded names remain intact.
+- **Before 2000:** matches before 2000, in rating/date order; its collection shortcut sets the “Before 2000” era filter.
 
 Empty collections are omitted. No subjective “hidden gems” algorithm or complete historical ranking is represented. Phase 1 uses JSON; database-driven selection begins only in the authorised database phase.

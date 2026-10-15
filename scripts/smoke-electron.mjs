@@ -44,7 +44,7 @@ try {
       (text.includes('Content Security Policy') || text.includes('connect-src'));
     if (!expectedRejection) errors.push(text);
   });
-  await expect(page.getByRole('heading', { name: 'Welcome to the Vault.' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'All matches', exact: true })).toBeVisible();
   const flags = await application.evaluate(({ BrowserWindow }) => {
     const preferences = BrowserWindow.getAllWindows()[0].webContents.getLastWebPreferences();
     return {
@@ -80,11 +80,11 @@ try {
       }
     }),
   ).toBe('rejected');
-  await page.getByRole('button', { name: 'Next featured match' }).click();
-  await expect(page.locator('.hero-title')).toContainText('CM Punk');
-  await page.getByRole('button', { name: 'Explore the match' }).click();
+  await page.getByRole('button', { name: 'Next match', exact: true }).click();
+  await expect(page.locator('.selection-caption h2')).toContainText('Bryan Danielson');
+  await page.getByRole('button', { name: 'Details', exact: true }).click();
   await expect(
-    page.getByRole('heading', { name: 'CM Punk vs. John Cena', exact: true, level: 1 }),
+    page.getByRole('heading', { name: 'Bryan Danielson vs. Will Ospreay', exact: true, level: 1 }),
   ).toBeVisible();
   await page
     .getByRole('navigation')
@@ -94,7 +94,7 @@ try {
   await expect(page.locator('.match-grid .match-card')).toHaveCount(1);
   await page.getByRole('searchbox').fill('');
   await page.getByRole('navigation').getByRole('button', { name: 'Discover', exact: true }).click();
-  await expect(page.locator('.hero-title')).toBeVisible();
+  await expect(page.locator('.selection-caption h2')).toBeVisible();
   await page.evaluate(() => document.fonts.ready);
   await page.screenshot({
     path: `artifacts/screenshots/electron-${development ? 'development' : 'production'}.png`,
