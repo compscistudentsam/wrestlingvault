@@ -1,8 +1,9 @@
-import { app, BrowserWindow, ipcMain, session, shell, dialog, protocol, net } from 'electron';
+import { app, BrowserWindow, ipcMain, session, shell, dialog, protocol } from 'electron';
 import path from 'node:path';
 import { realpath } from 'node:fs/promises';
 import { randomUUID } from 'node:crypto';
 import { inside } from './videos';
+import { videoResponse } from './video-response';
 import { scanVideoFolder, type VideoIndex } from './video-index';
 import { matches } from '../src/data/catalogue';
 import { pathToFileURL } from 'node:url';
@@ -43,6 +44,7 @@ function createWindow() {
     minHeight: 640,
     backgroundColor: '#10131B',
     title: 'Wrestling Vault',
+    icon: path.join(__dirname, developmentURL ? '../public/wwf-logo.png' : '../dist/wwf-logo.png'),
     autoHideMenuBar: true,
     show: false,
     webPreferences: {
@@ -97,10 +99,7 @@ void app.whenReady().then(() => {
     try {
       const resolved = await realpath(file);
       if (!inside(videoRoot, resolved)) return new Response(null, { status: 403 });
-      return await net.fetch(pathToFileURL(resolved).href, {
-        method: request.method,
-        headers: request.headers,
-      });
+      return await videoResponse(resolved, request);
     } catch {
       return new Response(null, { status: 404 });
     }

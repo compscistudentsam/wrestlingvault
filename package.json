@@ -21,7 +21,8 @@
     "test:desktop": "node scripts/smoke-electron.mjs",
     "check": "npm run typecheck && npm test && npm run build",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "test:player": "node scripts/smoke-player.mjs"
   },
   "dependencies": {
     "@fontsource/inter": "5.3.0",

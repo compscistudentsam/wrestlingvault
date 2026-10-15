@@ -195,7 +195,7 @@ export function App() {
     <div className="app-shell">
       <header className="topbar">
         <div className="brand">
-          <img src="./vault.svg" alt="" />
+          <img src="./wwf-logo.png" alt="WWF" />
           <span className="brand-name">
             WRESTLING <strong>VAULT</strong>
             <span className="gold">.</span>
@@ -404,11 +404,62 @@ function MatchDetails({
 }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [seekNotice, setSeekNotice] = useState('');
+  const [playing, setPlaying] = useState(false);
+  const [duration, setDuration] = useState(0);
+  const [position, setPosition] = useState(0);
+  const updateMedia = () => {
+    const video = videoRef.current;
+    if (!video) return;
+    const end = Number.isFinite(video.duration)
+      ? video.duration
+      : video.seekable.length
+        ? video.seekable.end(video.seekable.length - 1)
+        : 0;
+    setDuration(end);
+    setPosition(video.currentTime);
+  };
+  const togglePlayback = async () => {
+    const video = videoRef.current;
+    if (!video) return;
+    if (!video.paused) video.pause();
+    else
+      try {
+        await video.play();
+      } catch {
+        setPlaybackError('Could not start playback. Try another supported video file.');
+      }
+  };
+  const seekTo = (time: number) => {
+    const video = videoRef.current;
+    if (!video) return;
+    const end = Number.isFinite(video.duration)
+      ? video.duration
+      : video.seekable.length
+        ? video.seekable.end(video.seekable.length - 1)
+        : 0;
+    if (!end) {
+      setSeekNotice('Waiting for video information…');
+      return false;
+    }
+    const target = Math.max(0, Math.min(end, time));
+    try {
+      video.currentTime = target;
+      setPosition(target);
+      return true;
+    } catch {
+      setSeekNotice('This video cannot seek yet. Wait for it to load, then retry.');
+      return false;
+    }
+  };
+  const timestamp = (time: number) => {
+    const total = Math.max(0, Math.floor(time));
+    return `${Math.floor(total / 3600) ? `${Math.floor(total / 3600)}:` : ''}${String(Math.floor(total / 60) % 60).padStart(2, '0')}:${String(total % 60).padStart(2, '0')}`;
+  };
   const seek = (seconds: number) => {
     const video = videoRef.current;
-    if (!video || !Number.isFinite(video.duration)) return;
-    video.currentTime = Math.max(0, Math.min(video.duration, video.currentTime + seconds));
-    setSeekNotice(seconds > 0 ? 'Forward 10 seconds' : 'Back 10 seconds');
+    if (!video) return;
+    if (seekTo(video.currentTime + seconds))
+      setSeekNotice(seconds > 0 ? 'Forward 10 seconds' : 'Back 10 seconds');
   };
   const [videos, setVideos] = useState<{ name: string; url: string }[]>([]);
   const [active, setActive] = useState(0);
@@ -460,18 +511,29 @@ function MatchDetails({
           onKeyDown={(event) => {
             if (
               event.target instanceof HTMLSelectElement ||
-              event.target instanceof HTMLButtonElement
+              event.target instanceof HTMLInputElement
             )
               return;
             if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
               event.preventDefault();
               seek(event.key === 'ArrowLeft' ? -10 : 10);
+            } else if (event.code === 'Space' && !(event.target instanceof HTMLButtonElement)) {
+              event.preventDefault();
+              void togglePlayback();
             }
           }}
         >
           <div className="video-screen">
             <video
               ref={videoRef}
+              onLoadedMetadata={updateMedia}
+              onDurationChange={updateMedia}
+              onProgress={updateMedia}
+              onTimeUpdate={updateMedia}
+              onSeeked={updateMedia}
+              onPlay={() => setPlaying(true)}
+              onPause={() => setPlaying(false)}
+              onEnded={() => setPlaying(false)}
               key={videos[active].url}
               src={videos[active].url}
               controls
@@ -497,7 +559,29 @@ function MatchDetails({
               onDoubleClick={() => seek(10)}
             />
           </div>
+          <div className="playback-timeline">
+            <span>{timestamp(position)}</span>
+            <input
+              type="range"
+              aria-label="Video position"
+              min={0}
+              max={duration || 1}
+              step={0.1}
+              value={Math.min(position, duration || 1)}
+              disabled={!duration}
+              aria-valuetext={`${timestamp(position)} of ${timestamp(duration)}`}
+              onChange={(event) => seekTo(Number(event.target.value))}
+            />
+            <span>{timestamp(duration)}</span>
+          </div>
           <div className="seek-controls">
+            <button
+              className="button playback-toggle"
+              onClick={() => void togglePlayback()}
+              aria-label={playing ? 'Pause video' : 'Play video'}
+            >
+              {playing ? 'Pause' : 'Play'}
+            </button>
             <button className="button" onClick={() => seek(-10)} aria-label="Back 10 seconds">
               ← 10s
             </button>
@@ -515,6 +599,10 @@ function MatchDetails({
                 value={active}
                 onChange={(event) => {
                   setActive(Number(event.target.value));
+                  setDuration(0);
+                  setPosition(0);
+                  setPlaying(false);
+                  setSeekNotice('');
                   setPlaybackError('');
                 }}
               >

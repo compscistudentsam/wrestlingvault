@@ -14,6 +14,10 @@ test('only the cover browser is displayed, with working local art', async ({ pag
     if (response.status() >= 400) errors.push(`${response.status()} ${response.url()}`);
   });
   await page.goto('/');
+  await expect(page.getByRole('img', { name: 'WWF', exact: true })).toHaveAttribute(
+    'src',
+    './wwf-logo.png',
+  );
   await expect(cover(page)).toHaveAccessibleName(/Open Kazuchika Okada.*Dominion 6.9/);
   await expect(cover(page).locator('img')).toHaveJSProperty('complete', true);
   await expect(cover(page).locator('img')).not.toHaveJSProperty('naturalWidth', 0);

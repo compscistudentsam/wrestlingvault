@@ -50,7 +50,7 @@ Wrestling Videos/
 
 For an exact, unambiguous match, name a file after the match ID shown in its missing-video message. Ambiguous files such as `Okada vs Omega.mp4` are left unmatched rather than assigned to the wrong event. Videos stay on your computer. The app scans within the chosen folder (up to eight nested levels), skips symbolic links and keeps filesystem access in Electron's main process. Availability means a recognized local file exists, not that its codec has been validated. Use **Rescan videos** after changing the files.
 
-Click a cover to open the in-app player. Use its **← 10s / 10s →** buttons, Left/Right keys while the player is focused, or double-click the left/right side of the video to skip ten seconds. Native controls provide pause, volume, seeking and fullscreen. Multiple files/parts appear in a selector, ordered by filename. Back or Escape stops playback and returns to covers.
+Click a cover to open the in-app player. Use its **← 10s / 10s →** buttons, Left/Right keys while the player is focused, or double-click the left/right side of the video to skip ten seconds. Explicit Play/Pause buttons and a seek timeline are provided alongside native volume/fullscreen controls. The video scales with the app window, including when maximized. Local files are streamed with byte-range responses so forward and backward seeks can request the required portion of the file. Multiple files/parts appear in a selector, ordered by filename. Back or Escape stops playback and returns to covers.
 
 Missing-video descriptions include a Google search link using the match name, event, year and `download online`. Searches open in the system browser; the app does not download videos itself.
 
@@ -75,10 +75,11 @@ npm.cmd run build
 npx.cmd playwright install chromium
 npm.cmd run test:ui
 npm.cmd run test:desktop
+npm.cmd run test:player
 npm.cmd run test:desktop -- --development
 ```
 
-The desktop smoke tests open and close a real Electron window. Cancel the startup video-folder dialog when running these checks interactively. The production smoke test requires `npm run build` first. On Linux, a working X11 display (or Xvfb) and Electron system libraries are required. `WV_CHROMIUM_PATH` can select an existing Chromium binary for browser tests; the default uses Playwright's browser. `npm run dev:web` starts the renderer alone for browser inspection and does not exercise Electron's preload.
+The player smoke test automates folder selection with a generated test clip and exercises the real Electron media protocol, byte ranges, seeking, play/pause and resizing. On Linux it also runs without a display using `WV_HEADLESS=1 npm run test:player`. Build first. The desktop smoke tests open and close a real Electron window. Cancel the startup video-folder dialog when running these checks interactively. The production smoke test requires `npm run build` first. On Linux, a working X11 display (or Xvfb) and Electron system libraries are required. `WV_CHROMIUM_PATH` can select an existing Chromium binary for browser tests; the default uses Playwright's browser. `npm run dev:web` starts the renderer alone for browser inspection and does not exercise Electron's preload.
 
 On Linux, development and desktop smoke tests use Chromium's user-namespace sandbox via `--disable-setuid-sandbox`; they never pass `--no-sandbox`. The host must permit user namespaces. In this cloud executor, its outer filesystem sandbox makes `/proc/self/uid_map` read-only, so native desktop commands require execution outside that outer shell sandbox. This preserves Chromium's own renderer sandbox. Browser-only work remains available inside the ordinary shell sandbox. For a production Electron launch on Linux, use `npm start -- --disable-setuid-sandbox` under the same host requirements. Windows needs no Linux flags.
 
@@ -106,3 +107,5 @@ No installation step edits sample data or other source files. Dependencies and g
 ## Approval gate
 
 Work lives on `feature/phase-1-ui`. **Do not merge into `main` or begin Phase 2 without explicit user approval.** Passing checks does not supply approval. Visual revisions remain part of Phase 1. The full requested product direction is recorded in [the development brief](docs/development-brief.md).
+
+The header, window icon and favicon use the WWF logo supplied by the user. The Wrestling Vault application name remains unchanged.

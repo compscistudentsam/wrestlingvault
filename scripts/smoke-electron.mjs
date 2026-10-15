@@ -94,7 +94,7 @@ try {
     /Open Will Ospreay.*Dynasty/,
   );
   await expect(page.getByRole('searchbox')).toHaveCount(0);
-  await expect(page.getByRole('combobox')).toHaveCount(0);
+  await expect(page.getByRole('combobox')).toHaveCount(2);
   await expect(page.getByRole('navigation')).toHaveCount(0);
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.evaluate(() => {

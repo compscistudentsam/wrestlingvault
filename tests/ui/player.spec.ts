@@ -51,6 +51,26 @@ test('startup selection, local playback, seeking, parts, and returning to covers
   await expect
     .poll(() => video.evaluate((node) => (node as HTMLVideoElement).currentTime))
     .toBeGreaterThanOrEqual(1.9);
+  const play = page.getByRole('button', { name: 'Play video', exact: true });
+  await expect(play).toBeVisible();
+  await play.click();
+  await expect(page.getByRole('button', { name: 'Pause video', exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'Pause video', exact: true }).click();
+  await expect(play).toBeVisible();
+  await video.evaluate((node) => {
+    (node as HTMLVideoElement).currentTime = 2;
+  });
+  const compact = await video.boundingBox();
+  await page.setViewportSize({ width: 1920, height: 1080 });
+  const expanded = await video.boundingBox();
+  expect(expanded!.width).toBeGreaterThan(compact!.width);
+  expect(expanded!.height).toBeGreaterThan(compact!.height);
+  const timeline = page.getByRole('slider', { name: 'Video position' });
+  await timeline.fill('20');
+  await expect
+    .poll(() => video.evaluate((node) => (node as HTMLVideoElement).currentTime))
+    .toBeGreaterThanOrEqual(19.9);
+  await timeline.fill('2');
   await page.getByRole('button', { name: 'Forward 10 seconds' }).click();
   await expect
     .poll(() => video.evaluate((node) => (node as HTMLVideoElement).currentTime))
