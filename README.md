@@ -28,6 +28,8 @@ This is a local application launch, **not an installer**. Windows installer conf
 
 ## Browse
 
+Use the **Cover view / Grid view** buttons immediately left of search to switch layouts. Cover view is the default. Grid view shows the same ranked library as a responsive grid; click any tile to open its match. Selection, company/star filters and downloaded highlighting are shared, and returning from a match keeps your chosen layout. Search and Random reveal the selected tile in the grid. Arrow keys, Home/End and the Previous/Next buttons still browse matches.
+
 The library contains 100 supplied match covers in CAGEMATCH rank order. Click a side cover to select it and the centre cover to play its local video. Left/Right, Home/End, trackpad gestures and touch swipes also browse the covers.
 
 - **Search**, at the top right, suggests matches by wrestler, event, year or company. Use Up/Down to choose a suggestion and Enter to flip to it. Click a suggestion for the same animation. Escape closes suggestions. Search follows the selected company.

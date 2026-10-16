@@ -6,6 +6,7 @@
 - The user additionally authorized local video playback: select a video folder on startup and play match videos inside the app. Keep file access in the Electron main process and expose only validated match IDs and opaque media URLs.
 - The user authorized replacing the twelve examples with the supplied top 50 catalogue and associated cover images, in supplied rank order. Preserve image provenance, stable IDs for existing matches and local video-folder compatibility.
 - The current library replaces the prior top 50 with the user-supplied CAGEMATCH top 100, in supplied rank order. WON star ratings are distinct from CAGEMATCH scores; absent star ratings must remain null/unrated. The user authorized a star-rating dropdown and reverting to the original Vault logo, with existing functionality preserved.
+- The user also authorizes mutually exclusive cover/grid layout buttons left of search. Both layouts share selection, filtering, search, random browsing and playback. This supersedes the prior no-grid-toggle restriction.
 - Only Phase 1 is authorized. Do not implement SQLite, import pipelines, personal collections, analytics, Windows release CI or subsequent phases until the user explicitly approves that phase. Visual revisions remain Phase 1.
 - Use the existing checkout. Cloud tasks are already isolated; do not create a Git worktree unless requested.
 - Develop on the appropriate feature branch. Do not merge phase work into `main` without explicit user approval.

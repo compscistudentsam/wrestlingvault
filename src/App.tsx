@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useReducedMotion } from 'motion/react';
 import {
   ArrowLeft,
@@ -8,6 +8,8 @@ import {
   VolumeX,
   Maximize,
   Minimize,
+  GalleryHorizontal,
+  LayoutGrid,
 } from 'lucide-react';
 import { Artwork } from './components/Artwork';
 import { CoverFlow } from './components/CoverFlow';
@@ -32,6 +34,7 @@ export function App() {
   const [sound, setSound] = useState(true);
   const soundRef = useRef(sound);
   soundRef.current = sound;
+  const [layout, setLayout] = useState<'covers' | 'grid'>('covers');
   const [rating, setRating] = useState('all');
   const [company, setCompany] = useState('All companies');
   const [query, setQuery] = useState('');
@@ -41,12 +44,16 @@ export function App() {
   const [selectedId, setSelectedId] = useState(
     () => matches.find((match) => route === `match/${match.id}`)?.id ?? matches[0].id,
   );
-  const visible = matches.filter(
-    (match) =>
-      (company === 'All companies' ||
-        match.promotion.split('/').some((item) => item.trim() === company)) &&
-      (rating === 'all' ||
-        (rating === 'unrated' ? match.rating === null : match.rating === Number(rating))),
+  const visible = useMemo(
+    () =>
+      matches.filter(
+        (match) =>
+          (company === 'All companies' ||
+            match.promotion.split('/').some((item) => item.trim() === company)) &&
+          (rating === 'all' ||
+            (rating === 'unrated' ? match.rating === null : match.rating === Number(rating))),
+      ),
+    [company, rating],
   );
   const selected = visible.find((match) => match.id === selectedId) ?? visible[0] ?? matches[0];
   const words = query.toLowerCase().trim().split(/\s+/).filter(Boolean);
@@ -205,7 +212,7 @@ export function App() {
   useEffect(() => {
     document.title = `${detail?.title ?? 'Library'} · Wrestling Vault`;
     main.current?.focus({ preventScroll: true });
-    main.current?.scrollTo({ top: 0 });
+    if (!isLibrary || layout === 'covers') main.current?.scrollTo({ top: 0 });
   }, [route, detail?.title]);
   return (
     <div className="app-shell">
@@ -245,77 +252,99 @@ export function App() {
           </button>
         )}
         {isLibrary && (
-          <form
-            className="match-search"
-            role="search"
-            onSubmit={(event) => {
-              event.preventDefault();
-              if (suggestions[suggestion]) browseTo(suggestions[suggestion]);
-            }}
-          >
-            <input
-              aria-label="Search matches"
-              role="combobox"
-              aria-autocomplete="list"
-              aria-expanded={searchOpen && Boolean(query.trim())}
-              aria-controls="match-suggestions"
-              aria-activedescendant={
-                searchOpen && suggestions[suggestion]
-                  ? `suggestion-${suggestions[suggestion].id}`
-                  : undefined
-              }
-              placeholder="Search matches…"
-              value={query}
-              disabled={shuffling}
-              onChange={(event) => {
-                setQuery(event.target.value);
-                setSuggestion(0);
-                setSearchOpen(true);
+          <div className="library-tools">
+            <div className="view-switch" role="group" aria-label="Library layout">
+              <button
+                aria-label="Cover view"
+                title="Cover view"
+                aria-pressed={layout === 'covers'}
+                disabled={shuffling}
+                onClick={() => setLayout('covers')}
+              >
+                <GalleryHorizontal size={18} aria-hidden="true" />
+              </button>
+              <button
+                aria-label="Grid view"
+                title="Grid view"
+                aria-pressed={layout === 'grid'}
+                disabled={shuffling}
+                onClick={() => setLayout('grid')}
+              >
+                <LayoutGrid size={18} aria-hidden="true" />
+              </button>
+            </div>
+            <form
+              className="match-search"
+              role="search"
+              onSubmit={(event) => {
+                event.preventDefault();
+                if (suggestions[suggestion]) browseTo(suggestions[suggestion]);
               }}
-              onFocus={() => setSearchOpen(true)}
-              onBlur={() => setSearchOpen(false)}
-              onKeyDown={(event) => {
-                if (event.key === 'Escape') {
-                  event.preventDefault();
-                  setSearchOpen(false);
+            >
+              <input
+                aria-label="Search matches"
+                role="combobox"
+                aria-autocomplete="list"
+                aria-expanded={searchOpen && Boolean(query.trim())}
+                aria-controls="match-suggestions"
+                aria-activedescendant={
+                  searchOpen && suggestions[suggestion]
+                    ? `suggestion-${suggestions[suggestion].id}`
+                    : undefined
                 }
-                if (['ArrowDown', 'ArrowUp'].includes(event.key)) {
-                  event.preventDefault();
+                placeholder="Search matches…"
+                value={query}
+                disabled={shuffling}
+                onChange={(event) => {
+                  setQuery(event.target.value);
+                  setSuggestion(0);
                   setSearchOpen(true);
-                  setSuggestion((value) =>
-                    suggestions.length
-                      ? (value + (event.key === 'ArrowDown' ? 1 : -1) + suggestions.length) %
-                        suggestions.length
-                      : 0,
-                  );
-                }
-              }}
-            />
-            {searchOpen && query.trim() && (
-              <ul id="match-suggestions" role="listbox" aria-label="Match suggestions">
-                {suggestions.length ? (
-                  suggestions.map((match, index) => (
-                    <li
-                      id={`suggestion-${match.id}`}
-                      key={match.id}
-                      role="option"
-                      aria-selected={index === suggestion}
-                      onMouseDown={(event) => event.preventDefault()}
-                      onMouseEnter={() => setSuggestion(index)}
-                      onClick={() => browseTo(match)}
-                    >
-                      <strong>{match.title}</strong>
-                      <span>
-                        {match.event} · {match.date.slice(0, 4)}
-                      </span>
-                    </li>
-                  ))
-                ) : (
-                  <li className="no-results">No matches found in {company.toLowerCase()}.</li>
-                )}
-              </ul>
-            )}
-          </form>
+                }}
+                onFocus={() => setSearchOpen(true)}
+                onBlur={() => setSearchOpen(false)}
+                onKeyDown={(event) => {
+                  if (event.key === 'Escape') {
+                    event.preventDefault();
+                    setSearchOpen(false);
+                  }
+                  if (['ArrowDown', 'ArrowUp'].includes(event.key)) {
+                    event.preventDefault();
+                    setSearchOpen(true);
+                    setSuggestion((value) =>
+                      suggestions.length
+                        ? (value + (event.key === 'ArrowDown' ? 1 : -1) + suggestions.length) %
+                          suggestions.length
+                        : 0,
+                    );
+                  }
+                }}
+              />
+              {searchOpen && query.trim() && (
+                <ul id="match-suggestions" role="listbox" aria-label="Match suggestions">
+                  {suggestions.length ? (
+                    suggestions.map((match, index) => (
+                      <li
+                        id={`suggestion-${match.id}`}
+                        key={match.id}
+                        role="option"
+                        aria-selected={index === suggestion}
+                        onMouseDown={(event) => event.preventDefault()}
+                        onMouseEnter={() => setSuggestion(index)}
+                        onClick={() => browseTo(match)}
+                      >
+                        <strong>{match.title}</strong>
+                        <span>
+                          {match.event} · {match.date.slice(0, 4)}
+                        </span>
+                      </li>
+                    ))
+                  ) : (
+                    <li className="no-results">No matches found in {company.toLowerCase()}.</li>
+                  )}
+                </ul>
+              )}
+            </form>
+          </div>
         )}
         <span className="sr-only" role="status">
           {announcement}
@@ -409,6 +438,7 @@ export function App() {
         {isLibrary ? (
           visible.length ? (
             <CoverFlow
+              layout={layout}
               records={visible}
               selected={selected}
               downloaded={downloaded}

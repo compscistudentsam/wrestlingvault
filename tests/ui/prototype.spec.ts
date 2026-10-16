@@ -19,7 +19,7 @@ test('only the cover browser is displayed, with working local art', async ({ pag
   await expect(cover(page).locator('img')).toHaveJSProperty('complete', true);
   await expect(cover(page).locator('img')).not.toHaveJSProperty('naturalWidth', 0);
   await expect(page.locator('.flow-cover')).toHaveCount(7);
-  await expect(page.locator('aside, nav, table, .view-switch')).toHaveCount(0);
+  await expect(page.locator('aside, nav, table')).toHaveCount(0);
   await expect(page.getByRole('combobox', { name: 'Search matches' })).toBeVisible();
   await expect(page.getByRole('combobox', { name: 'Company' })).toBeVisible();
   await page.getByRole('button', { name: 'Next match', exact: true }).click();

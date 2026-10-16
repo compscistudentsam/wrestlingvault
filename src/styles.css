@@ -1081,3 +1081,133 @@ select {
   align-items: center;
   justify-content: center;
 }
+
+.library-tools {
+  grid-column: 3;
+  justify-self: end;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: min(100%, 410px);
+  min-width: 0;
+}
+.library-tools .match-search {
+  flex: 1;
+  width: auto;
+  min-width: 0;
+}
+.view-switch {
+  display: flex;
+  flex-shrink: 0;
+  border: 1px solid #655936;
+  border-radius: 5px;
+  padding: 3px;
+  gap: 2px;
+}
+.view-switch button {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 28px;
+  border-radius: 3px;
+  color: #93979f;
+}
+.view-switch button[aria-pressed='true'] {
+  color: #edc777;
+  background: #e8b95b24;
+}
+.view-switch button:hover {
+  color: #edc777;
+}
+.cover-stage {
+  animation: library-layout-in 180ms ease-out;
+}
+@keyframes library-layout-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.grid-browser {
+  overflow: visible;
+}
+.grid-browser .cover-stage {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr));
+  align-content: start;
+  gap: 28px 22px;
+  flex: none;
+  min-height: 0;
+  width: 100%;
+  max-width: 1800px;
+  margin: 0 auto;
+  padding: 24px;
+  perspective: none;
+}
+.grid-browser .cover-stage::after {
+  display: none;
+}
+.grid-browser .flow-cover {
+  position: relative;
+  top: auto;
+  left: auto;
+  width: 100%;
+  transform: none;
+  filter: none;
+  z-index: auto !important;
+  -webkit-box-reflect: unset;
+  transition:
+    box-shadow 180ms ease,
+    transform 180ms ease;
+  scroll-margin-block: 115px 24px;
+}
+.grid-browser .flow-cover:hover {
+  transform: translateY(-3px);
+}
+.grid-browser .flow-cover.is-selected {
+  box-shadow:
+    0 0 0 2px #e8b95b,
+    0 12px 30px #0009;
+}
+.grid-browser .flow-cover .page-flip {
+  top: 50%;
+  left: 50%;
+  width: 100%;
+}
+.grid-browser .flow-cover:hover .cover-open,
+.grid-browser .flow-cover:focus-visible .cover-open {
+  opacity: 1;
+  transform: none;
+}
+.grid-browser .selection-bar {
+  order: -1;
+  position: sticky;
+  top: 0;
+  z-index: 35;
+  min-height: 90px;
+  padding: 12px 24px;
+  border-bottom: 1px solid #ffffff12;
+  background: #101115f5;
+}
+@media (max-width: 700px) {
+  .library-tools {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    width: 100%;
+  }
+  .grid-browser .cover-stage {
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 140px), 1fr));
+    padding: 16px;
+    gap: 18px 14px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cover-stage {
+    animation: none;
+  }
+  .grid-browser .flow-cover {
+    transition: none;
+  }
+}

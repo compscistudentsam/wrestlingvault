@@ -1,9 +1,10 @@
-import { useRef, type CSSProperties } from 'react';
+import { useEffect, useRef, type CSSProperties } from 'react';
 import { ChevronLeft, ChevronRight, ArrowUpRight, Star } from 'lucide-react';
 import { Artwork } from './Artwork';
 import { formatRating, yearOf, type Match } from '../data/catalogue';
 
 export function CoverFlow({
+  layout = 'covers',
   records,
   selected,
   downloaded = new Set<string>(),
@@ -13,6 +14,7 @@ export function CoverFlow({
   shuffling = false,
   flip = null,
 }: {
+  layout?: 'covers' | 'grid';
   downloaded?: Set<string>;
   highlightDownloads?: boolean;
   records: readonly Match[];
@@ -22,6 +24,17 @@ export function CoverFlow({
   shuffling?: boolean;
   flip?: { match: Match; sequence: number; duration: number } | null;
 }) {
+  const stage = useRef<HTMLDivElement>(null);
+  const grid = layout === 'grid';
+  useEffect(() => {
+    if (grid) {
+      stage.current
+        ?.querySelector('.is-selected')
+        ?.scrollIntoView({ block: 'nearest', behavior: 'instant' });
+    } else {
+      stage.current?.closest('main')?.scrollTo({ top: 0 });
+    }
+  }, [grid, selected.id, records]);
   const index = records.findIndex((record) => record.id === selected.id);
   const touchStart = useRef<{ x: number; y: number } | null>(null);
   const swiped = useRef(false);
@@ -30,29 +43,48 @@ export function CoverFlow({
     onSelect(records[(index + step + records.length) % records.length].id);
   return (
     <section
-      className={`cover-browser ${shuffling ? 'is-shuffling' : ''}`}
+      className={`cover-browser${grid ? ' grid-browser' : ''} ${shuffling ? 'is-shuffling' : ''}`}
       aria-label="Match covers"
-      aria-roledescription="carousel"
+      aria-roledescription={grid ? undefined : 'carousel'}
       style={flip ? ({ '--flip-duration': `${flip.duration}ms` } as CSSProperties) : undefined}
     >
       <div
+        key={layout}
+        ref={stage}
         className="cover-stage"
         tabIndex={0}
-        aria-label="Browse match covers with Left and Right arrow keys"
+        aria-label={
+          grid
+            ? 'Browse match grid with arrow keys'
+            : 'Browse match covers with Left and Right arrow keys'
+        }
         onKeyDown={(event) => {
           if (shuffling) return;
-          if (['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) {
+          if (
+            [
+              'ArrowLeft',
+              'ArrowRight',
+              'Home',
+              'End',
+              ...(grid ? ['ArrowUp', 'ArrowDown'] : []),
+            ].includes(event.key)
+          ) {
             event.preventDefault();
             event.currentTarget.focus({ preventScroll: true });
             if (event.key === 'Home') onSelect(records[0].id);
             else if (event.key === 'End') onSelect(records[records.length - 1].id);
-            else move(event.key === 'ArrowRight' ? 1 : -1);
+            else if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
+              const columns = getComputedStyle(event.currentTarget).gridTemplateColumns.split(
+                ' ',
+              ).length;
+              move(event.key === 'ArrowDown' ? columns : -columns);
+            } else move(event.key === 'ArrowRight' ? 1 : -1);
           } else if (event.key === 'Enter' && event.target === event.currentTarget) {
             onOpen(selected.id);
           }
         }}
         onWheel={(event) => {
-          if (shuffling) return;
+          if (shuffling || grid) return;
           // Only horizontal gestures browse sleeves; vertical scrolling remains native.
           const delta =
             Math.abs(event.deltaX) > Math.abs(event.deltaY)
@@ -66,12 +98,12 @@ export function CoverFlow({
           }
         }}
         onTouchStart={(event) => {
-          if (shuffling) return;
+          if (shuffling || grid) return;
           touchStart.current = { x: event.touches[0].clientX, y: event.touches[0].clientY };
           swiped.current = false;
         }}
         onTouchEnd={(event) => {
-          if (shuffling) return;
+          if (shuffling || grid) return;
           if (!touchStart.current) return;
           const x = event.changedTouches[0].clientX - touchStart.current.x;
           const y = event.changedTouches[0].clientY - touchStart.current.y;
@@ -88,13 +120,13 @@ export function CoverFlow({
           }
         }}
       >
-        <div className={`stage-glow artwork-${selected.accent}`} />
+        {!grid && <div className={`stage-glow artwork-${selected.accent}`} />}
         {records.map((match, i) => {
           let offset = i - index;
           if (offset > records.length / 2) offset -= records.length;
           if (offset < -records.length / 2) offset += records.length;
           const active = offset === 0;
-          const hidden = Math.abs(offset) > 3;
+          const hidden = !grid && Math.abs(offset) > 3;
           if (hidden) return null;
           return (
             <button
@@ -109,22 +141,27 @@ export function CoverFlow({
                   zIndex: 10 - Math.abs(offset),
                 } as CSSProperties
               }
-              aria-label={`${active ? 'Open' : 'Select'} ${match.title}, ${match.event}, ${yearOf(match)}`}
+              aria-label={`${grid || active ? 'Open' : 'Select'} ${match.title}, ${match.event}, ${yearOf(match)}`}
               aria-current={active ? 'true' : undefined}
               aria-hidden={hidden || undefined}
               tabIndex={hidden ? -1 : 0}
               disabled={shuffling}
               data-hidden={hidden}
-              onClick={() => (active ? onOpen(match.id) : onSelect(match.id))}
+              onClick={() => (grid || active ? onOpen(match.id) : onSelect(match.id))}
             >
               <Artwork key={match.id} match={match} eager={Math.abs(offset) < 2} />
+              {grid && active && flip && (
+                <div className="page-flip" key={flip.sequence} aria-hidden="true">
+                  <Artwork match={flip.match} eager />
+                </div>
+              )}
               <span className="cover-open">
                 <ArrowUpRight size={18} /> Open match
               </span>
             </button>
           );
         })}
-        {flip && (
+        {!grid && flip && (
           <div className="page-flip" key={flip.sequence} aria-hidden="true">
             <Artwork match={flip.match} eager />
           </div>
