@@ -2,6 +2,7 @@ import { readdir, realpath } from 'node:fs/promises';
 import path from 'node:path';
 import { matches, type Match } from '../src/data/catalogue';
 import { inside, videoExtensions } from './videos';
+import { expandVideoAliases, expandEventAbbreviations } from './video-aliases';
 export type IndexedVideo = { name: string; path: string };
 export type VideoIndex = Map<string, IndexedVideo[]>;
 const normalized = (value: string) =>
@@ -15,7 +16,8 @@ const normalized = (value: string) =>
     .replace(/[^a-z0-9]+/g, ' ')
     .trim();
 function score(label: string, match: Match) {
-  const text = ` ${normalized(label)} `;
+  const text = ` ${expandEventAbbreviations(normalized(label))} `;
+  const participants = ` ${expandVideoAliases(text.trim())} `;
   const compact = text.replaceAll(' ', '');
   if (compact.includes(normalized(match.id).replaceAll(' ', ''))) return 10000;
   const participantMatch = match.videoNameGroups.some((names) =>
@@ -23,7 +25,7 @@ function score(label: string, match: Match) {
       normalized(side)
         .split(' ')
         .filter((word) => word !== 'jr')
-        .every((word) => text.includes(` ${word} `)),
+        .every((word) => participants.includes(` ${word} `)),
     ),
   );
   if (!participantMatch) return 0;

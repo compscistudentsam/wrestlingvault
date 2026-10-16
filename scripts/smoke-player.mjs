@@ -63,6 +63,7 @@ try {
   await page.locator('.flow-cover.is-selected').click();
   const video = page.locator('video');
   await expect.poll(() => video.evaluate((node) => node.readyState)).toBeGreaterThanOrEqual(2);
+  await expect(video).toHaveJSProperty('muted', true);
   await video.evaluate((node) => {
     node.pause();
     node.currentTime = 2;
@@ -77,6 +78,31 @@ try {
   await expect(page.getByRole('button', { name: 'Pause video', exact: true })).toBeVisible();
   await page.getByRole('button', { name: 'Pause video', exact: true }).click();
   await expect.poll(() => video.evaluate((node) => node.paused)).toBe(true);
+  await page.locator('.skip-zone-left').click();
+  await expect.poll(() => video.evaluate((node) => node.paused)).toBe(false);
+  await page.locator('.skip-zone-left').click();
+  await expect.poll(() => video.evaluate((node) => node.paused)).toBe(true);
+  await page.getByRole('button', { name: 'Enter fullscreen', exact: true }).click();
+  await expect
+    .poll(() => page.evaluate(() => document.fullscreenElement?.className))
+    .toBe('video-player');
+  // Headless Ozone has no desktop window manager; check the native state on a display.
+  if (!process.env.WV_HEADLESS) {
+    await expect
+      .poll(() =>
+        application.evaluate(({ BrowserWindow }) =>
+          BrowserWindow.getAllWindows()[0].isFullScreen(),
+        ),
+      )
+      .toBe(true);
+  }
+  await page.getByRole('button', { name: 'Exit fullscreen', exact: true }).click();
+  await expect.poll(() => page.evaluate(() => document.fullscreenElement === null)).toBe(true);
+  await expect
+    .poll(() =>
+      application.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0].isFullScreen()),
+    )
+    .toBe(false);
   const normal = await video.boundingBox();
   await application.evaluate(({ BrowserWindow }) =>
     BrowserWindow.getAllWindows()[0].setSize(1920, 1080),
@@ -86,7 +112,7 @@ try {
   await mkdir('artifacts/screenshots', { recursive: true });
   await page.screenshot({ path: 'artifacts/screenshots/electron-player.png' });
   console.log(
-    'Real Electron player passed: authorized folder, exact 206 byte range, seeking, timeline, play/pause and resize.',
+    `Real Electron player passed: authorized folder, exact 206 byte range, seeking, timeline, muted start, tap play/pause, ${process.env.WV_HEADLESS ? 'HTML fullscreen (no desktop in headless mode)' : 'desktop fullscreen'} and resize.`,
   );
 } finally {
   await application?.close();

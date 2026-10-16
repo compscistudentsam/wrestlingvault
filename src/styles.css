@@ -1035,3 +1035,49 @@ select {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
+
+.sound-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  padding: 0;
+  border: 1px solid #e8b95b44;
+  border-radius: 50%;
+  background: #e8b95b0c;
+  color: var(--gold);
+  cursor: pointer;
+}
+.sound-button[aria-pressed='true'] {
+  color: #a4a4a4;
+  border-color: #ffffff22;
+}
+.sound-button:hover {
+  background: #e8b95b22;
+}
+.video-player:fullscreen {
+  display: flex;
+  flex-direction: column;
+  width: 100vw;
+  height: 100dvh;
+  margin: 0;
+  padding: 12px;
+  box-sizing: border-box;
+  background: #000;
+}
+.video-player:fullscreen .video-screen {
+  flex: 1;
+  min-height: 0;
+  height: auto;
+}
+.video-player:fullscreen .playback-timeline,
+.video-player:fullscreen .seek-controls {
+  flex-shrink: 0;
+}
+.fullscreen-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}

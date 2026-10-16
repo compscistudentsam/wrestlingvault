@@ -72,7 +72,16 @@ test('page navigation produces synthesized ticks and mute stops new sounds', asy
   await expect
     .poll(() => page.evaluate(() => (window as unknown as { ticks: number }).ticks))
     .toBeGreaterThan(0);
-  await page.getByRole('button', { name: 'Mute sounds' }).click();
+  const mute = page.getByRole('button', { name: 'Mute sounds' });
+  await expect(
+    page.locator('.topbar .brand').getByRole('button', { name: 'Mute sounds' }),
+  ).toBeVisible();
+  await expect(mute.locator('svg')).toHaveCount(1);
+  await mute.click();
+  await expect(page.getByRole('button', { name: 'Enable sounds' })).toHaveAttribute(
+    'aria-pressed',
+    'true',
+  );
   const ticks = await page.evaluate(() => (window as unknown as { ticks: number }).ticks);
   await page.getByRole('button', { name: 'Next match', exact: true }).click();
   expect(await page.evaluate(() => (window as unknown as { ticks: number }).ticks)).toBe(ticks);

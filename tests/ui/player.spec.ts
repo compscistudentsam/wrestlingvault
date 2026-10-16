@@ -39,6 +39,7 @@ test('startup selection, local playback, seeking, parts, and returning to covers
   await page.locator('.flow-cover.is-selected').click();
   const video = page.locator('video');
   await expect(video).toBeVisible();
+  await expect(video).toHaveJSProperty('muted', true);
   await expect
     .poll(() => video.evaluate((node) => (node as HTMLVideoElement).readyState))
     .toBeGreaterThanOrEqual(2);
@@ -60,6 +61,22 @@ test('startup selection, local playback, seeking, parts, and returning to covers
   await video.evaluate((node) => {
     (node as HTMLVideoElement).currentTime = 2;
   });
+  await page.locator('.skip-zone-left').click();
+  await expect(page.getByRole('button', { name: 'Pause video', exact: true })).toBeVisible();
+  await page.locator('.skip-zone-left').click();
+  await expect(play).toBeVisible();
+  await page.getByRole('button', { name: 'Enter fullscreen', exact: true }).click();
+  await expect
+    .poll(() => page.evaluate(() => document.fullscreenElement?.className))
+    .toBe('video-player');
+  await expect(page.getByRole('button', { name: 'Exit fullscreen', exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'Exit fullscreen', exact: true }).click();
+  await expect.poll(() => page.evaluate(() => document.fullscreenElement === null)).toBe(true);
+  await page.getByRole('button', { name: 'Enter fullscreen', exact: true }).click();
+  await expect.poll(() => page.evaluate(() => Boolean(document.fullscreenElement))).toBe(true);
+  await page.keyboard.press('Escape');
+  await expect.poll(() => page.evaluate(() => document.fullscreenElement === null)).toBe(true);
+  await expect(video).toBeVisible();
   const compact = await video.boundingBox();
   await page.setViewportSize({ width: 1920, height: 1080 });
   await expect.poll(async () => (await video.boundingBox())!.width).toBeGreaterThan(compact!.width);
@@ -114,5 +131,5 @@ test('cancelled folder selection offers recovery and an exact match folder name'
   await expect(page.locator('video')).toHaveCount(0);
   await expect(
     page.getByRole('link', { name: 'Search Google for this match online' }),
-  ).toHaveAttribute('href', /google.com\/search\?q=.*Wrestle.*2017.*download%20online/);
+  ).toHaveAttribute('href', /google.com\/search\?q=.*Wrestle.*2017.*watch%20online/);
 });

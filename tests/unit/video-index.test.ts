@@ -71,3 +71,36 @@ it('matches the new library participant names while keeping prior shared-match i
   expect(index.get('ftr-briscoes-final-battle-2022-12-10')).toHaveLength(1);
   expect(index.get('cagematch-2510')).toHaveLength(1);
 });
+
+it('recognises distinctive nicknames, alternate ring names, teams and event abbreviations', async () => {
+  const root = await realpath(await mkdtemp(path.join(os.tmpdir(), 'vault-nicknames-')));
+  temporary.push(root);
+  const examples = [
+    ['Rainmaker vs The Cleaner WK11 2017.mp4', 'omega-okada-wk11-2017'],
+    ['American Dragon vs Aerial Assassin Dynasty 2024.mp4', 'danielson-ospreay-dynasty-2024'],
+    ['Daniel Bryan vs ZSJ WrestleDream 2023.mp4', 'danielson-sabre-jr-wrestledream-2023-10-01'],
+    ['FTR vs Briscoe Brothers Final Battle 2022.mp4', 'ftr-briscoes-final-battle-2022-12-10'],
+    ['Young Bucks vs Lucha Bros All Out 2021.mp4', 'young-bucks-lucha-brothers-all-out-2021-09-05'],
+    ['HBK vs Deadman WM25 2009.mp4', 'cagematch-3546'],
+    ['Gunther vs Ilja Dragunov TakeOver 36 2021.mp4', 'cagematch-39292'],
+  ];
+  for (const [name] of examples) await writeFile(path.join(root, name), 'test');
+  const index = await scanVideoFolder(root);
+  for (const [name, id] of examples)
+    expect(index.get(id)?.map((file) => file.name)).toContain(name);
+  expect([...index.values()].flat()).toHaveLength(examples.length);
+});
+
+it('does not guess ambiguous nicknames or rematches without sufficient event clues', async () => {
+  const root = await realpath(await mkdtemp(path.join(os.tmpdir(), 'vault-ambiguous-aliases-')));
+  temporary.push(root);
+  for (const name of [
+    'Rainmaker vs Cleaner.mp4',
+    'Rainmaker Cleaner 2017.mp4',
+    'Dragon vs Ospreay Dynasty 2024.mp4',
+    'HBK Deadman.mp4',
+    'Rainmaker Cleaner WK11 2018.mp4',
+  ])
+    await writeFile(path.join(root, name), 'test');
+  expect([...(await scanVideoFolder(root)).values()].flat()).toHaveLength(0);
+});

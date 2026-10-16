@@ -79,10 +79,23 @@ function createWindow() {
 }
 
 void app.whenReady().then(() => {
-  session.defaultSession.setPermissionRequestHandler((_webContents, _permission, callback) =>
-    callback(false),
+  // Only our trusted main frame may enter fullscreen; other permissions remain denied.
+  const allowsFullscreen = (
+    contents: Electron.WebContents | null,
+    permission: string,
+    details: { isMainFrame: boolean; requestingUrl?: string },
+  ) =>
+    permission === 'fullscreen' &&
+    Boolean(window) &&
+    contents === window?.webContents &&
+    details.isMainFrame &&
+    isTrustedRendererURL(details.requestingUrl ?? '', appURL);
+  session.defaultSession.setPermissionRequestHandler((contents, permission, callback, details) =>
+    callback(allowsFullscreen(contents, permission, details)),
   );
-  session.defaultSession.setPermissionCheckHandler(() => false);
+  session.defaultSession.setPermissionCheckHandler((contents, permission, _origin, details) =>
+    allowsFullscreen(contents, permission, details),
+  );
   // Production may load only the bundled application; no renderer network access is required.
   if (!developmentURL) {
     session.defaultSession.webRequest.onBeforeRequest(

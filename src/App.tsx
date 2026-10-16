@@ -1,6 +1,14 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useReducedMotion } from 'motion/react';
-import { ArrowLeft, ExternalLink, Shuffle } from 'lucide-react';
+import {
+  ArrowLeft,
+  ExternalLink,
+  Shuffle,
+  Volume2,
+  VolumeX,
+  Maximize,
+  Minimize,
+} from 'lucide-react';
 import { Artwork } from './components/Artwork';
 import { CoverFlow } from './components/CoverFlow';
 import { formatDate, formatRating, getSource, matches, type Match } from './data/catalogue';
@@ -179,8 +187,13 @@ export function App() {
   useEffect(() => {
     const update = () => setRoute(window.location.hash.slice(2) || 'library');
     const escape = (event: KeyboardEvent) => {
-      if (event.key === 'Escape' && !(event.target instanceof HTMLInputElement))
+      if (event.key === 'Escape' && !(event.target instanceof HTMLInputElement)) {
+        if (document.fullscreenElement) {
+          void document.exitFullscreen();
+          return;
+        }
         window.location.hash = '/library';
+      }
     };
     window.addEventListener('hashchange', update);
     window.addEventListener('keydown', escape);
@@ -203,6 +216,19 @@ export function App() {
             WRESTLING <strong>VAULT</strong>
             <span className="gold">.</span>
           </span>
+          <button
+            className="sound-button"
+            aria-label={sound ? 'Mute sounds' : 'Enable sounds'}
+            title={sound ? 'Mute browsing sounds' : 'Enable browsing sounds'}
+            aria-pressed={!sound}
+            onClick={() => setSound((value) => !value)}
+          >
+            {sound ? (
+              <Volume2 size={18} aria-hidden="true" />
+            ) : (
+              <VolumeX size={18} aria-hidden="true" />
+            )}
+          </button>
         </div>
         {isLibrary && (
           <button
@@ -351,13 +377,6 @@ export function App() {
             >
               Downloaded only
             </button>
-            <button
-              className="toolbar-button"
-              aria-pressed={!sound}
-              onClick={() => setSound((value) => !value)}
-            >
-              {sound ? 'Mute sounds' : 'Enable sounds'}
-            </button>
           </>
         )}
         <button
@@ -451,6 +470,34 @@ function MatchDetails({
   onBack: () => void;
 }) {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const playerRef = useRef<HTMLDivElement>(null);
+  const tapTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const [fullscreen, setFullscreen] = useState(false);
+  useEffect(() => {
+    const update = () => setFullscreen(Boolean(document.fullscreenElement));
+    document.addEventListener('fullscreenchange', update);
+    return () => {
+      document.removeEventListener('fullscreenchange', update);
+      clearTimeout(tapTimer.current);
+    };
+  }, []);
+  const toggleFullscreen = async () => {
+    try {
+      if (document.fullscreenElement) await document.exitFullscreen();
+      else await playerRef.current?.requestFullscreen();
+    } catch {
+      setSeekNotice('Could not enter fullscreen. Please try again.');
+    }
+  };
+  const tapVideo = (event: React.MouseEvent) => {
+    if (event.detail > 1) return;
+    clearTimeout(tapTimer.current);
+    tapTimer.current = setTimeout(() => void togglePlayback(), 250);
+  };
+  const doubleTapVideo = (seconds: number) => {
+    clearTimeout(tapTimer.current);
+    seek(seconds);
+  };
   const [seekNotice, setSeekNotice] = useState('');
   const [playing, setPlaying] = useState(false);
   const [duration, setDuration] = useState(0);
@@ -554,6 +601,7 @@ function MatchDetails({
       ) : videos.length ? (
         <div
           className="video-player"
+          ref={playerRef}
           tabIndex={0}
           aria-label="Video player"
           onKeyDown={(event) => {
@@ -586,6 +634,7 @@ function MatchDetails({
               src={videos[active].url}
               controls
               autoPlay
+              muted
               playsInline
               aria-label={`${match.title} video`}
               onError={() =>
@@ -598,13 +647,15 @@ function MatchDetails({
               className="skip-zone skip-zone-left"
               role="presentation"
               onMouseDown={(event) => event.currentTarget.parentElement?.parentElement?.focus()}
-              onDoubleClick={() => seek(-10)}
+              onClick={tapVideo}
+              onDoubleClick={() => doubleTapVideo(-10)}
             />
             <div
               className="skip-zone skip-zone-right"
               role="presentation"
               onMouseDown={(event) => event.currentTarget.parentElement?.parentElement?.focus()}
-              onDoubleClick={() => seek(10)}
+              onClick={tapVideo}
+              onDoubleClick={() => doubleTapVideo(10)}
             />
           </div>
           <div className="playback-timeline">
@@ -639,6 +690,18 @@ function MatchDetails({
             <button className="button" onClick={() => seek(10)} aria-label="Forward 10 seconds">
               10s →
             </button>
+            <button
+              className="button fullscreen-toggle"
+              onClick={() => void toggleFullscreen()}
+              aria-label={fullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
+              title={fullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
+            >
+              {fullscreen ? (
+                <Minimize size={18} aria-hidden="true" />
+              ) : (
+                <Maximize size={18} aria-hidden="true" />
+              )}
+            </button>
           </div>
           {videos.length > 1 && (
             <label>
@@ -646,6 +709,7 @@ function MatchDetails({
               <select
                 value={active}
                 onChange={(event) => {
+                  clearTimeout(tapTimer.current);
                   setActive(Number(event.target.value));
                   setDuration(0);
                   setPosition(0);
@@ -677,12 +741,13 @@ function MatchDetails({
                   : 'Choose your video folder to play this match.')}
             </p>
             <p>
-              Place the video directly in your chosen folder. Include the wrestlers, event and year
-              in its filename, or use <code>{match.id}.mp4</code>. No subfolders are required.
+              Place the video directly in your chosen folder. Include wrestler names or known
+              nicknames, the event and year in its filename, or use <code>{match.id}.mp4</code>. No
+              subfolders are required.
             </p>
             <a
               className="download-search"
-              href={`https://www.google.com/search?q=${encodeURIComponent(`${match.title}, ${match.event}, ${match.date.slice(0, 4)} download online`)}`}
+              href={`https://www.google.com/search?q=${encodeURIComponent(`${match.title}, ${match.event}, ${match.date.slice(0, 4)}, watch online`)}`}
               target="_blank"
               rel="noopener noreferrer"
               onClick={async (event) => {
