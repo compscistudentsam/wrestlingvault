@@ -21,9 +21,5 @@ export const yearOf = (match: Match) => Number(match.date.slice(0, 4));
 export const fillsPosterFace = (match: Match) => {
   const faceRatio = (3 / 4) * 0.95;
   const imageRatio = match.imageWidth / match.imageHeight;
-  return (
-    (match.artworkLayout === 'poster' || /poster|cover|programme/i.test(match.imageType)) &&
-    imageRatio < 1 &&
-    Math.min(imageRatio / faceRatio, faceRatio / imageRatio) >= 0.8
-  );
+  return imageRatio < 1 && Math.min(imageRatio / faceRatio, faceRatio / imageRatio) >= 0.8;
 };

@@ -1,6 +1,6 @@
 # Tile artwork and match lengths
 
-Portrait posters whose aspect ratio can fill at least 80% of the cover face use the full face beside the existing 5% spine. CSS `object-fit: contain` preserves the whole source image. Landscape, square and unusually narrow artwork retains the inset treatment. Source images remain unchanged.
+Any artwork whose aspect ratio can fill at least 80% of the cover face use the full face beside the existing 5% spine. CSS `object-fit: contain` preserves the whole source image. Landscape, square and unusually narrow artwork retains the inset treatment. Image type labels do not affect layout selection. Source images remain unchanged.
 
 The tile's upper-right label shows match length; WON stars remain at the bottom. The supplied top-100 index has no duration column. Currently 33 durations have been checked against linked results; 67 display “Length unknown”. Each populated `matchDuration` has a `durationSource` in `src/data/matches.json`. These are match lengths, not local video runtimes. Existing star ratings are unchanged.
 
