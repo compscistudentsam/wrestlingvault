@@ -998,3 +998,40 @@ select {
   font-size: 4.5cqw;
   letter-spacing: -0.15cqw;
 }
+
+/* The spine stays at 5%; eligible portrait posters fill the remaining face intact. */
+.artwork-collection.artwork-poster-fill > img {
+  top: 0;
+  bottom: 0;
+  left: 5%;
+  width: 95%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
+}
+.artwork-collection.artwork-poster-fill::before {
+  left: 5%;
+  background: linear-gradient(
+    180deg,
+    #000c,
+    #0004 24%,
+    transparent 40%,
+    transparent 55%,
+    #0006 72%,
+    #000e
+  );
+}
+.artwork-poster-fill .cover-event,
+.artwork-poster-fill .poster-type,
+.artwork-poster-fill .cover-top,
+.artwork-poster-fill .cover-bottom {
+  text-shadow:
+    0 1px 5px #000,
+    0 2px 12px #000;
+}
+.cover-top .cover-duration {
+  font-size: 2.7cqw;
+  letter-spacing: 0.3px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}

@@ -1,13 +1,14 @@
 import { useState } from 'react';
-import { formatRating, yearOf, type Match } from '../data/catalogue';
+import { fillsPosterFace, formatRating, yearOf, type Match } from '../data/catalogue';
 
 /** Bundled match sleeves using the supplied photos, graphics and event posters. */
 export function Artwork({ match, eager = false }: { match: Match; eager?: boolean }) {
   const [failed, setFailed] = useState(false);
   const photo = Boolean(match.image);
+  const fullPoster = !failed && fillsPosterFace(match);
   return (
     <div
-      className={`artwork artwork-${match.accent}${photo && !failed ? ' artwork-photo artwork-collection' : ''}`}
+      className={`artwork artwork-${match.accent}${photo && !failed ? ' artwork-photo artwork-collection' : ''}${fullPoster ? ' artwork-poster-fill' : ''}`}
       data-fallback={failed}
       aria-hidden="true"
     >
@@ -23,7 +24,12 @@ export function Artwork({ match, eager = false }: { match: Match; eager?: boolea
       <div className="cover-lines" />
       <div className="cover-top">
         <span>{match.promotion}</span>
-        <span>{match.rating === null ? 'UNRATED' : 'WON STARS'}</span>
+        <span
+          className="cover-duration"
+          title={match.matchDuration ? 'Match length' : 'Match length has not been verified'}
+        >
+          {match.matchDuration ?? 'Length unknown'}
+        </span>
       </div>
       <div className="cover-event">{match.event.replace(' in Osaka-jo Hall', '')}</div>
       <div

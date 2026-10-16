@@ -62,9 +62,10 @@ test('startup selection, local playback, seeking, parts, and returning to covers
   });
   const compact = await video.boundingBox();
   await page.setViewportSize({ width: 1920, height: 1080 });
-  const expanded = await video.boundingBox();
-  expect(expanded!.width).toBeGreaterThan(compact!.width);
-  expect(expanded!.height).toBeGreaterThan(compact!.height);
+  await expect.poll(async () => (await video.boundingBox())!.width).toBeGreaterThan(compact!.width);
+  await expect
+    .poll(async () => (await video.boundingBox())!.height)
+    .toBeGreaterThan(compact!.height);
   const timeline = page.getByRole('slider', { name: 'Video position' });
   await timeline.fill('20');
   await expect

@@ -89,7 +89,7 @@ test('star filtering distinguishes WON ratings from CAGEMATCH scores and keeps u
   await rating.selectOption('unrated');
   await expect(page.locator('.selection-count')).toContainText('/ 08');
   await expect(cover(page).locator('.cover-bottom')).toContainText('Unrated');
-  await expect(cover(page).locator('.cover-top')).toContainText('UNRATED');
+  await expect(cover(page).locator('.cover-duration')).toBeVisible();
   await expect(page.locator('.selection-caption')).toContainText('Unrated');
   await page.getByRole('button', { name: 'Random', exact: true }).click();
   await expect(cover(page).locator('.cover-bottom')).toContainText('Unrated');
@@ -103,4 +103,35 @@ test('star filtering distinguishes WON ratings from CAGEMATCH scores and keeps u
   await page.getByRole('combobox', { name: 'Company' }).selectOption('TNA');
   await expect(page.locator('.selection-count')).toHaveText('01 / 01');
   await expect(cover(page)).toHaveAccessibleName(/Unbreakable/);
+});
+
+test('portrait posters fill the face intact beside the spine and tiles show match length', async ({
+  page,
+}) => {
+  await page.goto('/');
+  const artwork = cover(page).locator('.artwork');
+  await expect(artwork).toHaveClass(/artwork-poster-fill/);
+  await expect(artwork.locator('.cover-duration')).toHaveText('46:45');
+  const geometry = await artwork.evaluate((element) => {
+    const face = element.getBoundingClientRect();
+    const img = element.querySelector('img')!;
+    const box = img.getBoundingClientRect();
+    const spine = element.querySelector('.cover-spine')!.getBoundingClientRect();
+    return {
+      width: box.width / face.width,
+      height: box.height / face.height,
+      left: (box.left - face.left) / face.width,
+      spine: spine.width / face.width,
+      fit: getComputedStyle(img).objectFit,
+    };
+  });
+  expect(geometry.width).toBeCloseTo(0.95, 2);
+  expect(geometry.height).toBeCloseTo(1, 2);
+  expect(geometry.left).toBeCloseTo(0.05, 2);
+  expect(geometry.spine).toBeCloseTo(0.05, 2);
+  expect(geometry.fit).toBe('contain');
+  await page.screenshot({ path: 'artifacts/screenshots/poster-fill.png' });
+  await page.getByRole('button', { name: 'Next match', exact: true }).click();
+  await expect(artwork).not.toHaveClass(/artwork-poster-fill/);
+  await expect(artwork.locator('.cover-duration')).toHaveText('33:28');
 });

@@ -30,7 +30,11 @@
     "sourceId": "cagematch",
     "sourceUrl": "https://www.cagematch.net/?id=111&nr=8034",
     "sourceStatus": "reference-linked",
-    "videoNameGroups": [["OKADA", "OMEGA"]]
+    "videoNameGroups": [["OKADA", "OMEGA"]],
+    "imageWidth": 480,
+    "imageHeight": 679,
+    "matchDuration": "46:45",
+    "durationSource": "https://www.quebrada.net/matches/davidrecommendedmatches.html"
   },
   {
     "id": "cagematch-2510",
@@ -59,7 +63,11 @@
     "sourceId": "cagematch",
     "sourceUrl": "https://www.cagematch.net/?id=111&nr=2510",
     "sourceStatus": "reference-linked",
-    "videoNameGroups": [["KOBASHI", "MISAWA"]]
+    "videoNameGroups": [["KOBASHI", "MISAWA"]],
+    "imageWidth": 808,
+    "imageHeight": 679,
+    "matchDuration": "33:28",
+    "durationSource": "https://www.quebrada.net/matches/davidrecommendedmatches.html"
   },
   {
     "id": "omega-okada-dominion-2018",
@@ -94,7 +102,11 @@
     "sourceId": "cagematch",
     "sourceUrl": "https://www.cagematch.net/?id=111&nr=9450",
     "sourceStatus": "reference-linked",
-    "videoNameGroups": [["OKADA", "OMEGA"]]
+    "videoNameGroups": [["OKADA", "OMEGA"]],
+    "imageWidth": 1200,
+    "imageHeight": 675,
+    "matchDuration": "64:50",
+    "durationSource": "https://www.quebrada.net/matches/davidrecommendedmatches.html"
   },
   {
     "id": "cagematch-8320",
@@ -123,7 +135,11 @@
     "sourceId": "cagematch",
     "sourceUrl": "https://www.cagematch.net/?id=111&nr=8320",
     "sourceStatus": "reference-linked",
-    "videoNameGroups": [["SHIBATA", "OKADA"]]
+    "videoNameGroups": [["SHIBATA", "OKADA"]],
+    "imageWidth": 1200,
+    "imageHeight": 969,
+    "matchDuration": "38:09",
+    "durationSource": "https://www.quebrada.net/matches/davidrecommendedmatches.html"
   },
   {
     "id": "cagematch-1955",
@@ -152,7 +168,11 @@
     "sourceId": "cagematch",
     "sourceUrl": "https://www.cagematch.net/?id=111&nr=1955",
     "sourceStatus": "reference-linked",
-    "videoNameGroups": [["TAUE / KAWADA", "KOBASHI / MISAWA"]]
+    "videoNameGroups": [["TAUE / KAWADA", "KOBASHI / MISAWA"]],
+    "imageWidth": 400,
+    "imageHeight": 400,
+    "matchDuration": "42:37",
+    "durationSource": "https://www.quebrada.net/matches/davidrecommendedmatches.html"
   },
   {
     "id": "naito-omega-g1-climax-27-final-2017-08-13",
@@ -187,7 +207,11 @@
     "videoNameGroups": [
       ["OMEGA", "NAITO"],
       ["NAITO", "OMEGA"]
-    ]
+    ],
+    "imageWidth": 1119,
+    "imageHeight": 1600,
+    "matchDuration": "34:35",
+    "durationSource": "https://www.quebrada.net/matches/davidrecommendedmatches.html"
   },
   {
     "id": "ospreay-omega-wrestle-kingdom-17-night-1-2023-01-04",
@@ -222,7 +246,11 @@
     "videoNameGroups": [
       ["OMEGA", "OSPREAY"],
       ["OSPREAY", "OMEGA"]
-    ]
+    ],
+    "imageWidth": 600,
+    "imageHeight": 600,
+    "matchDuration": "34:38",
+    "durationSource": "https://www.quebrada.net/matches/davidrecommendedmatches.html"
   },
   {
     "id": "tanahashi-ibushi-g1-climax-28-final-2018-08-12",
@@ -254,7 +282,11 @@
     "sourceId": "cagematch",
     "sourceUrl": "https://www.cagematch.net/?id=111&nr=9638",
     "sourceStatus": "reference-linked",
-    "videoNameGroups": [["TANAHASHI", "IBUSHI"]]
+    "videoNameGroups": [["TANAHASHI", "IBUSHI"]],
+    "imageWidth": 1000,
+    "imageHeight": 1436,
+    "matchDuration": "35:00",
+    "durationSource": "https://www.prowrestlinghistory.com/supercards/japan/newjapan/climax.html"
   },
   {
     "id": "omega-okada-dominion-2017",
@@ -287,7 +319,11 @@
     "sourceId": "cagematch",
     "sourceUrl": "https://www.cagematch.net/?id=111&nr=8461",
     "sourceStatus": "reference-linked",
-    "videoNameGroups": [["OKADA", "OMEGA"]]
+    "videoNameGroups": [["OKADA", "OMEGA"]],
+    "imageWidth": 849,
+    "imageHeight": 1200,
+    "matchDuration": "60:00",
+    "durationSource": "https://www.prowrestlinghistory.com/supercards/japan/newjapan/dominion.html"
   },
   {
     "id": "cagematch-7661",
@@ -316,7 +352,11 @@
     "sourceId": "cagematch",
     "sourceUrl": "https://www.cagematch.net/?id=111&nr=7661",
     "sourceStatus": "reference-linked",
-    "videoNameGroups": [["OMEGA", "NAITO"]]
+    "videoNameGroups": [["OMEGA", "NAITO"]],
+    "imageWidth": 1000,
+    "imageHeight": 1250,
+    "matchDuration": null,
+    "durationSource": null
   },
   {
     "id": "cagematch-1939",
@@ -345,7 +385,11 @@
     "sourceId": "cagematch",
     "sourceUrl": "https://www.cagematch.net/?id=111&nr=1939",
     "sourceStatus": "reference-linked",
-    "videoNameGroups": [["MISAWA", "KAWADA"]]
+    "videoNameGroups": [["MISAWA", "KAWADA"]],
+    "imageWidth": 634,
+    "imageHeight": 462,
+    "matchDuration": "35:50",
+    "durationSource": "https://www.quebrada.net/matches/davidrecommendedmatches.html"
   },
   {
     "id": "cagematch-23171",
@@ -374,7 +418,11 @@
     "sourceId": "cagematch",
     "sourceUrl": "https://www.cagematch.net/?id=111&nr=23171",
     "sourceStatus": "reference-linked",
-    "videoNameGroups": [["DRAGUNOV", "WALTER"]]
+    "videoNameGroups": [["DRAGUNOV", "WALTER"]],
+    "imageWidth": 1920,
+    "imageHeight": 1080,
+    "matchDuration": null,
+    "durationSource": null
   },
   {
     "id": "cagematch-1969",
@@ -403,7 +451,11 @@
     "sourceId": "cagematch",
     "sourceUrl": "https://www.cagematch.net/?id=111&nr=1969",
     "sourceStatus": "reference-linked",
-    "videoNameGroups": [["KOBASHI", "MISAWA"]]
+    "videoNameGroups": [["KOBASHI", "MISAWA"]],
+    "imageWidth": 400,
+    "imageHeight": 400,
+    "matchDuration": "42:06",
+    "durationSource": "https://www.quebrada.net/matches/davidrecommendedmatches.html"
   },
   {
     "id": "cagematch-2594",
@@ -432,7 +484,11 @@
     "sourceId": "cagematch",
     "sourceUrl": "https://www.cagematch.net/?id=111&nr=2594",
     "sourceStatus": "reference-linked",
-    "videoNameGroups": [["SASAKI", "KOBASHI"]]
+    "videoNameGroups": [["SASAKI", "KOBASHI"]],
+    "imageWidth": 671,
+    "imageHeight": 1024,
+    "matchDuration": null,
+    "durationSource": null
   },
   {
     "id": "cagematch-1506",
@@ -461,7 +517,11 @@
     "sourceId": "cagematch",
     "sourceUrl": "https://www.cagematch.net/?id=111&nr=1506",
     "sourceStatus": "reference-linked",
-    "videoNameGroups": [["KOBASHI", "JOE"]]
+    "videoNameGroups": [["KOBASHI", "JOE"]],
+    "imageWidth": 727,
+    "imageHeight": 1000,
+    "matchDuration": null,
+    "durationSource": null
   },
   {
     "id": "omega-page-young-bucks-revolution-2020-02-29",
@@ -496,7 +556,11 @@
     "videoNameGroups": [
       ["PAGE / OMEGA", "JACKSON / JACKSON"],
       ["OMEGA / PAGE", "YOUNG BUCKS"]
-    ]
+    ],
+    "imageWidth": 1000,
+    "imageHeight": 1595,
+    "matchDuration": null,
+    "durationSource": null
   },
   {
     "id": "omega-okada-g1-2017",
@@ -531,7 +595,11 @@
     "sourceId": "cagematch",
     "sourceUrl": "https://www.cagematch.net/?id=111&nr=8733",
     "sourceStatus": "reference-linked",
-    "videoNameGroups": [["OKADA", "OMEGA"]]
+    "videoNameGroups": [["OKADA", "OMEGA"]],
+    "imageWidth": 1119,
+    "imageHeight": 1600,
+    "matchDuration": "24:40",
+    "durationSource": "https://www.quebrada.net/matches/davidrecommendedmatches.html"
   },
   {
     "id": "danielson-ospreay-dynasty-2024",
@@ -569,7 +637,11 @@
     "videoNameGroups": [
       ["DANIELSON", "OSPREAY"],
       ["OSPREAY", "DANIELSON"]
-    ]
+    ],
+    "imageWidth": 2000,
+    "imageHeight": 3000,
+    "matchDuration": null,
+    "durationSource": null
   },
   {
     "id": "ospreay-omega-all-in-2026-08-30",
@@ -604,7 +676,11 @@
     "videoNameGroups": [
       ["OMEGA", "OSPREAY"],
       ["OSPREAY", "OMEGA"]
-    ]
+    ],
+    "imageWidth": 1400,
+    "imageHeight": 620,
+    "matchDuration": null,
+    "durationSource": null
   },
   {
     "id": "cagematch-1773",
@@ -633,7 +709,11 @@
     "sourceId": "cagematch",
     "sourceUrl": "https://www.cagematch.net/?id=111&nr=1773",
     "sourceStatus": "reference-linked",
-    "videoNameGroups": [["STYLES", "DANIELS", "JOE"]]
+    "videoNameGroups": [["STYLES", "DANIELS", "JOE"]],
+    "imageWidth": 765,
+    "imageHeight": 1015,
+    "matchDuration": null,
+    "durationSource": null
   },
   {
     "id": "cagematch-7105",
@@ -662,7 +742,11 @@
     "sourceId": "cagematch",
     "sourceUrl": "https://www.cagematch.net/?id=111&nr=7105",
     "sourceStatus": "reference-linked",
-    "videoNameGroups": [["TANAHASHI", "OKADA"]]
+    "videoNameGroups": [["TANAHASHI", "OKADA"]],
+    "imageWidth": 641,
+    "imageHeight": 961,
+    "matchDuration": null,
+    "durationSource": null
   },
   {
     "id": "tanahashi-okada-wrestle-kingdom-20-2026-01-04",
@@ -694,7 +778,11 @@
     "sourceId": "cagematch",
     "sourceUrl": "https://www.cagematch.net/?id=111&nr=130230",
     "sourceStatus": "reference-linked",
-    "videoNameGroups": [["TANAHASHI", "OKADA"]]
+    "videoNameGroups": [["TANAHASHI", "OKADA"]],
+    "imageWidth": 955,
+    "imageHeight": 1350,
+    "matchDuration": null,
+    "durationSource": null
   },
   {
     "id": "cagematch-99074",
@@ -723,7 +811,11 @@
     "sourceId": "cagematch",
     "sourceUrl": "https://www.cagematch.net/?id=111&nr=99074",
     "sourceStatus": "reference-linked",
-    "videoNameGroups": [["DANIELSON", "STRICKLAND"]]
+    "videoNameGroups": [["DANIELSON", "STRICKLAND"]],
+    "imageWidth": 1000,
+    "imageHeight": 1470,
+    "matchDuration": null,
+    "durationSource": null
   },
   {
     "id": "cagematch-5525",
@@ -752,7 +844,11 @@
     "sourceId": "cagematch",
     "sourceUrl": "https://www.cagematch.net/?id=111&nr=5525",
     "sourceStatus": "reference-linked",
-    "videoNameGroups": [["TANAHASHI", "OKADA"]]
+    "videoNameGroups": [["TANAHASHI", "OKADA"]],
+    "imageWidth": 1268,
+    "imageHeight": 598,
+    "matchDuration": null,
+    "durationSource": null
   },
   {
     "id": "ftr-briscoes-final-battle-2022-12-10",
@@ -787,7 +883,11 @@
     "videoNameGroups": [
       ["WHEELER / HARWOOD", "BRISCOE / BRISCOE"],
       ["FTR", "BRISCOES"]
-    ]
+    ],
+    "imageWidth": 1000,
+    "imageHeight": 1575,
+    "matchDuration": null,
+    "durationSource": null
   },
   {
     "id": "sabre-jr-danielson-the-new-beginning-in-osaka-2024-02-11",
@@ -822,7 +922,11 @@
     "videoNameGroups": [
       ["DANIELSON", "SABRE JR."],
       ["SABRE JR.", "DANIELSON"]
-    ]
+    ],
+    "imageWidth": 1920,
+    "imageHeight": 1080,
+    "matchDuration": "32:46",
+    "durationSource": "https://www.quebrada.net/matches/davidrecommendedmatches.html"
   },
   {
     "id": "ospreay-takagi-bosj-2019",
@@ -857,7 +961,11 @@
     "sourceId": "cagematch",
     "sourceUrl": "https://www.cagematch.net/?id=111&nr=11048",
     "sourceStatus": "reference-linked",
-    "videoNameGroups": [["TAKAGI", "OSPREAY"]]
+    "videoNameGroups": [["TAKAGI", "OSPREAY"]],
+    "imageWidth": 1280,
+    "imageHeight": 720,
+    "matchDuration": "33:36",
+    "durationSource": "https://www.quebrada.net/matches/davidrecommendedmatches.html"
   },
   {
     "id": "cagematch-39292",
@@ -886,7 +994,11 @@
     "sourceId": "cagematch",
     "sourceUrl": "https://www.cagematch.net/?id=111&nr=39292",
     "sourceStatus": "reference-linked",
-    "videoNameGroups": [["DRAGUNOV", "WALTER"]]
+    "videoNameGroups": [["DRAGUNOV", "WALTER"]],
+    "imageWidth": 3004,
+    "imageHeight": 2000,
+    "matchDuration": null,
+    "durationSource": null
   },
   {
     "id": "cagematch-1982",
@@ -915,7 +1027,11 @@
     "sourceId": "cagematch",
     "sourceUrl": "https://www.cagematch.net/?id=111&nr=1982",
     "sourceStatus": "reference-linked",
-    "videoNameGroups": [["KOBASHI", "MISAWA"]]
+    "videoNameGroups": [["KOBASHI", "MISAWA"]],
+    "imageWidth": 960,
+    "imageHeight": 720,
+    "matchDuration": "43:40",
+    "durationSource": "https://www.quebrada.net/matches/davidrecommendedmatches.html"
   },
   {
     "id": "cagematch-142",
@@ -944,7 +1060,11 @@
     "sourceId": "cagematch",
     "sourceUrl": "https://www.cagematch.net/?id=111&nr=142",
     "sourceStatus": "reference-linked",
-    "videoNameGroups": [["HART", "AUSTIN"]]
+    "videoNameGroups": [["HART", "AUSTIN"]],
+    "imageWidth": 1600,
+    "imageHeight": 1860,
+    "matchDuration": null,
+    "durationSource": null
   },
   {
     "id": "cagematch-3546",
@@ -973,7 +1093,11 @@
     "sourceId": "cagematch",
     "sourceUrl": "https://www.cagematch.net/?id=111&nr=3546",
     "sourceStatus": "reference-linked",
-    "videoNameGroups": [["MICHAELS", "UNDERTAKER"]]
+    "videoNameGroups": [["MICHAELS", "UNDERTAKER"]],
+    "imageWidth": 450,
+    "imageHeight": 600,
+    "matchDuration": null,
+    "durationSource": null
   },
   {
     "id": "cagematch-2623",
@@ -1002,7 +1126,11 @@
     "sourceId": "cagematch",
     "sourceUrl": "https://www.cagematch.net/?id=111&nr=2623",
     "sourceStatus": "reference-linked",
-    "videoNameGroups": [["KENTA", "MARUFUJI"]]
+    "videoNameGroups": [["KENTA", "MARUFUJI"]],
+    "imageWidth": 960,
+    "imageHeight": 720,
+    "matchDuration": "35:34",
+    "durationSource": "https://www.quebrada.net/matches/davidrecommendedmatches.html"
   },
   {
     "id": "cagematch-82259",
@@ -1031,7 +1159,11 @@
     "sourceId": "cagematch",
     "sourceUrl": "https://www.cagematch.net/?id=111&nr=82259",
     "sourceStatus": "reference-linked",
-    "videoNameGroups": [["PAGE", "STRICKLAND"]]
+    "videoNameGroups": [["PAGE", "STRICKLAND"]],
+    "imageWidth": 1000,
+    "imageHeight": 563,
+    "matchDuration": null,
+    "durationSource": null
   },
   {
     "id": "omega-ishii-g1-climax-28-night-14-2018-08-04",
@@ -1063,7 +1195,11 @@
     "sourceId": "cagematch",
     "sourceUrl": "https://www.cagematch.net/?id=111&nr=9614",
     "sourceStatus": "reference-linked",
-    "videoNameGroups": [["OMEGA", "ISHII"]]
+    "videoNameGroups": [["OMEGA", "ISHII"]],
+    "imageWidth": 1000,
+    "imageHeight": 1436,
+    "matchDuration": "22:42",
+    "durationSource": "https://www.quebrada.net/matches/davidrecommendedmatches.html"
   },
   {
     "id": "cagematch-119086",
@@ -1092,7 +1228,11 @@
     "sourceId": "cagematch",
     "sourceUrl": "https://www.cagematch.net/?id=111&nr=119086",
     "sourceStatus": "reference-linked",
-    "videoNameGroups": [["PAGE", "MOXLEY"]]
+    "videoNameGroups": [["PAGE", "MOXLEY"]],
+    "imageWidth": 1000,
+    "imageHeight": 1250,
+    "matchDuration": null,
+    "durationSource": null
   },
   {
     "id": "cagematch-4898",
@@ -1121,7 +1261,11 @@
     "sourceId": "cagematch",
     "sourceUrl": "https://www.cagematch.net/?id=111&nr=4898",
     "sourceStatus": "reference-linked",
-    "videoNameGroups": [["PUNK", "CENA"]]
+    "videoNameGroups": [["PUNK", "CENA"]],
+    "imageWidth": 709,
+    "imageHeight": 1000,
+    "matchDuration": null,
+    "durationSource": null
   },
   {
     "id": "cagematch-9118",
@@ -1150,7 +1294,11 @@
     "sourceId": "cagematch",
     "sourceUrl": "https://www.cagematch.net/?id=111&nr=9118",
     "sourceStatus": "reference-linked",
-    "videoNameGroups": [["ALMAS", "GARGANO"]]
+    "videoNameGroups": [["ALMAS", "GARGANO"]],
+    "imageWidth": 680,
+    "imageHeight": 1000,
+    "matchDuration": null,
+    "durationSource": null
   },
   {
     "id": "mjf-danielson-revolution-2023-03-05",
@@ -1185,7 +1333,11 @@
     "videoNameGroups": [
       ["DANIELSON", "MJF"],
       ["MJF", "DANIELSON"]
-    ]
+    ],
+    "imageWidth": 1000,
+    "imageHeight": 1500,
+    "matchDuration": null,
+    "durationSource": null
   },
   {
     "id": "okada-ibushi-wrestle-kingdom-14-night-1-2020-01-04",
@@ -1217,7 +1369,11 @@
     "sourceId": "cagematch",
     "sourceUrl": "https://www.cagematch.net/?id=111&nr=12000",
     "sourceStatus": "reference-linked",
-    "videoNameGroups": [["OKADA", "IBUSHI"]]
+    "videoNameGroups": [["OKADA", "IBUSHI"]],
+    "imageWidth": 925,
+    "imageHeight": 739,
+    "matchDuration": null,
+    "durationSource": null
   },
   {
     "id": "cagematch-6371",
@@ -1246,7 +1402,11 @@
     "sourceId": "cagematch",
     "sourceUrl": "https://www.cagematch.net/?id=111&nr=6371",
     "sourceStatus": "reference-linked",
-    "videoNameGroups": [["IBUSHI", "NAKAMURA"]]
+    "videoNameGroups": [["IBUSHI", "NAKAMURA"]],
+    "imageWidth": 1038,
+    "imageHeight": 1428,
+    "matchDuration": null,
+    "durationSource": null
   },
   {
     "id": "cagematch-145291",
@@ -1275,7 +1435,11 @@
     "sourceId": "cagematch",
     "sourceUrl": "https://www.cagematch.net/?id=111&nr=145291",
     "sourceStatus": "reference-linked",
-    "videoNameGroups": [["OIWA", "UEMURA"]]
+    "videoNameGroups": [["OIWA", "UEMURA"]],
+    "imageWidth": 1000,
+    "imageHeight": 667,
+    "matchDuration": null,
+    "durationSource": null
   },
   {
     "id": "cagematch-5705",
@@ -1304,7 +1468,11 @@
     "sourceId": "cagematch",
     "sourceUrl": "https://www.cagematch.net/?id=111&nr=5705",
     "sourceStatus": "reference-linked",
-    "videoNameGroups": [["SHIBATA", "ISHII"]]
+    "videoNameGroups": [["SHIBATA", "ISHII"]],
+    "imageWidth": 1132,
+    "imageHeight": 1600,
+    "matchDuration": "12:14",
+    "durationSource": "https://www.quebrada.net/matches/davidrecommendedmatches.html"
   },
   {
     "id": "cagematch-5818",
@@ -1333,7 +1501,11 @@
     "sourceId": "cagematch",
     "sourceUrl": "https://www.cagematch.net/?id=111&nr=5818",
     "sourceStatus": "reference-linked",
-    "videoNameGroups": [["TANAHASHI", "OKADA"]]
+    "videoNameGroups": [["TANAHASHI", "OKADA"]],
+    "imageWidth": 1263,
+    "imageHeight": 699,
+    "matchDuration": null,
+    "durationSource": null
   },
   {
     "id": "omega-ibushi-g1-climax-28-night-18-2018-08-11",
@@ -1365,7 +1537,11 @@
     "sourceId": "cagematch",
     "sourceUrl": "https://www.cagematch.net/?id=111&nr=9636",
     "sourceStatus": "reference-linked",
-    "videoNameGroups": [["OMEGA", "IBUSHI"]]
+    "videoNameGroups": [["OMEGA", "IBUSHI"]],
+    "imageWidth": 1200,
+    "imageHeight": 800,
+    "matchDuration": "23:13",
+    "durationSource": "https://www.quebrada.net/matches/davidrecommendedmatches.html"
   },
   {
     "id": "cagematch-116227",
@@ -1394,7 +1570,11 @@
     "sourceId": "cagematch",
     "sourceUrl": "https://www.cagematch.net/?id=111&nr=116227",
     "sourceStatus": "reference-linked",
-    "videoNameGroups": [["PAGE", "OSPREAY"]]
+    "videoNameGroups": [["PAGE", "OSPREAY"]],
+    "imageWidth": 2308,
+    "imageHeight": 3465,
+    "matchDuration": null,
+    "durationSource": null
   },
   {
     "id": "cagematch-11384",
@@ -1423,7 +1603,11 @@
     "sourceId": "cagematch",
     "sourceUrl": "https://www.cagematch.net/?id=111&nr=11384",
     "sourceStatus": "reference-linked",
-    "videoNameGroups": [["BATE", "WALTER"]]
+    "videoNameGroups": [["BATE", "WALTER"]],
+    "imageWidth": 1200,
+    "imageHeight": 675,
+    "matchDuration": null,
+    "durationSource": null
   },
   {
     "id": "cagematch-12007",
@@ -1452,7 +1636,11 @@
     "sourceId": "cagematch",
     "sourceUrl": "https://www.cagematch.net/?id=111&nr=12007",
     "sourceStatus": "reference-linked",
-    "videoNameGroups": [["OKADA", "NAITO"]]
+    "videoNameGroups": [["OKADA", "NAITO"]],
+    "imageWidth": 853,
+    "imageHeight": 480,
+    "matchDuration": null,
+    "durationSource": null
   },
   {
     "id": "cagematch-1905",
@@ -1481,7 +1669,11 @@
     "sourceId": "cagematch",
     "sourceUrl": "https://www.cagematch.net/?id=111&nr=1905",
     "sourceStatus": "reference-linked",
-    "videoNameGroups": [["KROFFAT / FURNAS", "KOBASHI / KIKUCHI"]]
+    "videoNameGroups": [["KROFFAT / FURNAS", "KOBASHI / KIKUCHI"]],
+    "imageWidth": 1024,
+    "imageHeight": 768,
+    "matchDuration": "22:11",
+    "durationSource": "https://www.quebrada.net/matches/davidrecommendedmatches.html"
   },
   {
     "id": "cagematch-107234",
@@ -1510,7 +1702,11 @@
     "sourceId": "cagematch",
     "sourceUrl": "https://www.cagematch.net/?id=111&nr=107234",
     "sourceStatus": "reference-linked",
-    "videoNameGroups": [["KIDD", "OMEGA"]]
+    "videoNameGroups": [["KIDD", "OMEGA"]],
+    "imageWidth": 3543,
+    "imageHeight": 2000,
+    "matchDuration": null,
+    "durationSource": null
   },
   {
     "id": "cagematch-1688",
@@ -1539,7 +1735,11 @@
     "sourceId": "cagematch",
     "sourceUrl": "https://www.cagematch.net/?id=111&nr=1688",
     "sourceStatus": "reference-linked",
-    "videoNameGroups": [["DANIELSON", "MCGUINNESS"]]
+    "videoNameGroups": [["DANIELSON", "MCGUINNESS"]],
+    "imageWidth": 3840,
+    "imageHeight": 2160,
+    "matchDuration": null,
+    "durationSource": null
   },
   {
     "id": "cagematch-8811",
@@ -1568,7 +1768,11 @@
     "sourceId": "cagematch",
     "sourceUrl": "https://www.cagematch.net/?id=111&nr=8811",
     "sourceStatus": "reference-linked",
-    "videoNameGroups": [["FOX", "KILLSHOT"]]
+    "videoNameGroups": [["FOX", "KILLSHOT"]],
+    "imageWidth": 1100,
+    "imageHeight": 619,
+    "matchDuration": null,
+    "durationSource": null
   },
   {
     "id": "cagematch-50702",
@@ -1597,7 +1801,11 @@
     "sourceId": "cagematch",
     "sourceUrl": "https://www.cagematch.net/?id=111&nr=50702",
     "sourceStatus": "reference-linked",
-    "videoNameGroups": [["WHEELER / HARWOOD", "BRISCOE / BRISCOE"]]
+    "videoNameGroups": [["WHEELER / HARWOOD", "BRISCOE / BRISCOE"]],
+    "imageWidth": 800,
+    "imageHeight": 1280,
+    "matchDuration": null,
+    "durationSource": null
   },
   {
     "id": "cagematch-243",
@@ -1633,7 +1841,11 @@
     "sourceId": "cagematch",
     "sourceUrl": "https://www.cagematch.net/?id=111&nr=243",
     "sourceStatus": "reference-linked",
-    "videoNameGroups": [["DUDLEY / DUDLEY", "CHRISTIAN / EDGE", "HARDY / HARDY"]]
+    "videoNameGroups": [["DUDLEY / DUDLEY", "CHRISTIAN / EDGE", "HARDY / HARDY"]],
+    "imageWidth": 800,
+    "imageHeight": 1041,
+    "matchDuration": null,
+    "durationSource": null
   },
   {
     "id": "cagematch-1587",
@@ -1662,7 +1874,11 @@
     "sourceId": "cagematch",
     "sourceUrl": "https://www.cagematch.net/?id=111&nr=1587",
     "sourceStatus": "reference-linked",
-    "videoNameGroups": [["DANIELSON", "MCGUINNESS"]]
+    "videoNameGroups": [["DANIELSON", "MCGUINNESS"]],
+    "imageWidth": 500,
+    "imageHeight": 500,
+    "matchDuration": null,
+    "durationSource": null
   },
   {
     "id": "cagematch-7952",
@@ -1691,7 +1907,11 @@
     "sourceId": "cagematch",
     "sourceUrl": "https://www.cagematch.net/?id=111&nr=7952",
     "sourceStatus": "reference-linked",
-    "videoNameGroups": [["WILDER / DAWSON", "GARGANO / CIAMPA"]]
+    "videoNameGroups": [["WILDER / DAWSON", "GARGANO / CIAMPA"]],
+    "imageWidth": 1200,
+    "imageHeight": 675,
+    "matchDuration": null,
+    "durationSource": null
   },
   {
     "id": "cagematch-7101",
@@ -1720,7 +1940,11 @@
     "sourceId": "cagematch",
     "sourceUrl": "https://www.cagematch.net/?id=111&nr=7101",
     "sourceStatus": "reference-linked",
-    "videoNameGroups": [["SHIRAI", "SATOMURA"]]
+    "videoNameGroups": [["SHIRAI", "SATOMURA"]],
+    "imageWidth": 1200,
+    "imageHeight": 673,
+    "matchDuration": "24:50",
+    "durationSource": "https://www.quebrada.net/matches/davidrecommendedmatches.html"
   },
   {
     "id": "cagematch-2557",
@@ -1749,7 +1973,11 @@
     "sourceId": "cagematch",
     "sourceUrl": "https://www.cagematch.net/?id=111&nr=2557",
     "sourceStatus": "reference-linked",
-    "videoNameGroups": [["AKIYAMA", "KOBASHI"]]
+    "videoNameGroups": [["AKIYAMA", "KOBASHI"]],
+    "imageWidth": 670,
+    "imageHeight": 575,
+    "matchDuration": null,
+    "durationSource": null
   },
   {
     "id": "cagematch-148801",
@@ -1778,7 +2006,11 @@
     "sourceId": "cagematch",
     "sourceUrl": "https://www.cagematch.net/?id=111&nr=148801",
     "sourceStatus": "reference-linked",
-    "videoNameGroups": [["OIWA", "TSUJI"]]
+    "videoNameGroups": [["OIWA", "TSUJI"]],
+    "imageWidth": 1300,
+    "imageHeight": 1733,
+    "matchDuration": null,
+    "durationSource": null
   },
   {
     "id": "ospreay-omega-forbidden-door-2023",
@@ -1811,7 +2043,11 @@
     "sourceId": "cagematch",
     "sourceUrl": "https://www.cagematch.net/?id=111&nr=75183",
     "sourceStatus": "reference-linked",
-    "videoNameGroups": [["OMEGA", "OSPREAY"]]
+    "videoNameGroups": [["OMEGA", "OSPREAY"]],
+    "imageWidth": 800,
+    "imageHeight": 1280,
+    "matchDuration": "39:45",
+    "durationSource": "https://www.quebrada.net/matches/davidrecommendedmatches.html"
   },
   {
     "id": "cagematch-114246",
@@ -1840,7 +2076,11 @@
     "sourceId": "cagematch",
     "sourceUrl": "https://www.cagematch.net/?id=111&nr=114246",
     "sourceStatus": "reference-linked",
-    "videoNameGroups": [["KAMITANI", "NAKANO"]]
+    "videoNameGroups": [["KAMITANI", "NAKANO"]],
+    "imageWidth": 1240,
+    "imageHeight": 1754,
+    "matchDuration": null,
+    "durationSource": null
   },
   {
     "id": "cagematch-8043",
@@ -1869,7 +2109,11 @@
     "sourceId": "cagematch",
     "sourceUrl": "https://www.cagematch.net/?id=111&nr=8043",
     "sourceStatus": "reference-linked",
-    "videoNameGroups": [["OMEGA", "IBUSHI"]]
+    "videoNameGroups": [["OMEGA", "IBUSHI"]],
+    "imageWidth": 399,
+    "imageHeight": 600,
+    "matchDuration": "37:26",
+    "durationSource": "https://www.quebrada.net/matches/davidrecommendedmatches.html"
   },
   {
     "id": "cagematch-11819",
@@ -1898,7 +2142,11 @@
     "sourceId": "cagematch",
     "sourceUrl": "https://www.cagematch.net/?id=111&nr=11819",
     "sourceStatus": "reference-linked",
-    "videoNameGroups": [["KONG", "KAORU"]]
+    "videoNameGroups": [["KONG", "KAORU"]],
+    "imageWidth": 813,
+    "imageHeight": 540,
+    "matchDuration": null,
+    "durationSource": null
   },
   {
     "id": "cagematch-8324",
@@ -1936,7 +2184,11 @@
     "sourceId": "cagematch",
     "sourceUrl": "https://www.cagematch.net/?id=111&nr=8324",
     "sourceStatus": "reference-linked",
-    "videoNameGroups": [["KONG / INOUE / HASEGAWA / INOUE", "SUZUKI / KANSAI / FUKUOKA / OZAKI"]]
+    "videoNameGroups": [["KONG / INOUE / HASEGAWA / INOUE", "SUZUKI / KANSAI / FUKUOKA / OZAKI"]],
+    "imageWidth": 640,
+    "imageHeight": 463,
+    "matchDuration": "60:00",
+    "durationSource": "https://www.quebrada.net/matches/davidrecommendedmatches.html"
   },
   {
     "id": "okada-ospreay-g1-climax-32-night-20-final-2022-08-18",
@@ -1968,7 +2220,11 @@
     "sourceId": "cagematch",
     "sourceUrl": "https://www.cagematch.net/?id=111&nr=58356",
     "sourceStatus": "reference-linked",
-    "videoNameGroups": [["OKADA", "OSPREAY"]]
+    "videoNameGroups": [["OKADA", "OSPREAY"]],
+    "imageWidth": 680,
+    "imageHeight": 680,
+    "matchDuration": null,
+    "durationSource": null
   },
   {
     "id": "cagematch-1597",
@@ -1997,7 +2253,11 @@
     "sourceId": "cagematch",
     "sourceUrl": "https://www.cagematch.net/?id=111&nr=1597",
     "sourceStatus": "reference-linked",
-    "videoNameGroups": [["DANIELSON", "KENTA"]]
+    "videoNameGroups": [["DANIELSON", "KENTA"]],
+    "imageWidth": 558,
+    "imageHeight": 402,
+    "matchDuration": null,
+    "durationSource": null
   },
   {
     "id": "cagematch-6845",
@@ -2026,7 +2286,11 @@
     "sourceId": "cagematch",
     "sourceUrl": "https://www.cagematch.net/?id=111&nr=6845",
     "sourceStatus": "reference-linked",
-    "videoNameGroups": [["TANAHASHI", "NAKAMURA"]]
+    "videoNameGroups": [["TANAHASHI", "NAKAMURA"]],
+    "imageWidth": 680,
+    "imageHeight": 1000,
+    "matchDuration": null,
+    "durationSource": null
   },
   {
     "id": "cagematch-3499",
@@ -2055,7 +2319,11 @@
     "sourceId": "cagematch",
     "sourceUrl": "https://www.cagematch.net/?id=111&nr=3499",
     "sourceStatus": "reference-linked",
-    "videoNameGroups": [["HOKUTO", "KANDORI"]]
+    "videoNameGroups": [["HOKUTO", "KANDORI"]],
+    "imageWidth": 1200,
+    "imageHeight": 800,
+    "matchDuration": "30:27",
+    "durationSource": "https://www.quebrada.net/matches/davidrecommendedmatches.html"
   },
   {
     "id": "cagematch-2550",
@@ -2084,7 +2352,11 @@
     "sourceId": "cagematch",
     "sourceUrl": "https://www.cagematch.net/?id=111&nr=2550",
     "sourceStatus": "reference-linked",
-    "videoNameGroups": [["KOBASHI", "TAKAYAMA"]]
+    "videoNameGroups": [["KOBASHI", "TAKAYAMA"]],
+    "imageWidth": 480,
+    "imageHeight": 360,
+    "matchDuration": null,
+    "durationSource": null
   },
   {
     "id": "cagematch-476",
@@ -2113,7 +2385,11 @@
     "sourceId": "cagematch",
     "sourceUrl": "https://www.cagematch.net/?id=111&nr=476",
     "sourceStatus": "reference-linked",
-    "videoNameGroups": [["ANGLE", "MICHAELS"]]
+    "videoNameGroups": [["ANGLE", "MICHAELS"]],
+    "imageWidth": 400,
+    "imageHeight": 600,
+    "matchDuration": null,
+    "durationSource": null
   },
   {
     "id": "cagematch-6372",
@@ -2142,7 +2418,11 @@
     "sourceId": "cagematch",
     "sourceUrl": "https://www.cagematch.net/?id=111&nr=6372",
     "sourceStatus": "reference-linked",
-    "videoNameGroups": [["TANAHASHI", "OKADA"]]
+    "videoNameGroups": [["TANAHASHI", "OKADA"]],
+    "imageWidth": 1024,
+    "imageHeight": 791,
+    "matchDuration": null,
+    "durationSource": null
   },
   {
     "id": "cagematch-400",
@@ -2171,7 +2451,11 @@
     "sourceId": "cagematch",
     "sourceUrl": "https://www.cagematch.net/?id=111&nr=400",
     "sourceStatus": "reference-linked",
-    "videoNameGroups": [["BENOIT", "MICHAELS", "H"]]
+    "videoNameGroups": [["BENOIT", "MICHAELS", "H"]],
+    "imageWidth": 2000,
+    "imageHeight": 3000,
+    "matchDuration": null,
+    "durationSource": null
   },
   {
     "id": "americano-original-americano-noche-de-los-grandes-week-1-2026-05-30",
@@ -2203,7 +2487,11 @@
     "sourceId": "cagematch",
     "sourceUrl": "https://www.cagematch.net/?id=111&nr=140370",
     "sourceStatus": "reference-linked",
-    "videoNameGroups": [["AMERICANO", "ORIGINAL AMERICANO"]]
+    "videoNameGroups": [["AMERICANO", "ORIGINAL AMERICANO"]],
+    "imageWidth": 1920,
+    "imageHeight": 1080,
+    "matchDuration": null,
+    "durationSource": null
   },
   {
     "id": "cagematch-45249",
@@ -2232,7 +2520,11 @@
     "sourceId": "cagematch",
     "sourceUrl": "https://www.cagematch.net/?id=111&nr=45249",
     "sourceStatus": "reference-linked",
-    "videoNameGroups": [["PAGE", "DANIELSON"]]
+    "videoNameGroups": [["PAGE", "DANIELSON"]],
+    "imageWidth": 720,
+    "imageHeight": 405,
+    "matchDuration": null,
+    "durationSource": null
   },
   {
     "id": "cagematch-148144",
@@ -2261,7 +2553,11 @@
     "sourceId": "cagematch",
     "sourceUrl": "https://www.cagematch.net/?id=111&nr=148144",
     "sourceStatus": "reference-linked",
-    "videoNameGroups": [["RICOCHET", "OSPREAY"]]
+    "videoNameGroups": [["RICOCHET", "OSPREAY"]],
+    "imageWidth": 920,
+    "imageHeight": 517,
+    "matchDuration": null,
+    "durationSource": null
   },
   {
     "id": "cagematch-1968",
@@ -2290,7 +2586,11 @@
     "sourceId": "cagematch",
     "sourceUrl": "https://www.cagematch.net/?id=111&nr=1968",
     "sourceStatus": "reference-linked",
-    "videoNameGroups": [["TAUE / KAWADA", "AKIYAMA / MISAWA"]]
+    "videoNameGroups": [["TAUE / KAWADA", "AKIYAMA / MISAWA"]],
+    "imageWidth": 806,
+    "imageHeight": 610,
+    "matchDuration": "31:37",
+    "durationSource": "https://www.quebrada.net/matches/davidrecommendedmatches.html"
   },
   {
     "id": "cagematch-1938",
@@ -2319,7 +2619,11 @@
     "sourceId": "cagematch",
     "sourceUrl": "https://www.cagematch.net/?id=111&nr=1938",
     "sourceStatus": "reference-linked",
-    "videoNameGroups": [["TAUE / KAWADA", "KOBASHI / MISAWA"]]
+    "videoNameGroups": [["TAUE / KAWADA", "KOBASHI / MISAWA"]],
+    "imageWidth": 1440,
+    "imageHeight": 1920,
+    "matchDuration": "40:25",
+    "durationSource": "https://www.quebrada.net/matches/davidrecommendedmatches.html"
   },
   {
     "id": "danielson-sabre-jr-wrestledream-2023-10-01",
@@ -2351,7 +2655,11 @@
     "sourceId": "cagematch",
     "sourceUrl": "https://www.cagematch.net/?id=111&nr=79920",
     "sourceStatus": "reference-linked",
-    "videoNameGroups": [["DANIELSON", "SABRE JR."]]
+    "videoNameGroups": [["DANIELSON", "SABRE JR."]],
+    "imageWidth": 600,
+    "imageHeight": 600,
+    "matchDuration": "23:12",
+    "durationSource": "https://www.quebrada.net/matches/davidrecommendedmatches.html"
   },
   {
     "id": "cagematch-4268",
@@ -2380,7 +2688,11 @@
     "sourceId": "cagematch",
     "sourceUrl": "https://www.cagematch.net/?id=111&nr=4268",
     "sourceStatus": "reference-linked",
-    "videoNameGroups": [["KONG", "TOYOTA"]]
+    "videoNameGroups": [["KONG", "TOYOTA"]],
+    "imageWidth": 1200,
+    "imageHeight": 1200,
+    "matchDuration": "17:19",
+    "durationSource": "https://www.quebrada.net/matches/davidrecommendedmatches.html"
   },
   {
     "id": "cagematch-40808",
@@ -2409,7 +2721,11 @@
     "sourceId": "cagematch",
     "sourceUrl": "https://www.cagematch.net/?id=111&nr=40808",
     "sourceStatus": "reference-linked",
-    "videoNameGroups": [["DANIELSON", "OMEGA"]]
+    "videoNameGroups": [["DANIELSON", "OMEGA"]],
+    "imageWidth": 1280,
+    "imageHeight": 720,
+    "matchDuration": null,
+    "durationSource": null
   },
   {
     "id": "cagematch-1980",
@@ -2438,7 +2754,11 @@
     "sourceId": "cagematch",
     "sourceUrl": "https://www.cagematch.net/?id=111&nr=1980",
     "sourceStatus": "reference-linked",
-    "videoNameGroups": [["KOBASHI", "MISAWA"]]
+    "videoNameGroups": [["KOBASHI", "MISAWA"]],
+    "imageWidth": 1200,
+    "imageHeight": 1200,
+    "matchDuration": "43:29",
+    "durationSource": "https://www.quebrada.net/matches/davidrecommendedmatches.html"
   },
   {
     "id": "ishimori-takahashi-best-of-the-super-juniors-final-2018-06-04",
@@ -2473,7 +2793,11 @@
     "videoNameGroups": [
       ["TAKAHASHI", "ISHIMORI"],
       ["ISHIMORI", "TAKAHASHI"]
-    ]
+    ],
+    "imageWidth": 960,
+    "imageHeight": 540,
+    "matchDuration": null,
+    "durationSource": null
   },
   {
     "id": "cagematch-9537",
@@ -2502,7 +2826,11 @@
     "sourceId": "cagematch",
     "sourceUrl": "https://www.cagematch.net/?id=111&nr=9537",
     "sourceStatus": "reference-linked",
-    "videoNameGroups": [["OMEGA", "NAITO"]]
+    "videoNameGroups": [["OMEGA", "NAITO"]],
+    "imageWidth": 1000,
+    "imageHeight": 1436,
+    "matchDuration": null,
+    "durationSource": null
   },
   {
     "id": "takagi-ishii-g1-climax-29-night-16-2019-08-08",
@@ -2534,7 +2862,11 @@
     "sourceId": "cagematch",
     "sourceUrl": "https://www.cagematch.net/?id=111&nr=11306",
     "sourceStatus": "reference-linked",
-    "videoNameGroups": [["TAKAGI", "ISHII"]]
+    "videoNameGroups": [["TAKAGI", "ISHII"]],
+    "imageWidth": 960,
+    "imageHeight": 540,
+    "matchDuration": null,
+    "durationSource": null
   },
   {
     "id": "cagematch-3680",
@@ -2563,7 +2895,11 @@
     "sourceId": "cagematch",
     "sourceUrl": "https://www.cagematch.net/?id=111&nr=3680",
     "sourceStatus": "reference-linked",
-    "videoNameGroups": [["NAKAJIMA", "KENTA"]]
+    "videoNameGroups": [["NAKAJIMA", "KENTA"]],
+    "imageWidth": 559,
+    "imageHeight": 410,
+    "matchDuration": null,
+    "durationSource": null
   },
   {
     "id": "young-bucks-lucha-brothers-all-out-2021-09-05",
@@ -2598,7 +2934,11 @@
     "videoNameGroups": [
       ["JACKSON / JACKSON", "MIEDO / FENIX"],
       ["YOUNG BUCKS", "LUCHA BROTHERS"]
-    ]
+    ],
+    "imageWidth": 1000,
+    "imageHeight": 1667,
+    "matchDuration": null,
+    "durationSource": null
   },
   {
     "id": "cagematch-160",
@@ -2627,7 +2967,11 @@
     "sourceId": "cagematch",
     "sourceUrl": "https://www.cagematch.net/?id=111&nr=160",
     "sourceStatus": "reference-linked",
-    "videoNameGroups": [["MICHAELS", "UNDERTAKER"]]
+    "videoNameGroups": [["MICHAELS", "UNDERTAKER"]],
+    "imageWidth": 402,
+    "imageHeight": 541,
+    "matchDuration": null,
+    "durationSource": null
   },
   {
     "id": "cagematch-5309",
@@ -2656,7 +3000,11 @@
     "sourceId": "cagematch",
     "sourceUrl": "https://www.cagematch.net/?id=111&nr=5309",
     "sourceStatus": "reference-linked",
-    "videoNameGroups": [["TANAHASHI", "SUZUKI"]]
+    "videoNameGroups": [["TANAHASHI", "SUZUKI"]],
+    "imageWidth": 1269,
+    "imageHeight": 709,
+    "matchDuration": null,
+    "durationSource": null
   },
   {
     "id": "cagematch-4201",
@@ -2685,7 +3033,11 @@
     "sourceId": "cagematch",
     "sourceUrl": "https://www.cagematch.net/?id=111&nr=4201",
     "sourceStatus": "reference-linked",
-    "videoNameGroups": [["MICHAELS", "UNDERTAKER"]]
+    "videoNameGroups": [["MICHAELS", "UNDERTAKER"]],
+    "imageWidth": 2000,
+    "imageHeight": 3000,
+    "matchDuration": null,
+    "durationSource": null
   },
   {
     "id": "cagematch-2599",
@@ -2714,7 +3066,11 @@
     "sourceId": "cagematch",
     "sourceUrl": "https://www.cagematch.net/?id=111&nr=2599",
     "sourceStatus": "reference-linked",
-    "videoNameGroups": [["SHIOZAKI / KOBASHI", "NAKAJIMA / SASAKI"]]
+    "videoNameGroups": [["SHIOZAKI / KOBASHI", "NAKAJIMA / SASAKI"]],
+    "imageWidth": 960,
+    "imageHeight": 720,
+    "matchDuration": null,
+    "durationSource": null
   },
   {
     "id": "cagematch-10317",
@@ -2743,7 +3099,11 @@
     "sourceId": "cagematch",
     "sourceUrl": "https://www.cagematch.net/?id=111&nr=10317",
     "sourceStatus": "reference-linked",
-    "videoNameGroups": [["KANSAI / OZAKI", "TOYOTA / YAMADA"]]
+    "videoNameGroups": [["KANSAI / OZAKI", "TOYOTA / YAMADA"]],
+    "imageWidth": 1000,
+    "imageHeight": 563,
+    "matchDuration": "40:22",
+    "durationSource": "https://www.quebrada.net/matches/davidrecommendedmatches.html"
   },
   {
     "id": "cagematch-1894",
@@ -2779,7 +3139,11 @@
     "sourceId": "cagematch",
     "sourceUrl": "https://www.cagematch.net/?id=111&nr=1894",
     "sourceStatus": "reference-linked",
-    "videoNameGroups": [["TAUE / TSURUTA / FUCHI", "KOBASHI / MISAWA / KAWADA"]]
+    "videoNameGroups": [["TAUE / TSURUTA / FUCHI", "KOBASHI / MISAWA / KAWADA"]],
+    "imageWidth": 480,
+    "imageHeight": 360,
+    "matchDuration": "51:32",
+    "durationSource": "https://www.quebrada.net/matches/davidrecommendedmatches.html"
   },
   {
     "id": "cagematch-111046",
@@ -2808,7 +3172,11 @@
     "sourceId": "cagematch",
     "sourceUrl": "https://www.cagematch.net/?id=111&nr=111046",
     "sourceStatus": "reference-linked",
-    "videoNameGroups": [["MAY", "STORM"]]
+    "videoNameGroups": [["MAY", "STORM"]],
+    "imageWidth": 500,
+    "imageHeight": 750,
+    "matchDuration": null,
+    "durationSource": null
   },
   {
     "id": "cagematch-9728",
@@ -2837,7 +3205,11 @@
     "sourceId": "cagematch",
     "sourceUrl": "https://www.cagematch.net/?id=111&nr=9728",
     "sourceStatus": "reference-linked",
-    "videoNameGroups": [["TANAHASHI", "OKADA"]]
+    "videoNameGroups": [["TANAHASHI", "OKADA"]],
+    "imageWidth": 600,
+    "imageHeight": 400,
+    "matchDuration": null,
+    "durationSource": null
   },
   {
     "id": "naito-ospreay-g1-climax-33-night-18-2023-08-12",
@@ -2869,7 +3241,11 @@
     "sourceId": "cagematch",
     "sourceUrl": "https://www.cagematch.net/?id=111&nr=77670",
     "sourceStatus": "reference-linked",
-    "videoNameGroups": [["NAITO", "OSPREAY"]]
+    "videoNameGroups": [["NAITO", "OSPREAY"]],
+    "imageWidth": 720,
+    "imageHeight": 405,
+    "matchDuration": null,
+    "durationSource": null
   },
   {
     "id": "cagematch-808",
@@ -2898,7 +3274,11 @@
     "sourceId": "cagematch",
     "sourceUrl": "https://www.cagematch.net/?id=111&nr=808",
     "sourceStatus": "reference-linked",
-    "videoNameGroups": [["FLAIR", "STEAMBOAT"]]
+    "videoNameGroups": [["FLAIR", "STEAMBOAT"]],
+    "imageWidth": 1000,
+    "imageHeight": 1436,
+    "matchDuration": null,
+    "durationSource": null
   },
   {
     "id": "cagematch-101443",
@@ -2927,7 +3307,11 @@
     "sourceId": "cagematch",
     "sourceUrl": "https://www.cagematch.net/?id=111&nr=101443",
     "sourceStatus": "reference-linked",
-    "videoNameGroups": [["PUNK", "MCINTYRE"]]
+    "videoNameGroups": [["PUNK", "MCINTYRE"]],
+    "imageWidth": 1025,
+    "imageHeight": 1590,
+    "matchDuration": null,
+    "durationSource": null
   },
   {
     "id": "cagematch-11827",
@@ -2956,7 +3340,11 @@
     "sourceId": "cagematch",
     "sourceUrl": "https://www.cagematch.net/?id=111&nr=11827",
     "sourceStatus": "reference-linked",
-    "videoNameGroups": [["SHIRAI", "HOJO"]]
+    "videoNameGroups": [["SHIRAI", "HOJO"]],
+    "imageWidth": 210,
+    "imageHeight": 300,
+    "matchDuration": null,
+    "durationSource": null
   },
   {
     "id": "cagematch-9594",
@@ -2985,7 +3373,11 @@
     "sourceId": "cagematch",
     "sourceUrl": "https://www.cagematch.net/?id=111&nr=9594",
     "sourceStatus": "reference-linked",
-    "videoNameGroups": [["IBUSHI", "ISHII"]]
+    "videoNameGroups": [["IBUSHI", "ISHII"]],
+    "imageWidth": 1500,
+    "imageHeight": 500,
+    "matchDuration": null,
+    "durationSource": null
   },
   {
     "id": "syuri-hayashishita-tokyo-dream-cinderella-2021-06-12",
@@ -3017,7 +3409,11 @@
     "sourceId": "cagematch",
     "sourceUrl": "https://www.cagematch.net/?id=111&nr=35459",
     "sourceStatus": "reference-linked",
-    "videoNameGroups": [["SYURI", "HAYASHISHITA"]]
+    "videoNameGroups": [["SYURI", "HAYASHISHITA"]],
+    "imageWidth": 800,
+    "imageHeight": 1200,
+    "matchDuration": null,
+    "durationSource": null
   },
   {
     "id": "cagematch-8679",
@@ -3046,6 +3442,10 @@
     "sourceId": "cagematch",
     "sourceUrl": "https://www.cagematch.net/?id=111&nr=8679",
     "sourceStatus": "reference-linked",
-    "videoNameGroups": [["SHIRAI", "IWATANI"]]
+    "videoNameGroups": [["SHIRAI", "IWATANI"]],
+    "imageWidth": 1200,
+    "imageHeight": 675,
+    "matchDuration": "27:52",
+    "durationSource": "https://www.quebrada.net/matches/davidrecommendedmatches.html"
   }
 ]
