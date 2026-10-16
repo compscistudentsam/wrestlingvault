@@ -2080,7 +2080,8 @@
     "imageWidth": 1240,
     "imageHeight": 1754,
     "matchDuration": null,
-    "durationSource": null
+    "durationSource": null,
+    "artworkLayout": "poster"
   },
   {
     "id": "cagematch-8043",
