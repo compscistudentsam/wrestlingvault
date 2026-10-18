@@ -1,0 +1,36 @@
+appId: com.wrestlingvault.app
+productName: Wrestling Vault
+asar: true
+npmRebuild: false
+forceCodeSigning: false
+directories:
+  output: release
+  buildResources: build
+files:
+  - dist/**/*
+  - dist-electron/*.cjs
+  - package.json
+  - docs/THIRD_PARTY_NOTICES.md
+  - docs/data-provenance.md
+  - docs/cagematch-top100/INDEX.csv
+  - src/data/cover-provenance.json
+extraFiles:
+  - from: build/THIRD_PARTY_LICENSES.txt
+    to: THIRD_PARTY_LICENSES.txt
+win:
+  target:
+    - target: nsis
+      arch: [x64]
+  icon: build/icon.ico
+  artifactName: Wrestling-Vault-Setup-${version}-${arch}.${ext}
+nsis:
+  oneClick: false
+  perMachine: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: Wrestling Vault
+  deleteAppDataOnUninstall: false
+  installerIcon: build/icon.ico
+  uninstallerIcon: build/icon.ico
+  runAfterFinish: true
