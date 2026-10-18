@@ -121,7 +121,7 @@ export class PersonalLibrary {
     });
     await rename(`${destination}.tmp`, destination);
   }
-  async add(input: unknown, bytes: Buffer) {
+  async add(input: unknown, bytes: Buffer, reviewed = true) {
     const draft = validateDraft(input);
     return this.serial(async () => {
       if (this.allMatches().some((m) => cagematchURL(m.sourceUrl) === draft.sourceUrl))
@@ -137,6 +137,10 @@ export class PersonalLibrary {
         hash(bytes),
         this.allMatches().length + 1,
       );
+      if (!reviewed) {
+        record.sourceStatus = 'auto-imported';
+        record.imageType = 'Automatically selected artwork';
+      }
       await writeFile(
         path.join(this.dependencies.root, 'art', path.basename(record.image)),
         bytes,
@@ -215,6 +219,9 @@ export class PersonalLibrary {
       }
       return this.snapshot();
     });
+  }
+  nextLookupAt() {
+    return this.state.nextLookup;
   }
   async lookupInBrowser(source: unknown) {
     const url = cagematchURL(source);

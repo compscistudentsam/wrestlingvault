@@ -81,6 +81,10 @@ export function parseManifest(value: unknown): Match[] {
       m.artworkHash ?? '',
       bundled.find((base) => base.sourceUrl === m.sourceUrl)?.rank ?? bundled.length + ++additions,
     );
+    if (m.sourceStatus === 'auto-imported') {
+      record.sourceStatus = 'auto-imported';
+      record.imageType = 'Automatically selected artwork';
+    }
     if (m.id !== record.id || image[1] !== record.id || urls.has(record.sourceUrl))
       throw new Error('Duplicate or invalid CAGEMATCH record.');
     urls.add(record.sourceUrl);
@@ -94,6 +98,7 @@ export function mergeRecords(remote: Match[], pending: Match[], bases: Match[] =
     const existing = records.find((other) => other.sourceUrl === m.sourceUrl);
     const same = (a: Match, b: Match) =>
       a.artworkHash === b.artworkHash &&
+      a.sourceStatus === b.sourceStatus &&
       JSON.stringify(validateDraft(a)) === JSON.stringify(validateDraft(b));
     const base = bases.find((record) => record.id === m.id);
     if (existing && !same(existing, m)) {

@@ -9,7 +9,9 @@ export const getSource = (match: Match) => ({
   name:
     match.sourceStatus === 'user-reviewed'
       ? 'CAGEMATCH · user-reviewed details'
-      : 'CAGEMATCH · supplied snapshot',
+      : match.sourceStatus === 'auto-imported'
+        ? 'CAGEMATCH · automatic import'
+        : 'CAGEMATCH · supplied snapshot',
   url: match.sourceUrl,
 });
 export const formatRating = (rating: number | null) =>

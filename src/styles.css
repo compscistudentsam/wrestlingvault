@@ -1350,3 +1350,16 @@ select {
     padding: 18px;
   }
 }
+
+.batch-results {
+  padding-left: 1.4rem;
+}
+.batch-results li {
+  margin: 0.8rem 0;
+  overflow-wrap: anywhere;
+}
+.batch-results li span {
+  display: block;
+  color: var(--color-text-muted, #b5b8bf);
+  font-size: 0.85rem;
+}

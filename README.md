@@ -48,6 +48,10 @@ See [personal library sync](docs/library-sync.md) for setup, offline recovery, m
 
 Open a match and choose **Edit entry** to change its opponents, event, company, date, WON rating, CAGEMATCH score or match length. The editor starts with the current details; **Save changes** stores them locally and queues GitHub sync. Closing without saving discards the form changes. Artwork and the source link are retained. Bundled entries can also be edited without duplicating their cards or changing video matching IDs. Conflicting edits from another computer are reported and kept locally rather than overwritten.
 
+Use **Batch upload** to paste up to 50 CAGEMATCH match URLs (one per line), then choose **Import all**. Each valid match is imported, given automatically selected artwork and saved without an entry-review step. Existing and repeated links are skipped; failures are listed without stopping later entries. Missing required metadata or artwork is reported rather than guessed. Batch entries are labelled automatically imported and remain editable.
+
+The queue respects the CAGEMATCH request cooldown (currently at least 527 seconds between background lookups), displaying a countdown when it must wait. You can close the batch dialog and keep browsing, or choose **Stop after current match**. Keep the app open until the batch finishes; unfinished batches do not resume after an application restart. Completed matches are saved durably and queued for GitHub sync as each finishes. Website consent or access checks may still require browser interaction.
+
 ## Local video playback
 
 The desktop app asks for one global video folder on first launch and remembers it. If it becomes unavailable, choose it again. Retrieved import artwork is saved in an `images` subfolder there; an existing folder is reused. Put videos directly in it; **no match subfolders are required**. Existing subfolders remain supported. Match identification ignores punctuation/case, recognizes wrestler surnames, distinctive nicknames and alternate ring names, and uses event/year/date clues to distinguish repeated matchups. Examples:

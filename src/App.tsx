@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { Artwork } from './components/Artwork';
 import { libraryMatches } from './shared/library-matches';
+import { BatchImport } from './components/BatchImport';
 import { AddMatch } from './components/AddMatch';
 import type { LibrarySnapshot, LibraryStatus } from './shared/imports';
 import { CoverFlow } from './components/CoverFlow';
@@ -485,6 +486,7 @@ export function App() {
             }}
           />
         )}
+        {isLibrary && <BatchImport />}
         <button
           className="folder-button"
           disabled={choosing || scanning}
@@ -901,7 +903,9 @@ function MatchDetails({
           ·{' '}
           {match.sourceStatus === 'user-reviewed'
             ? 'User-reviewed details'
-            : 'Verification pending'}
+            : match.sourceStatus === 'auto-imported'
+              ? 'Automatically imported details'
+              : 'Verification pending'}
         </span>
         <a
           href={validateExternalURL(source.url)}

@@ -362,3 +362,17 @@ it('rejects a save if the entry changed after the editor opened', async () => {
   ).rejects.toThrow('changed while');
   expect(store.snapshot().records[0].event).toBe('Newer edit');
 });
+
+it('preserves automatically imported provenance through restart, sync and subsequent review', async () => {
+  const api = server();
+  const { store, root } = await create(api.request, 'token');
+  await store.add(draft, bytes, false);
+  expect(store.snapshot().records[0].sourceStatus).toBe('auto-imported');
+  await store.sync();
+  expect(api.remote()[0].sourceStatus).toBe('auto-imported');
+  const restarted = (await create(api.request, 'token', root)).store;
+  expect(restarted.snapshot().records[0].sourceStatus).toBe('auto-imported');
+  await restarted.edit(record().id, draft);
+  await restarted.sync();
+  expect(api.remote()[0].sourceStatus).toBe('user-reviewed');
+});

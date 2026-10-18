@@ -10,6 +10,7 @@ import {
 } from 'electron';
 import path from 'node:path';
 import { realpath, readFile, writeFile, rm, stat, mkdir, lstat } from 'node:fs/promises';
+import { BatchImporter } from './batch-import';
 import { cagematchNetwork } from './cagematch-network';
 import { importFromCagematchBrowser } from './cagematch-browser';
 import { isCagematchAddress } from './cagematch-request';
@@ -241,77 +242,118 @@ void app.whenReady().then(async () => {
       throw new Error('The images folder must be inside your chosen video folder.');
     return directory;
   };
-  ipcMain.handle(
-    'vault:find-artwork',
-    async (event, ...args: unknown[]): Promise<ChosenArtwork | null> => {
-      assertSender(event);
-      if (args.length !== 2 || !args[1] || typeof args[1] !== 'object')
-        throw new Error('Expected match details for image search.');
-      const source = cagematchURL(args[0]);
-      const details = args[1] as Record<string, unknown>;
-      if (
-        !Array.isArray(details.wrestlers) ||
-        details.wrestlers.length < 2 ||
-        details.wrestlers.length > 8 ||
-        details.wrestlers.some((value) => typeof value !== 'string' || value.length > 150) ||
-        typeof details.event !== 'string' ||
-        !details.event.trim() ||
-        details.event.length > 200 ||
-        typeof details.date !== 'string' ||
-        !/^\d{4}-\d{2}-\d{2}$/.test(details.date)
-      )
-        throw new Error('Enter opponents, event and date before searching for artwork.');
-      const directory = await imageFolder();
-      for (const kind of ['poster', 'graphic', 'photo'] as const) {
-        const searchUrl = googleImageSearch(
-          details.wrestlers as string[],
-          details.event,
-          details.date,
-          kind,
-        );
-        const candidates = await searchGoogleImages(window!, googleSession, searchUrl);
-        for (const url of candidates) {
+  const findArtwork = async (
+    sourceInput: unknown,
+    detailsInput: unknown,
+  ): Promise<{ bytes: Buffer; artwork: ChosenArtwork } | null> => {
+    if (!window || window.isDestroyed())
+      throw new Error('Open the application window before searching for artwork.');
+    if (!detailsInput || typeof detailsInput !== 'object')
+      throw new Error('Expected match details for image search.');
+    const source = cagematchURL(sourceInput);
+    const details = detailsInput as Record<string, unknown>;
+    if (
+      !Array.isArray(details.wrestlers) ||
+      details.wrestlers.length < 2 ||
+      details.wrestlers.length > 8 ||
+      details.wrestlers.some((value) => typeof value !== 'string' || value.length > 150) ||
+      typeof details.event !== 'string' ||
+      !details.event.trim() ||
+      details.event.length > 200 ||
+      typeof details.date !== 'string' ||
+      !/^\d{4}-\d{2}-\d{2}$/.test(details.date)
+    )
+      throw new Error('Enter opponents, event and date before searching for artwork.');
+    const directory = await imageFolder();
+    for (const kind of ['poster', 'graphic', 'photo'] as const) {
+      const searchUrl = googleImageSearch(
+        details.wrestlers as string[],
+        details.event,
+        details.date,
+        kind,
+      );
+      const candidates = await searchGoogleImages(window!, googleSession, searchUrl);
+      for (const url of candidates) {
+        try {
+          const bytes = await downloadImage(imageSession, url);
+          const image = inspectArtwork(bytes);
+          if (image.width < 300 || image.height < 300) continue;
+          const base = `cagematch-user-${new URL(source).searchParams.get('nr')}`;
+          let name = `${base}.${image.extension}`;
+          let file = path.join(directory, name);
           try {
-            const bytes = await downloadImage(imageSession, url);
-            const image = inspectArtwork(bytes);
-            if (image.width < 300 || image.height < 300) continue;
-            const base = `cagematch-user-${new URL(source).searchParams.get('nr')}`;
-            let name = `${base}.${image.extension}`;
-            let file = path.join(directory, name);
-            try {
+            await writeFile(file, bytes, { flag: 'wx' });
+          } catch (error) {
+            if ((error as NodeJS.ErrnoException).code !== 'EEXIST') throw error;
+            if ((await lstat(file)).isSymbolicLink() || !(await readFile(file)).equals(bytes)) {
+              name = `${base}-${randomUUID()}.${image.extension}`;
+              file = path.join(directory, name);
               await writeFile(file, bytes, { flag: 'wx' });
-            } catch (error) {
-              if ((error as NodeJS.ErrnoException).code !== 'EEXIST') throw error;
-              if ((await lstat(file)).isSymbolicLink() || !(await readFile(file)).equals(bytes)) {
-                name = `${base}-${randomUUID()}.${image.extension}`;
-                file = path.join(directory, name);
-                await writeFile(file, bytes, { flag: 'wx' });
-              }
             }
-            await writeFile(
-              `${file}.source.json`,
-              JSON.stringify({ matchUrl: source, searchUrl, imageUrl: url, kind }, null, 2),
-              { flag: 'wx' },
-            ).catch((error: NodeJS.ErrnoException) => {
-              if (error.code !== 'EEXIST') throw error;
-            });
-            const token = randomUUID();
-            stagedArtwork = { token, bytes };
-            return {
+          }
+          await writeFile(
+            `${file}.source.json`,
+            JSON.stringify({ matchUrl: source, searchUrl, imageUrl: url, kind }, null, 2),
+            { flag: 'wx' },
+          ).catch((error: NodeJS.ErrnoException) => {
+            if (error.code !== 'EEXIST') throw error;
+          });
+          const token = randomUUID();
+          return {
+            bytes,
+            artwork: {
               token,
               name,
               width: image.width,
               height: image.height,
               preview: `data:image/${image.extension === 'jpg' ? 'jpeg' : image.extension};base64,${bytes.toString('base64')}`,
-            };
-          } catch {
-            /* Try another result if the source refuses access or the image is unsuitable. */
-          }
+            },
+          };
+        } catch {
+          /* Try another result if the source refuses access or the image is unsuitable. */
         }
       }
-      return null;
+    }
+    return null;
+  };
+  ipcMain.handle('vault:find-artwork', async (event, ...args: unknown[]) => {
+    assertSender(event);
+    if (args.length !== 2) throw new Error('Expected a match link and details.');
+    const found = await findArtwork(args[0], args[1]);
+    if (!found) return null;
+    stagedArtwork = { token: found.artwork.token, bytes: found.bytes };
+    return found.artwork;
+  });
+  const batch = new BatchImporter({
+    exists: (url) =>
+      requireLibrary()
+        .allMatches()
+        .some((match) => cagematchURL(match.sourceUrl) === url),
+    lookup: (url) => requireLibrary().lookup(url),
+    artwork: async (draft) => (await findArtwork(draft.sourceUrl, draft))?.bytes ?? null,
+    save: (draft, image) => requireLibrary().add(draft, image, false),
+    cooldown: () => requireLibrary().nextLookupAt(),
+    sync: () => {
+      void requireLibrary().sync();
     },
-  );
+  });
+  app.on('before-quit', () => batch.stop());
+  ipcMain.handle('vault:batch-start', async (event, ...args: unknown[]) => {
+    assertSender(event);
+    if (args.length !== 1) throw new Error('Expected a list of match links.');
+    await imageFolder();
+    return batch.start(args[0]);
+  });
+  ipcMain.handle('vault:batch-status', (event, ...args: unknown[]) => {
+    assertSender(event);
+    noArgs(args);
+    return batch.snapshot();
+  });
+  ipcMain.handle('vault:batch-stop', (event, ...args: unknown[]) => {
+    assertSender(event);
+    noArgs(args);
+    return batch.stop();
+  });
   ipcMain.handle('vault:lookup-browser', (event, ...args: unknown[]) => {
     assertSender(event);
     if (args.length !== 1) throw new Error('Expected one CAGEMATCH link.');

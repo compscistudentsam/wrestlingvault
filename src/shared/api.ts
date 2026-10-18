@@ -1,5 +1,9 @@
+import type { BatchState } from './batch-import';
 import type { LibrarySnapshot, ChosenArtwork, MatchDraft } from './imports';
 export interface VaultAPI {
+  startBatchImport(urls: string): Promise<BatchState>;
+  getBatchImport(): Promise<BatchState>;
+  stopBatchImport(): Promise<BatchState>;
   getSavedVideoFolder(): Promise<{ name: string } | null>;
   findMatchArtwork(url: string, details: Partial<MatchDraft>): Promise<ChosenArtwork | null>;
   chooseVideoFolder(): Promise<{ name: string } | null>;

@@ -25,7 +25,8 @@
     "test:player": "node scripts/smoke-player.mjs",
     "test:import": "node scripts/smoke-import.mjs",
     "test:lookup": "node scripts/smoke-lookup.mjs",
-    "test:artwork": "node scripts/smoke-artwork.mjs"
+    "test:artwork": "node scripts/smoke-artwork.mjs",
+    "test:batch": "node scripts/smoke-batch.mjs"
   },
   "dependencies": {
     "@fontsource/inter": "5.3.0",

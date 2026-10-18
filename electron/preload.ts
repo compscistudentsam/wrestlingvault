@@ -3,6 +3,9 @@ import type { MatchDraft } from '../src/shared/imports';
 import type { VaultAPI } from '../src/shared/api';
 
 const api: VaultAPI = Object.freeze({
+  startBatchImport: (urls: string) => ipcRenderer.invoke('vault:batch-start', urls),
+  getBatchImport: () => ipcRenderer.invoke('vault:batch-status'),
+  stopBatchImport: () => ipcRenderer.invoke('vault:batch-stop'),
   getSavedVideoFolder: () => ipcRenderer.invoke('vault:saved-video-folder'),
   findMatchArtwork: (url: string, details: Partial<MatchDraft>) =>
     ipcRenderer.invoke('vault:find-artwork', url, details),

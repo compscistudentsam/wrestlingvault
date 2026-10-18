@@ -40,3 +40,9 @@ Unit tests use a simulated GitHub API to cover atomic commits, non-forced confli
 Open a match and choose **Edit entry**. Change the prefilled metadata and choose **Save changes**; closing the editor leaves the saved entry untouched. Artwork and CAGEMATCH identity stay the same. Bundled matches use saved overrides in the same manifest and retain their original card IDs, ranking and video aliases. The original supplied catalogue stays intact.
 
 Edits are queued durably, including offline. Sync compares the remote record to the version on which an edit was based. If both computers changed it, the app keeps the local edit and reports a conflict rather than overwriting the remote entry. Existing local state files without edit history are migrated automatically.
+
+## Batch imports
+
+**Batch upload → Import all** accepts up to 50 match URLs and saves entries automatically without individual confirmation. It uses the same validated metadata, company normalization, WON parsing, artwork selection and durable local/GitHub queue. Invalid URLs, missing required details, inaccessible artwork and lookup errors are reported per entry; duplicate links and existing matches are skipped. Automatic entries are labelled accordingly; saving an edit changes their status to user-reviewed.
+
+Requests respect the persisted CAGEMATCH cooldown. The dialog shows progress and waiting time and may be closed while importing continues in the application. **Stop after current match** retains the current import and cancels queued ones. The batch itself is session-only: keep the app open until finished; matches already saved survive restart. Batch and ordinary artwork lookup use separate image bytes so they cannot accidentally attach one another's staged artwork.
