@@ -104,3 +104,14 @@ it('does not guess ambiguous nicknames or rematches without sufficient event clu
     await writeFile(path.join(root, name), 'test');
   expect([...(await scanVideoFolder(root)).values()].flat()).toHaveLength(0);
 });
+
+it('resolves the selected folder alias before comparing real video paths', async () => {
+  const root = await realpath(await mkdtemp(path.join(os.tmpdir(), 'vault-root-alias-')));
+  temporary.push(root);
+  const media = path.join(root, 'media');
+  await mkdir(media);
+  await writeFile(path.join(media, 'omega-okada-dominion-2018.mp4'), 'test');
+  const selected = path.join(root, 'selected-folder');
+  await symlink(media, selected, process.platform === 'win32' ? 'junction' : 'dir');
+  expect((await scanVideoFolder(selected)).get('omega-okada-dominion-2018')).toHaveLength(1);
+});

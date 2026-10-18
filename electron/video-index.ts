@@ -60,6 +60,8 @@ export async function scanVideoFolder(
   root: string,
   records: readonly Match[] = matches,
 ): Promise<VideoIndex> {
+  // Windows temporary/user folders may use short (8.3) paths; compare canonical paths.
+  root = await realpath(root);
   const index: VideoIndex = new Map(records.map((match) => [match.id, []]));
   const walk = async (directory: string, depth: number) => {
     for (const entry of await readdir(directory, { withFileTypes: true })) {

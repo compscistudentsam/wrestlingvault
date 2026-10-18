@@ -3,11 +3,6 @@ on:
   push:
     tags: ['v*']
     branches: [feature/phase-6-release]
-    paths:
-      - .github/workflows/windows-release.yml
-      - electron-builder.yml
-      - scripts/smoke-packaged.mjs
-      - scripts/collect-licenses.mjs
   workflow_dispatch:
 permissions:
   contents: read
