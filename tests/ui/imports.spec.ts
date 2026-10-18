@@ -55,6 +55,17 @@ test.beforeEach(async ({ page }) => {
           status.pending = 1;
           return { records: [...records], status: { ...status } };
         },
+        editMatch: async (id: string, draft: Record<string, unknown>) => {
+          const index = records.findIndex((record: any) => record.id === id);
+          if (index < 0) throw new Error('Unknown match');
+          records[index] = {
+            ...(records[index] as object),
+            ...draft,
+            title: (draft.wrestlers as string[]).join(' vs. '),
+          };
+          status.pending = 1;
+          return { records: [...records], status: { ...status } };
+        },
         connectGitHub: async () => {
           status.connected = true;
           return { records, status: { ...status } };
@@ -166,4 +177,30 @@ test('direct in-app browser import fills the review without a background request
   await expect(dialog.getByLabel('Opponents or teams')).toHaveValue('Johnny Mundo\nPrince Puma');
   await expect(dialog.getByLabel('Company', { exact: true })).toHaveValue('Lucha Underground');
   await expect(dialog.getByLabel('WON stars')).toHaveValue('4.75');
+});
+
+test('edits an existing entry with prefilled values, supports cancellation, and updates its card', async ({
+  page,
+}) => {
+  await page.goto('/');
+  const add = await fill(page);
+  await add.getByRole('button', { name: 'Add match', exact: true }).click();
+  await page.locator('.flow-cover.is-selected').click();
+  await page.getByRole('button', { name: 'Edit entry', exact: true }).click();
+  const editor = page.getByRole('dialog', { name: 'Edit match', exact: true });
+  await expect(editor.getByLabel('Event', { exact: true })).toHaveValue('Personal Event');
+  await expect(editor.getByLabel('CAGEMATCH match link')).toHaveAttribute('readonly', '');
+  await editor.getByLabel('Event', { exact: true }).fill('Unsaved change');
+  await editor.getByRole('button', { name: 'Close edit match' }).click();
+  await expect(page.locator('.detail-event')).toContainText('Personal Event');
+  await page.getByRole('button', { name: 'Edit entry', exact: true }).click();
+  await expect(editor.getByLabel('Event', { exact: true })).toHaveValue('Personal Event');
+  await editor.getByLabel('Event', { exact: true }).fill('Edited Event');
+  await editor.getByLabel('WON stars').fill('4.75');
+  await editor.getByRole('button', { name: 'Save changes', exact: true }).click();
+  await expect(editor).not.toBeVisible();
+  await expect(page.locator('.detail-event')).toContainText('Edited Event');
+  await page.getByRole('button', { name: 'Back to covers' }).click();
+  await expect(page.locator('.flow-cover.is-selected')).toHaveAccessibleName(/Edited Event/);
+  await expect(page.locator('.flow-cover.is-selected .cover-bottom')).toContainText('4.75');
 });

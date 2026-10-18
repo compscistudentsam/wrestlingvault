@@ -7,3 +7,6 @@ test-results
 package-lock.json
 public/art
 docs/development-brief.md
+
+# Written by application GitHub library sync.
+library/matches.json

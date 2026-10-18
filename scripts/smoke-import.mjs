@@ -82,8 +82,31 @@ try {
   await expect(video).toHaveJSProperty('muted', true);
   const files = await page.evaluate((id) => window.vault.getMatchVideos(id), id);
   expect(files).toHaveLength(1);
+  await page.getByRole('button', { name: 'Edit entry', exact: true }).click();
+  let editor = page.getByRole('dialog', { name: 'Edit match', exact: true });
+  await expect(editor.getByLabel('Event', { exact: true })).toHaveValue('Offline Import Test');
+  await editor.getByLabel('Event', { exact: true }).fill('Edited Offline Event');
+  await editor.getByLabel('WON stars').fill('4.75');
+  await editor.getByRole('button', { name: 'Save changes', exact: true }).click();
+  await expect(editor).not.toBeVisible();
+  await expect(page.locator('.detail-event')).toContainText('Edited Offline Event');
+  await application.close();
+  application = await launch();
+  page = await application.firstWindow();
+  expect((await page.evaluate(() => window.vault.getLibrary())).records[0].rating).toBe(4.75);
+  const bundled = JSON.parse(await readFile('src/data/matches.json', 'utf8'))[0];
+  await page.goto(`${page.url().split('#')[0]}#/match/${bundled.id}`);
+  await page.getByRole('button', { name: 'Edit entry', exact: true }).click();
+  editor = page.getByRole('dialog', { name: 'Edit match', exact: true });
+  await expect(editor.getByLabel('Event', { exact: true })).toHaveValue(bundled.event);
+  await editor.getByLabel('Event', { exact: true }).fill('Edited Bundled Event');
+  await editor.getByRole('button', { name: 'Save changes', exact: true }).click();
+  await expect(editor).not.toBeVisible();
+  await expect(page.locator('.detail-event')).toContainText('Edited Bundled Event');
+  await page.getByRole('button', { name: 'Back to covers' }).click();
+  await expect(page.locator('.selection-count')).toContainText('/ 101');
   console.log(
-    'Real Electron import passed: native artwork selection, local save, custom image protocol, offline queue after restart, and imported-match video playback. No external requests or repository writes were made.',
+    'Real Electron import passed: native artwork selection, local save, custom image protocol, offline queue after restart, imported-match video playback, editing added and bundled entries, and edit persistence across restart. No external requests or repository writes were made.',
   );
 } finally {
   await application?.close();

@@ -10,6 +10,7 @@ export interface VaultAPI {
   lookupMatchInBrowser(url: string): Promise<Partial<MatchDraft>>;
   lookupMatch(url: string): Promise<Partial<MatchDraft>>;
   chooseMatchArtwork(): Promise<ChosenArtwork | null>;
+  editMatch(id: string, draft: MatchDraft, original: MatchDraft): Promise<LibrarySnapshot>;
   addMatch(draft: MatchDraft, artworkToken: string): Promise<LibrarySnapshot>;
   connectGitHub(token: string): Promise<LibrarySnapshot>;
   disconnectGitHub(): Promise<LibrarySnapshot>;

@@ -12,16 +12,11 @@ import {
   LayoutGrid,
 } from 'lucide-react';
 import { Artwork } from './components/Artwork';
+import { libraryMatches } from './shared/library-matches';
 import { AddMatch } from './components/AddMatch';
 import type { LibrarySnapshot, LibraryStatus } from './shared/imports';
 import { CoverFlow } from './components/CoverFlow';
-import {
-  formatDate,
-  formatRating,
-  getSource,
-  matches as bundledMatches,
-  type Match,
-} from './data/catalogue';
+import { formatDate, formatRating, getSource, type Match } from './data/catalogue';
 import { validateExternalURL } from './shared/security';
 import { playTick } from './lib/sounds';
 import './shared/api';
@@ -41,7 +36,7 @@ export function App() {
     );
     setLibraryStatus(snapshot.status);
   }, []);
-  const matches = useMemo(() => [...bundledMatches, ...customMatches], [customMatches]);
+  const matches = useMemo(() => libraryMatches(customMatches), [customMatches]);
   const companies = useMemo(
     () =>
       [
@@ -556,6 +551,18 @@ export function App() {
             folder={folder}
             onChooseFolder={() => void chooseFolder()}
             onBack={() => navigate('library')}
+            editor={
+              <AddMatch
+                entry={detail}
+                status={libraryStatus}
+                onSnapshot={applyLibrary}
+                onAdded={() => {
+                  setSelectedId(detail.id);
+                  setCompany('All companies');
+                  setRating('all');
+                }}
+              />
+            }
           />
         ) : (
           <div className="empty-state">
@@ -575,11 +582,13 @@ function MatchDetails({
   folder,
   onChooseFolder,
   onBack,
+  editor,
 }: {
   match: Match;
   folder: string | null;
   onChooseFolder: () => void;
   onBack: () => void;
+  editor: React.ReactNode;
 }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const playerRef = useRef<HTMLDivElement>(null);
@@ -880,6 +889,7 @@ function MatchDetails({
           </div>
         </>
       )}
+      {editor}
       <h1>{match.title}</h1>
       <p className="detail-event">
         {match.event} · {formatDate(match.date)}

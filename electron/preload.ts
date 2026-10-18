@@ -13,6 +13,8 @@ const api: VaultAPI = Object.freeze({
   lookupMatchInBrowser: (url: string) => ipcRenderer.invoke('vault:lookup-browser', url),
   lookupMatch: (url: string) => ipcRenderer.invoke('vault:lookup-match', url),
   chooseMatchArtwork: () => ipcRenderer.invoke('vault:choose-artwork'),
+  editMatch: (id: string, draft: MatchDraft, original: MatchDraft) =>
+    ipcRenderer.invoke('vault:edit-match', id, draft, original),
   addMatch: (draft: MatchDraft, artworkToken: string) =>
     ipcRenderer.invoke('vault:add-match', draft, artworkToken),
   connectGitHub: (token: string) => ipcRenderer.invoke('vault:connect-github', token),

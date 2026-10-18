@@ -145,6 +145,7 @@ void app.whenReady().then(async () => {
     const service = new PersonalLibrary({
       root: libraryRoot,
       inspectImage: inspectArtwork,
+      readBundledArtwork: (match) => readFile(path.join(__dirname, '../dist/art', match.image)),
       lookupRequest: cagematchNetwork(cagematchSession),
       browserLookup: (url) => {
         if (!window) throw new Error('Open the application window before looking up a match.');
@@ -349,6 +350,14 @@ void app.whenReady().then(async () => {
       };
     },
   );
+  ipcMain.handle('vault:edit-match', async (event, ...args: unknown[]) => {
+    assertSender(event);
+    if (args.length !== 3 || !args[2])
+      throw new Error('Expected a match ID, edited details and original details.');
+    const snapshot = await requireLibrary().edit(args[0], args[1], args[2]);
+    void library?.sync();
+    return snapshot;
+  });
   ipcMain.handle('vault:add-match', async (event, ...args: unknown[]) => {
     assertSender(event);
     if (

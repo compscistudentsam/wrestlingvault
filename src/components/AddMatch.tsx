@@ -1,3 +1,4 @@
+import type { Match } from '../data/catalogue';
 import { useEffect, useRef, useState } from 'react';
 import type { LibrarySnapshot, LibraryStatus, ChosenArtwork, MatchDraft } from '../shared/imports';
 import { userError } from '../shared/errors';
@@ -14,14 +15,17 @@ const empty = {
 };
 export function AddMatch({
   status,
+  entry,
   onSnapshot,
   onAdded,
 }: {
   status: LibraryStatus;
+  entry?: Match;
   onSnapshot: (snapshot: LibrarySnapshot) => void;
   onAdded: (id: string) => void;
 }) {
   const dialog = useRef<HTMLDialogElement>(null);
+  const original = useRef<Match | null>(null);
   const [open, setOpen] = useState(false);
   const [review, setReview] = useState(false);
   const [url, setUrl] = useState('');
@@ -62,6 +66,26 @@ export function AddMatch({
           ]),
       ),
     });
+  };
+  const start = () => {
+    setError('');
+    setNotice('');
+    if (entry) {
+      original.current = entry;
+      setUrl(entry.sourceUrl);
+      applyDetails({
+        wrestlers: entry.wrestlers,
+        event: entry.event,
+        promotion: entry.promotion,
+        date: entry.date,
+        rating: entry.rating,
+        cagematchScore: entry.cagematchScore,
+        matchDuration: entry.matchDuration,
+      });
+      setReview(true);
+      setImage(null);
+    }
+    setOpen(true);
   };
   const findImage = async (source: string, details: Partial<MatchDraft>) => {
     if (!window.vault?.findMatchArtwork) return;
@@ -119,7 +143,7 @@ export function AddMatch({
   const submit = async (event: React.FormEvent) => {
     event.preventDefault();
     setError('');
-    if (!image) {
+    if (!entry && !image) {
       setError('Choose an image for this match.');
       return;
     }
@@ -138,7 +162,9 @@ export function AddMatch({
         cagematchScore: fields.cagematchScore === '' ? null : Number(fields.cagematchScore),
         matchDuration: fields.matchDuration || null,
       };
-      const snapshot = await desktop().addMatch(draft, image.token);
+      const snapshot = entry
+        ? await desktop().editMatch(entry.id, draft, original.current!)
+        : await desktop().addMatch(draft, image!.token);
       onSnapshot(snapshot);
       const added = snapshot.records.find((m) => m.sourceUrl === draft.sourceUrl);
       if (added) onAdded(added.id);
@@ -204,16 +230,18 @@ export function AddMatch({
           : 'Connect GitHub';
   return (
     <>
-      <button className="toolbar-button" onClick={() => setOpen(true)}>
-        Add match
+      <button className="toolbar-button" onClick={start}>
+        {entry ? 'Edit entry' : 'Add match'}
       </button>
-      <button
-        className="toolbar-button library-sync-status"
-        onClick={() => setOpen(true)}
-        title={status.error || 'Library sync and GitHub connection'}
-      >
-        {state}
-      </button>
+      {!entry && (
+        <button
+          className="toolbar-button library-sync-status"
+          onClick={start}
+          title={status.error || 'Library sync and GitHub connection'}
+        >
+          {state}
+        </button>
+      )}
       <dialog
         className="add-match-dialog"
         ref={dialog}
@@ -229,13 +257,13 @@ export function AddMatch({
       >
         <div className="import-heading">
           <div>
-            <h2 id="add-match-title">Add your own match</h2>
+            <h2 id="add-match-title">{entry ? 'Edit match' : 'Add your own match'}</h2>
             <p>CAGEMATCH details, your artwork, your vault.</p>
           </div>
           <button
             type="button"
             className="button"
-            aria-label="Close add match"
+            aria-label={entry ? 'Close edit match' : 'Close add match'}
             disabled={Boolean(busy)}
             onClick={close}
           >
@@ -249,6 +277,7 @@ export function AddMatch({
               <input
                 type="url"
                 required
+                readOnly={Boolean(entry)}
                 value={url}
                 placeholder="https://www.cagematch.net/?id=111&nr=…"
                 onChange={(event) => {
@@ -258,14 +287,16 @@ export function AddMatch({
                 }}
               />
             </label>
-            <div className="import-actions">
-              <button type="button" className="button" onClick={() => void readInBrowser()}>
-                {busy === 'lookup' ? 'Importing…' : 'Import'}
-              </button>
-              <button type="button" className="button" onClick={manualEntry}>
-                Manual Entry
-              </button>
-            </div>
+            {!entry && (
+              <div className="import-actions">
+                <button type="button" className="button" onClick={() => void readInBrowser()}>
+                  {busy === 'lookup' ? 'Importing…' : 'Import'}
+                </button>
+                <button type="button" className="button" onClick={manualEntry}>
+                  Manual Entry
+                </button>
+              </div>
+            )}
             {notice && (
               <p className="import-notice" role="status">
                 {notice}
@@ -347,25 +378,28 @@ export function AddMatch({
                     />
                   </label>
                 </div>
-                <div className="import-artwork">
-                  {image && <img src={image.preview} alt="Chosen match artwork" />}
-                  <div>
-                    <button type="button" className="button" onClick={() => void chooseImage()}>
-                      {image ? 'Change artwork' : 'Choose artwork'}
-                    </button>
-                    <p>
-                      {image
-                        ? `${image.name} · ${image.width} × ${image.height}`
-                        : 'PNG, JPEG or WebP, up to 8 MB. The full image is preserved.'}
-                    </p>
+                {!entry && (
+                  <div className="import-artwork">
+                    {image && <img src={image.preview} alt="Chosen match artwork" />}
+                    <div>
+                      <button type="button" className="button" onClick={() => void chooseImage()}>
+                        {image ? 'Change artwork' : 'Choose artwork'}
+                      </button>
+                      <p>
+                        {image
+                          ? `${image.name} · ${image.width} × ${image.height}`
+                          : 'PNG, JPEG or WebP, up to 8 MB. The full image is preserved.'}
+                      </p>
+                    </div>
                   </div>
-                </div>
+                )}
                 <p className="import-note">
-                  Add match saves a local copy and queues the details and image for upload to your
-                  GitHub library. New matches appear after the existing ranked collection.
+                  {entry
+                    ? 'Saves your edited details locally and queues them for GitHub sync. Existing artwork is retained.'
+                    : 'Add match saves a local copy and queues the details and image for upload to your GitHub library. New matches appear after the existing ranked collection.'}
                 </p>
                 <button className="import-save" type="submit">
-                  {busy === 'save' ? 'Saving…' : 'Add match'}
+                  {busy === 'save' ? 'Saving…' : entry ? 'Save changes' : 'Add match'}
                 </button>
               </>
             )}

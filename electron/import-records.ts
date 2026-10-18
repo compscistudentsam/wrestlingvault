@@ -1,5 +1,5 @@
 import { matches as bundled, type Match } from '../src/data/catalogue';
-import { cagematchURL, validateDraft, type MatchDraft } from '../src/shared/imports';
+import { validateDraft, type MatchDraft } from '../src/shared/imports';
 
 export const customImage = /^custom\/(cagematch-user-[1-9]\d{0,8})\.(png|jpg|webp)$/;
 export function recordFromDraft(
@@ -66,7 +66,8 @@ export function parseManifest(value: unknown): Match[] {
   const entries = (value as { records: unknown[] }).records;
   if (entries.length > 500) throw new Error('The custom library exceeds 500 matches.');
   const result: Match[] = [];
-  const urls = new Set(bundled.map((m) => cagematchURL(m.sourceUrl)));
+  const urls = new Set<string>();
+  let additions = 0;
   for (const raw of entries) {
     if (!raw || typeof raw !== 'object') throw new Error('Invalid library record.');
     const m = raw as Match;
@@ -78,7 +79,7 @@ export function parseManifest(value: unknown): Match[] {
       m.imageHeight,
       image[2],
       m.artworkHash ?? '',
-      bundled.length + result.length + 1,
+      bundled.find((base) => base.sourceUrl === m.sourceUrl)?.rank ?? bundled.length + ++additions,
     );
     if (m.id !== record.id || image[1] !== record.id || urls.has(record.sourceUrl))
       throw new Error('Duplicate or invalid CAGEMATCH record.');
@@ -87,18 +88,23 @@ export function parseManifest(value: unknown): Match[] {
   }
   return result;
 }
-export function mergeRecords(remote: Match[], pending: Match[]) {
+export function mergeRecords(remote: Match[], pending: Match[], bases: Match[] = []) {
   const records = [...remote];
   for (const m of pending) {
     const existing = records.find((other) => other.sourceUrl === m.sourceUrl);
-    if (
-      existing &&
-      (existing.artworkHash !== m.artworkHash ||
-        JSON.stringify(validateDraft(existing)) !== JSON.stringify(validateDraft(m)))
-    )
-      throw new Error(
-        `This match was also added on GitHub: ${m.title}. Your local copy is kept; resolve the duplicate in the repository before retrying.`,
-      );
+    const same = (a: Match, b: Match) =>
+      a.artworkHash === b.artworkHash &&
+      JSON.stringify(validateDraft(a)) === JSON.stringify(validateDraft(b));
+    const base = bases.find((record) => record.id === m.id);
+    if (existing && !same(existing, m)) {
+      if (base && same(existing, base)) records[records.indexOf(existing)] = m;
+      else
+        throw new Error(
+          `This match was also added or changed on GitHub: ${m.title}. Your local copy is kept; resolve the conflict before retrying.`,
+        );
+    }
+    if (!existing && base)
+      throw new Error(`This match was removed on GitHub: ${m.title}. Your local edit is kept.`);
     if (!existing) records.push(m);
   }
   return parseManifest({ version: 1, records });

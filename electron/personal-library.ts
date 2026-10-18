@@ -1,7 +1,7 @@
 import { mkdir, readFile, writeFile, rename } from 'node:fs/promises';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
-import { matches as bundled, type Match } from '../src/data/catalogue';
+import { type Match } from '../src/data/catalogue';
 import {
   repository,
   cagematchURL,
@@ -10,6 +10,7 @@ import {
   type MatchDraft,
 } from '../src/shared/imports';
 import { recordFromDraft, parseManifest, mergeRecords } from './import-records';
+import { libraryMatches } from '../src/shared/library-matches';
 import { lookupCagematch, CagematchBrowserRequired } from './cagematch';
 import { readLimited, GitHubError } from './library-http';
 
@@ -23,11 +24,13 @@ type State = {
   pending: string[];
   lastSyncedAt: string | null;
   nextLookup: number;
+  editBases: Match[];
 };
 type Dependencies = {
   root: string;
   request?: typeof fetch;
   lookupRequest?: typeof fetch;
+  readBundledArtwork?: (match: Match) => Promise<Buffer>;
   browserLookup?: (url: string) => Promise<Partial<MatchDraft>>;
   getToken: () => Promise<string | null>;
   setToken: (token: string) => Promise<void>;
@@ -41,6 +44,7 @@ export class PersonalLibrary {
     pending: [],
     lastSyncedAt: null,
     nextLookup: 0,
+    editBases: [],
   };
   private token: string | null = null;
   private error = '';
@@ -70,6 +74,7 @@ export class PersonalLibrary {
       this.state = {
         version: 1,
         records,
+        editBases: parseManifest({ version: 1, records: raw.editBases ?? [] }),
         pending: [...new Set<string>(raw.pending)],
         lastSyncedAt: typeof raw.lastSyncedAt === 'string' ? raw.lastSyncedAt : null,
         nextLookup:
@@ -102,7 +107,7 @@ export class PersonalLibrary {
     };
   }
   allMatches() {
-    return [...bundled, ...this.state.records];
+    return libraryMatches(this.state.records);
   }
   imageFile(name: string) {
     return this.state.records.some((m) => m.image === `custom/${name}`)
@@ -140,6 +145,68 @@ export class PersonalLibrary {
       const previous = structuredClone(this.state);
       this.state.records.push(record);
       this.state.pending.push(record.id);
+      try {
+        await this.save();
+      } catch (error) {
+        this.state = previous;
+        throw error;
+      }
+      return this.snapshot();
+    });
+  }
+  async edit(id: unknown, input: unknown, expected?: unknown) {
+    if (typeof id !== 'string') throw new Error('Expected a match ID.');
+    const draft = validateDraft(input);
+    return this.serial(async () => {
+      const current = this.allMatches().find((match) => match.id === id);
+      if (!current) throw new Error('Unknown match.');
+      if (
+        expected !== undefined &&
+        JSON.stringify(validateDraft(expected)) !== JSON.stringify(validateDraft(current))
+      )
+        throw new Error(
+          'This entry changed while you were editing. Close and reopen the editor to review the latest details.',
+        );
+      if (draft.sourceUrl !== cagematchURL(current.sourceUrl))
+        throw new Error('The source link cannot be changed when editing a match.');
+      const existing = this.state.records.find((match) => match.sourceUrl === draft.sourceUrl);
+      let artwork = existing;
+      if (!artwork) {
+        if (this.state.records.length >= 500)
+          throw new Error('Your custom library has reached 500 records.');
+        if (!this.dependencies.readBundledArtwork)
+          throw new Error('Bundled artwork is unavailable.');
+        const bytes = await this.dependencies.readBundledArtwork(current);
+        const image = this.dependencies.inspectImage(bytes);
+        artwork = recordFromDraft(
+          draft,
+          image.width,
+          image.height,
+          image.extension,
+          hash(bytes),
+          current.rank,
+        );
+        await writeFile(
+          path.join(this.dependencies.root, 'art', path.basename(artwork.image)),
+          bytes,
+          { mode: 0o600 },
+        );
+      }
+      const updated = recordFromDraft(
+        draft,
+        artwork.imageWidth,
+        artwork.imageHeight,
+        path.extname(artwork.image).slice(1),
+        artwork.artworkHash!,
+        artwork.rank,
+      );
+      const previous = structuredClone(this.state);
+      if (existing) {
+        if (!this.state.pending.includes(existing.id))
+          this.state.editBases.push(structuredClone(existing));
+        this.state.records[this.state.records.indexOf(existing)] = updated;
+      } else this.state.records.push(updated);
+      if (!this.state.pending.includes(updated.id)) this.state.pending.push(updated.id);
       try {
         await this.save();
       } catch (error) {
@@ -255,6 +322,13 @@ export class PersonalLibrary {
   }
   private async cacheImages(records: Match[]) {
     for (const record of records) {
+      const local = this.state.records.find((match) => match.id === record.id);
+      if (
+        this.state.pending.includes(record.id) &&
+        local &&
+        local.artworkHash !== record.artworkHash
+      )
+        continue;
       const file = path.join(this.dependencies.root, 'art', path.basename(record.image));
       try {
         if (hash(await readFile(file)) === record.artworkHash) continue;
@@ -308,7 +382,7 @@ export class PersonalLibrary {
           this.headForImages = head;
           await this.cacheImages(remote);
           const pending = this.state.records.filter((m) => this.state.pending.includes(m.id));
-          const merged = mergeRecords(remote, pending);
+          const merged = mergeRecords(remote, pending, this.state.editBases);
           if (pending.length && this.token) {
             try {
               const commit = await this.github(`/git/commits/${head}`);
@@ -349,7 +423,7 @@ export class PersonalLibrary {
                 tree,
               });
               const nextCommit = await this.github('/git/commits', 'POST', {
-                message: `Add ${pending.length} match${pending.length === 1 ? '' : 'es'} to Wrestling Vault`,
+                message: `Save ${pending.length} match${pending.length === 1 ? '' : 'es'} in Wrestling Vault`,
                 tree: nextTree.sha,
                 parents: [head],
               });
@@ -365,7 +439,10 @@ export class PersonalLibrary {
           }
           const previous = structuredClone(this.state);
           this.state.records = merged;
-          if (this.token) this.state.pending = [];
+          if (this.token) {
+            this.state.pending = [];
+            this.state.editBases = [];
+          }
           this.state.lastSyncedAt = new Date().toISOString();
           try {
             await this.save();

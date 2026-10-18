@@ -36,6 +36,7 @@ async function create(request: typeof fetch, existingToken: string | null = null
     root,
     request,
     inspectImage: () => ({ width: 480, height: 679, extension: 'jpg' }),
+    readBundledArtwork: async () => bytes,
     getToken: async () => token,
     setToken: async (value) => {
       token = value;
@@ -299,4 +300,65 @@ it('identifies a CAGEMATCH browser access check instead of returning empty metad
         ),
   ) as typeof fetch;
   await expect(lookupCagematch(draft.sourceUrl, request)).rejects.toThrow('browser access check');
+});
+
+it('persists offline edits across restart and syncs an existing entry without adding a duplicate', async () => {
+  const api = server([record()]);
+  const { store, root } = await create(api.request, 'token');
+  await store.sync();
+  await store.edit(record().id, {
+    ...draft,
+    event: 'Edited event',
+    rating: 4.75,
+    matchDuration: '30:15',
+  });
+  const restarted = (await create(api.request, 'token', root)).store;
+  expect(restarted.snapshot().records[0].rating).toBe(4.75);
+  await restarted.sync();
+  expect(restarted.snapshot().status.error).toBe('');
+  expect(restarted.snapshot().status.pending).toBe(0);
+  expect(api.remote()).toHaveLength(1);
+  expect(api.remote()[0].event).toBe('Edited event');
+  expect(api.remote()[0].artworkHash).toBe(digest);
+});
+it('retains a pending edit when the remote entry was also changed', async () => {
+  const api = server([record()]);
+  const { store } = await create(api.request, 'token');
+  await store.sync();
+  await store.edit(record().id, { ...draft, event: 'Local edit' });
+  api.remote()[0].event = 'Remote edit';
+  await store.sync();
+  expect(store.snapshot().status.pending).toBe(1);
+  expect(store.snapshot().status.error).toContain('changed on GitHub');
+  expect(store.snapshot().records[0].event).toBe('Local edit');
+  expect(api.remote()[0].event).toBe('Remote edit');
+});
+it('edits a bundled entry without duplicating the card or changing video identity, then syncs the override', async () => {
+  const api = server();
+  const { store, root } = await create(api.request, 'token');
+  const base = matches[0];
+  await store.edit(base.id, { ...base, rating: 5.75 });
+  expect(store.allMatches()).toHaveLength(100);
+  const edited = store.allMatches().find((record) => record.id === base.id)!;
+  expect(edited.rating).toBe(5.75);
+  expect(edited.videoNameGroups).toEqual(base.videoNameGroups);
+  expect(edited.rank).toBe(base.rank);
+  await store.sync();
+  expect(store.snapshot().status.error).toBe('');
+  const restarted = (await create(api.request, 'token', root)).store;
+  expect(restarted.allMatches().find((record) => record.id === base.id)?.rating).toBe(5.75);
+  await expect(restarted.edit(base.id, { ...base, sourceUrl: draft.sourceUrl })).rejects.toThrow(
+    'source link',
+  );
+});
+
+it('rejects a save if the entry changed after the editor opened', async () => {
+  const { store } = await create(offline);
+  await store.add(draft, bytes);
+  const original = store.snapshot().records[0];
+  await store.edit(original.id, { ...draft, event: 'Newer edit' });
+  await expect(
+    store.edit(original.id, { ...draft, event: 'Stale edit' }, original),
+  ).rejects.toThrow('changed while');
+  expect(store.snapshot().records[0].event).toBe('Newer edit');
 });
