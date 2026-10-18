@@ -9,11 +9,13 @@ import {
   safeStorage,
 } from 'electron';
 import path from 'node:path';
-import { realpath, readFile, writeFile, rm, stat } from 'node:fs/promises';
+import { realpath, readFile, writeFile, rm, stat, mkdir, lstat } from 'node:fs/promises';
 import { cagematchNetwork } from './cagematch-network';
 import { importFromCagematchBrowser } from './cagematch-browser';
 import { isCagematchAddress } from './cagematch-request';
 import { PersonalLibrary } from './personal-library';
+import { pageArtwork } from './page-artwork';
+import { cagematchURL } from '../src/shared/imports';
 import { inspectArtwork } from './artwork';
 import type { ChosenArtwork } from '../src/shared/imports';
 import { randomUUID } from 'node:crypto';
@@ -31,6 +33,7 @@ protocol.registerSchemesAsPrivileged([
     privileges: { standard: true, secure: true, stream: true, supportFetchAPI: true },
   },
 ]);
+const lookupPages = new Map<string, string>();
 let library: PersonalLibrary | null = null;
 let libraryError = '';
 let stagedArtwork: { token: string; bytes: Buffer } | null = null;
@@ -119,7 +122,10 @@ void app.whenReady().then(async () => {
       lookupRequest: cagematchNetwork(cagematchSession),
       browserLookup: (url) => {
         if (!window) throw new Error('Open the application window before looking up a match.');
-        return importFromCagematchBrowser(window, cagematchSession, url);
+        return importFromCagematchBrowser(window, cagematchSession, url, (html) => {
+          lookupPages.clear();
+          lookupPages.set(url, html);
+        });
       },
       getToken: async () => {
         let encrypted: Buffer;
@@ -200,6 +206,87 @@ void app.whenReady().then(async () => {
       }
     );
   });
+  const imageFolder = async () => {
+    if (!videoRoot)
+      throw new Error(
+        'Choose your video folder first so artwork can be saved in its images folder.',
+      );
+    const directory = path.join(videoRoot, 'images');
+    await mkdir(directory, { recursive: true });
+    if ((await lstat(directory)).isSymbolicLink() || !inside(videoRoot, await realpath(directory)))
+      throw new Error('The images folder must be inside your chosen video folder.');
+    return directory;
+  };
+  const boundedPageFetch = async (url: string, limit: number) => {
+    const response = await cagematchSession.fetch(url, {
+      redirect: 'error',
+      signal: AbortSignal.timeout(15000),
+    });
+    if (!response.ok || !response.body) throw new Error('Could not retrieve page artwork.');
+    const reader = response.body.getReader();
+    const chunks: Uint8Array[] = [];
+    let length = 0;
+    try {
+      while (true) {
+        const next = await reader.read();
+        if (next.done) break;
+        length += next.value.length;
+        if (length > limit) throw new Error('Page artwork exceeds the size limit.');
+        chunks.push(next.value);
+      }
+    } finally {
+      await reader.cancel();
+    }
+    return Buffer.concat(chunks);
+  };
+  ipcMain.handle(
+    'vault:find-artwork',
+    async (event, ...args: unknown[]): Promise<ChosenArtwork | null> => {
+      assertSender(event);
+      if (args.length !== 1) throw new Error('Expected one match link.');
+      const source = cagematchURL(args[0]);
+      const directory = await imageFolder();
+      if (!lookupPages.has(source)) await requireLibrary().lookupInBrowser(source);
+      const html = lookupPages.get(source);
+      if (!html) return null;
+      const page = pageArtwork(html, source);
+      if (page.eventUrl) {
+        try {
+          const eventHtml = await boundedPageFetch(page.eventUrl, 2_000_000);
+          page.images.push(...pageArtwork(eventHtml.toString(), page.eventUrl).images);
+        } catch {
+          /* Match-page images remain available when the event cannot be read. */
+        }
+      }
+      for (const url of [...new Set(page.images)].slice(0, 16)) {
+        try {
+          const bytes = await boundedPageFetch(url, 8_388_608);
+          const image = inspectArtwork(bytes);
+          if (image.width < 300 || image.height < 300) continue;
+          const name = `cagematch-user-${new URL(source).searchParams.get('nr')}.${image.extension}`;
+          const file = path.join(directory, name);
+          try {
+            await writeFile(file, bytes, { flag: 'wx' });
+          } catch (error) {
+            if ((error as NodeJS.ErrnoException).code !== 'EEXIST') throw error;
+            if (!(await readFile(file)).equals(bytes)) continue;
+          }
+          const token = randomUUID();
+          stagedArtwork = { token, bytes };
+          return {
+            token,
+            name,
+            width: image.width,
+            height: image.height,
+            preview: `data:image/${image.extension === 'jpg' ? 'jpeg' : image.extension};base64,${bytes.toString('base64')}`,
+          };
+        } catch {
+          /* Try the next candidate rather than selecting an invalid image. */
+        }
+      }
+      return null;
+    },
+  );
   ipcMain.handle('vault:lookup-browser', (event, ...args: unknown[]) => {
     assertSender(event);
     if (args.length !== 1) throw new Error('Expected one CAGEMATCH link.');
@@ -309,6 +396,24 @@ void app.whenReady().then(async () => {
       return new Response(null, { status: 404 });
     }
   });
+  ipcMain.handle('vault:saved-video-folder', async (event, ...args: unknown[]) => {
+    assertSender(event);
+    noArgs(args);
+    try {
+      const saved = JSON.parse(
+        await readFile(path.join(app.getPath('userData'), 'media-folder.json'), 'utf8'),
+      );
+      if (typeof saved.root !== 'string') return null;
+      const root = await realpath(saved.root);
+      const indexed = await scanVideoFolder(root, allMatches());
+      videoRoot = root;
+      await imageFolder();
+      videoIndex = indexed;
+      return { name: path.basename(root) };
+    } catch {
+      return null;
+    }
+  });
   ipcMain.handle('vault:choose-video-folder', async (event, ...args: unknown[]) => {
     assertSender(event);
     if (args.length) throw new Error('Folder request takes no arguments.');
@@ -320,6 +425,12 @@ void app.whenReady().then(async () => {
     const root = await realpath(choice.filePaths[0]);
     const indexed = await scanVideoFolder(root, allMatches());
     videoRoot = root;
+    await imageFolder();
+    await writeFile(
+      path.join(app.getPath('userData'), 'media-folder.json'),
+      JSON.stringify({ root }),
+      { mode: 0o600 },
+    );
     videoIndex = indexed;
     videoFiles.clear();
     return { name: path.basename(videoRoot) };

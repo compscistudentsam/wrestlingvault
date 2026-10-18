@@ -88,6 +88,19 @@ export function AddMatch({
       setError(message(error));
     }
   };
+  const findImage = async (source: string) => {
+    if (!window.vault?.findMatchArtwork) return;
+    try {
+      const found = await desktop().findMatchArtwork(source);
+      if (found) setImage(found);
+      else
+        setNotice(
+          (notice) => `${notice} No suitable page artwork was found. Choose an image manually.`,
+        );
+    } catch (error) {
+      setNotice((notice) => `${notice} ${message(error)}`);
+    }
+  };
   const readInBrowser = async () => {
     setError('');
     setNotice('');
@@ -98,6 +111,7 @@ export function AddMatch({
       applyDetails(await desktop().lookupMatchInBrowser(source));
       setReview(true);
       setNotice('Details imported from the browser. Review them and fill in anything missing.');
+      await findImage(source);
     } catch (error) {
       setError(message(error));
     } finally {
@@ -126,6 +140,7 @@ export function AddMatch({
       setNotice(
         'Review the retrieved details and fill in anything missing. Ratings are separate; leave unknown values blank.',
       );
+      await findImage(source);
     } catch (e) {
       setNotice(message(e));
     } finally {

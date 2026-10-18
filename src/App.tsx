@@ -152,7 +152,7 @@ export function App() {
       setScanning(false);
     }
   };
-  const chooseFolder = async () => {
+  const chooseFolder = async (restore = false) => {
     if (!window.vault?.chooseVideoFolder) {
       setFolderError('Open the desktop app to choose a local video folder.');
       return;
@@ -160,9 +160,12 @@ export function App() {
     setChoosing(true);
     setFolderError('');
     try {
-      const choice = await window.vault.chooseVideoFolder();
-      if (choice) {
-        setFolder(choice.name);
+      const choice = restore
+        ? await (window.vault.getSavedVideoFolder?.() ?? Promise.resolve(null))
+        : null;
+      const selected = choice ?? (await window.vault.chooseVideoFolder());
+      if (selected) {
+        setFolder(selected.name);
         setFolderRevision((value) => value + 1);
         await refreshAvailability();
       }
@@ -189,7 +192,7 @@ export function App() {
   useEffect(() => {
     if (!startupPrompted.current) {
       startupPrompted.current = true;
-      if (window.vault?.chooseVideoFolder) void chooseFolder();
+      if (window.vault?.chooseVideoFolder) void chooseFolder(true);
     }
   }, []);
   const selectCover = (id: string) => {

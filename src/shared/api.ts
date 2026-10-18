@@ -1,5 +1,7 @@
 import type { LibrarySnapshot, ChosenArtwork, MatchDraft } from './imports';
 export interface VaultAPI {
+  getSavedVideoFolder(): Promise<{ name: string } | null>;
+  findMatchArtwork(url: string): Promise<ChosenArtwork | null>;
   chooseVideoFolder(): Promise<{ name: string } | null>;
   getMatchVideos(id: string): Promise<{ name: string; url: string }[]>;
   getVideoAvailability(): Promise<string[]>;

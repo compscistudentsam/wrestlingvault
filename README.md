@@ -42,13 +42,13 @@ Netflix Sans is the preferred font when installed on the host. No Netflix Sans f
 
 ## Add your own match
 
-Use **Add match** in the toolbar, paste a CAGEMATCH match link, review the details and choose artwork. Unknown ratings can stay blank. The match appears immediately and is saved locally, with uploads queued until GitHub is connected and reachable. In **GitHub connection**, create a fine-grained token for this repository with **Contents: Read and write**, then connect in the app. Details and images sync to `library/` on `feature/phase-1-ui`; the app checks for additions at startup and every five minutes. **Sync now / retry** runs a check immediately. Videos remain local.
+Use **Add match** in the toolbar and paste a CAGEMATCH match link. The app looks for usable artwork on the rendered match page and its linked event page, saves it under your video folder’s `images` directory, and adds it to the review preview. Review the details and artwork before saving; **Change artwork** lets you replace the result. When no suitable image is accessible, choose artwork manually. Image discovery currently supports images hosted on CAGEMATCH, skips common icons and requires at least 300 × 300 pixels. Unknown ratings can stay blank. The match appears immediately and is saved locally, with uploads queued until GitHub is connected and reachable. In **GitHub connection**, create a fine-grained token for this repository with **Contents: Read and write**, then connect in the app. Details and images sync to `library/` on `feature/phase-1-ui`; the app checks for additions at startup and every five minutes. **Sync now / retry** runs a check immediately. Videos remain local.
 
 See [personal library sync](docs/library-sync.md) for setup, offline recovery, metadata lookup limits and validation. CAGEMATCH lookup uses desktop Chromium networking. Ordinary HTTPS redirects are handled, and repeated redirects or a JavaScript access check use an isolated background browser that runs the page’s JavaScript and fills the review automatically. No browser operation or import click is needed when details load normally. If verification is required or the page does not become readable within 12 seconds, the browser is shown; details are still imported automatically once they appear. You can also choose **Import in app browser** directly, including during the background lookup cooldown. Manual entry and pasted-page text remain available. New matches are appended after the original 100 rather than re-ranking that supplied snapshot.
 
 ## Local video playback
 
-The desktop app asks for one global video folder on each launch. Put videos directly in it; **no match subfolders are required**. Existing subfolders remain supported. Match identification ignores punctuation/case, recognizes wrestler surnames, distinctive nicknames and alternate ring names, and uses event/year/date clues to distinguish repeated matchups. Examples:
+The desktop app asks for one global video folder on first launch and remembers it. If it becomes unavailable, choose it again. Retrieved import artwork is saved in an `images` subfolder there; an existing folder is reused. Put videos directly in it; **no match subfolders are required**. Existing subfolders remain supported. Match identification ignores punctuation/case, recognizes wrestler surnames, distinctive nicknames and alternate ring names, and uses event/year/date clues to distinguish repeated matchups. Examples:
 
 ```text
 Wrestling Videos/
@@ -67,7 +67,7 @@ Click a cover to open the in-app player. Use its **← 10s / 10s →** buttons, 
 
 Missing-video descriptions include a Google search link using the match name, event, year and `watch online`. Searches open in the system browser; the app does not download videos itself.
 
-MP4 (H.264/AAC) and WebM are recommended. M4V, MOV and MKV are discoverable, but playback depends on Electron's codecs; the app does not transcode. Browser previews cannot scan local folders. Folder choice and playback history are session-only.
+MP4 (H.264/AAC) and WebM are recommended. M4V, MOV and MKV are discoverable, but playback depends on Electron's codecs; the app does not transcode. Browser previews cannot scan local folders. The selected folder is remembered locally; playback history is session-only.
 
 ## Data and artwork limitations
 
