@@ -15,7 +15,8 @@ global.fetch=async()=>{throw new Error('Node fetch must not be used for CAGEMATC
 dialog.showOpenDialog=async()=>({canceled:true,filePaths:[]});
 const savedSetMenu=BrowserWindow.prototype.setMenu;
 BrowserWindow.prototype.setMenu=function(menu){this.__lookupMenu=menu;return savedSetMenu.call(this,menu);};
-let challengeRequests=0;global.__lookupRequests=[];
+let challengeRequests=0;global.__lookupRequests=[];global.__lookupBrowserShows=0;
+app.on('browser-window-created',(_event,window)=>{if(window.getParentWindow())window.on('show',()=>global.__lookupBrowserShows++);});
 app.whenReady().then(()=>{
  const lookup=session.fromPartition('persist:cagematch-lookup');
  lookup.protocol.handle('https',request=>{
@@ -24,10 +25,11 @@ app.whenReady().then(()=>{
   if(url.pathname==='/robots.txt')return new Response(null,{status:301,headers:{location:'/robots-live.txt'}});
   if(url.pathname==='/robots-live.txt')return new Response('User-agent: *\\nCrawl-delay: 527');
   if(url.searchParams.get('nr')==='6651')return new Response(${JSON.stringify(html)},{headers:{'Content-Type':'text/html'}});
+  if(url.searchParams.get('nr')==='78888888')return new Response('<html><body><div class="g-recaptcha">User verification required</div></body></html>',{headers:{'Content-Type':'text/html'}});
   if(url.searchParams.get('nr')==='79999999'){
    challengeRequests++;
    if(challengeRequests===1)return new Response(null,{status:302,headers:{location:request.url}});
-   return new Response('<html><body><p>Loading match...</p><script>setTimeout(()=>{document.body.innerHTML='+${JSON.stringify(JSON.stringify(html))}+'},100);</script></body></html>',{headers:{'Content-Type':'text/html'}});
+   return new Response('<html><body><p>Loading match...</p><script>setTimeout(()=>{document.body.innerHTML='+${JSON.stringify(JSON.stringify(html))}+'},900);</script></body></html>',{headers:{'Content-Type':'text/html'}});
   }
   return new Response(null,{status:404});
  });
@@ -108,29 +110,63 @@ try {
   await form.getByRole('button', { name: 'Look up match', exact: true }).click();
   await expect.poll(() => app.windows().length).toBe(2);
   const child = app.windows().find((p) => p !== parent);
-  await expect(child.locator('h1')).toHaveText('Johnny Mundo vs. Prince Puma');
   const isolation = await child.evaluate(() => ({
     node: typeof window.require,
     api: typeof window.vault,
   }));
   expect(isolation).toEqual({ node: 'undefined', api: 'undefined' });
-  await app.evaluate(({ BrowserWindow }) => {
-    const browser = BrowserWindow.getAllWindows().find((w) => w.getParentWindow());
-    browser.__lookupMenu.items[0].click();
-  });
+  expect(
+    await app.evaluate(({ BrowserWindow }) =>
+      BrowserWindow.getAllWindows()
+        .find((w) => w.getParentWindow())
+        .isVisible(),
+    ),
+  ).toBe(false);
   await expect(form.getByLabel('Opponents or teams')).toHaveValue('Johnny Mundo\nPrince Puma');
   await expect.poll(() => app.windows().length).toBe(1);
-  // The direct browser action remains usable during the automated lookup cooldown.
+  expect(await app.evaluate(() => global.__lookupBrowserShows)).toBe(0);
+  // A genuine interaction screen is shown; cancellation remains available during cooldown.
+  await form
+    .getByLabel('CAGEMATCH match link')
+    .fill('https://www.cagematch.net/?id=111&nr=78888888');
   await form.getByRole('button', { name: 'Import in app browser', exact: true }).click();
   await expect.poll(() => app.windows().length).toBe(2);
+  await expect
+    .poll(() =>
+      app.evaluate(({ BrowserWindow }) =>
+        BrowserWindow.getAllWindows()
+          .find((w) => w.getParentWindow())
+          .isVisible(),
+      ),
+    )
+    .toBe(true);
   await app.evaluate(({ BrowserWindow }) => {
     const browser = BrowserWindow.getAllWindows().find((w) => w.getParentWindow());
     browser.__lookupMenu.items[2].click();
   });
   await expect.poll(() => app.windows().length).toBe(1);
   await expect(form.locator('.import-error').first()).toContainText('cancelled');
+  // Simulate the user finishing the visible check; extraction must resume automatically.
+  await form.getByRole('button', { name: 'Import in app browser', exact: true }).click();
+  await expect.poll(() => app.windows().length).toBe(2);
+  await expect
+    .poll(() =>
+      app.evaluate(({ BrowserWindow }) =>
+        BrowserWindow.getAllWindows()
+          .find((w) => w.getParentWindow())
+          .isVisible(),
+      ),
+    )
+    .toBe(true);
+  const verification = app.windows().find((p) => p !== parent);
+  await verification.evaluate((markup) => {
+    document.body.innerHTML = markup;
+  }, html);
+  await expect.poll(() => app.windows().length).toBe(1);
+  await expect(form.locator('.import-notice')).toContainText('Details imported');
+  expect((await parent.evaluate(() => window.vault.getLibrary())).records).toHaveLength(0);
   console.log(
-    'Real Electron lookup passed: Chromium networking instead of Node fetch, approved robots redirect, fixture metadata, redirect-loop fallback, isolated JavaScript browser import, and direct browser cancellation during cooldown. All website responses were local fixtures; no live CAGEMATCH connection was claimed.',
+    'Real Electron lookup passed: Chromium networking instead of Node fetch, approved robots redirect, fixture metadata, redirect-loop fallback, hidden JavaScript rendering and automatic extraction without user clicks, plus visible interaction fallback, automatic extraction after user verification, cancellation during cooldown, and review before save. All website responses were local fixtures; no live CAGEMATCH connection was claimed.',
   );
 } catch (error) {
   if (app) {
