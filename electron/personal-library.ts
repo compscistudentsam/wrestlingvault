@@ -162,9 +162,11 @@ export class PersonalLibrary {
         this.state.nextLookup = Date.now() + result.delay * 1000;
         await this.save();
         return result.draft;
-      } catch {
+      } catch (error) {
         throw new Error(
-          'CAGEMATCH could not be read or does not allow lookup right now. You can still enter and save the details manually.',
+          error instanceof Error
+            ? error.message
+            : 'CAGEMATCH lookup failed. Open the page in your browser and paste its text, or enter the details manually.',
         );
       }
     });

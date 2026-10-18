@@ -66,9 +66,20 @@ export async function lookupCagematch(source: string, get: typeof fetch = fetch)
     signal: AbortSignal.timeout(15000),
     headers: { 'User-Agent': 'WrestlingVault/0.1 (personal match lookup)' },
   };
-  const robots = await get('https://www.cagematch.net/robots.txt', options);
+  const request = async (url: string, init: RequestInit) => {
+    try {
+      return await get(url, init);
+    } catch {
+      throw new Error(
+        'Could not connect to CAGEMATCH. Open the page in your browser and paste its text, or enter the details manually.',
+      );
+    }
+  };
+  const robots = await request('https://www.cagematch.net/robots.txt', options);
   if (!robots.ok)
-    throw new Error('CAGEMATCH lookup is unavailable. Please enter the details manually.');
+    throw new Error(
+      `CAGEMATCH refused the background lookup (HTTP ${robots.status}). Open the page in your browser and paste its text, or enter the details manually.`,
+    );
   const policy = crawlPolicy((await readLimited(robots, 100_000)).toString('utf8'));
   const target = new URL(sourceUrl);
   if (
@@ -83,15 +94,28 @@ export async function lookupCagematch(source: string, get: typeof fetch = fetch)
     throw new Error(
       'CAGEMATCH does not allow automated lookup here. Enter the match details manually.',
     );
-  const response = await get(sourceUrl, { ...options, signal: AbortSignal.timeout(15000) });
+  const response = await request(sourceUrl, { ...options, signal: AbortSignal.timeout(15000) });
   if (!response.ok)
-    throw new Error('CAGEMATCH could not be read. You can still enter the match details manually.');
+    throw new Error(
+      `CAGEMATCH refused the match lookup (HTTP ${response.status}). Open it in your browser and paste the page text, or enter the details manually.`,
+    );
   const bytes = await readLimited(response, 2_000_000);
   const charset = response.headers.get('content-type')?.includes('iso-8859-1')
     ? 'windows-1252'
     : 'utf-8';
-  return {
-    draft: parseCagematch(new TextDecoder(charset).decode(bytes), sourceUrl),
-    delay: policy.delay,
-  };
+  const html = new TextDecoder(charset).decode(bytes);
+  if (
+    /javascript is required|enable javascript before you are allowed|checking your browser|just a moment/i.test(
+      load(html)('body').text(),
+    )
+  )
+    throw new Error(
+      'CAGEMATCH is showing a browser access check. Open the page in your browser, wait for the match details, then paste the page text here.',
+    );
+  const draft = parseCagematch(html, sourceUrl);
+  if (!draft.wrestlers && !draft.event && !draft.date)
+    throw new Error(
+      'CAGEMATCH returned no readable match details. Open the page in your browser and paste its text, or enter the details manually.',
+    );
+  return { draft, delay: policy.delay };
 }

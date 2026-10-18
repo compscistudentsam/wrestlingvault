@@ -18,7 +18,9 @@ test.beforeEach(async ({ page }) => {
         chooseVideoFolder: async () => null,
         getLibrary: async () => ({ records, status }),
         lookupMatch: async () => {
-          throw new Error('CAGEMATCH is unavailable. Enter the details manually.');
+          throw new Error(
+            "Error invoking remote method 'vault:lookup-match': Error: CAGEMATCH is unavailable. Enter the details manually.",
+          );
         },
         chooseMatchArtwork: async () => ({
           token: 'chosen-artwork',
@@ -74,6 +76,9 @@ async function fill(page: import('@playwright/test').Page) {
     .fill('https://www.cagematch.net/?id=111&nr=99999999');
   await dialog.getByRole('button', { name: 'Look up match' }).click();
   await expect(dialog.getByRole('status').first()).toContainText('unavailable');
+  await expect(dialog.getByRole('status').first()).not.toContainText(
+    'Error invoking remote method',
+  );
   await dialog.getByLabel('Opponents or teams').fill('Test Wrestler\nOther Wrestler');
   await dialog.getByLabel('Event', { exact: true }).fill('Personal Event');
   await dialog.getByLabel('Company', { exact: true }).fill('My Company');
@@ -132,4 +137,25 @@ test('bad links stay on the link step and cancelling does not add a match', asyn
   await page.keyboard.press('Escape');
   await expect(dialog).not.toBeVisible();
   await expect(page.locator('.selection-count')).toContainText('/ 100');
+});
+
+test('browser-copied page text fills the review without another background lookup', async ({
+  page,
+}) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Add match', exact: true }).click();
+  const dialog = page.getByRole('dialog');
+  await dialog.getByLabel('CAGEMATCH match link').fill('https://www.cagematch.net/?id=111&nr=6651');
+  await dialog.getByRole('button', { name: 'Paste page text', exact: true }).click();
+  await dialog
+    .getByLabel('Copied CAGEMATCH page text')
+    .fill(
+      'A Wrestler vs. B Wrestler\nDate: 27.04.2025\nEvent: Test Event\nPromotion: NJPW\nTime: 25:10\nAverage rating: 9.75',
+    );
+  await dialog.getByRole('button', { name: 'Fill details from text', exact: true }).click();
+  await expect(dialog.getByLabel('Opponents or teams')).toHaveValue('A Wrestler\nB Wrestler');
+  await expect(dialog.getByLabel('Event', { exact: true })).toHaveValue('Test Event');
+  await expect(dialog.getByLabel('Date', { exact: true })).toHaveValue('2025-04-27');
+  await expect(dialog.getByLabel('CAGEMATCH score')).toHaveValue('9.75');
+  await expect(dialog.getByLabel('WON stars')).toHaveValue('');
 });

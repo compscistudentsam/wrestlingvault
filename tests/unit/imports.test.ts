@@ -289,3 +289,14 @@ it('does not erase cached matches when the remote manifest is missing or inacces
   expect(store.snapshot().records).toHaveLength(1);
   expect(store.snapshot().status.error).toContain('not found');
 });
+
+it('identifies a CAGEMATCH browser access check instead of returning empty metadata', async () => {
+  const request = vi.fn(async (url: RequestInfo | URL) =>
+    String(url).endsWith('/robots.txt')
+      ? new Response('User-agent: *\nCrawl-delay: 527')
+      : new Response(
+          '<html><body>Javascript is required. Please enable javascript before you are allowed to see this page.</body></html>',
+        ),
+  ) as typeof fetch;
+  await expect(lookupCagematch(draft.sourceUrl, request)).rejects.toThrow('browser access check');
+});
