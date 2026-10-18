@@ -215,6 +215,49 @@
       "matchDuration": null,
       "durationSource": null,
       "artworkHash": "f09552f0e3f503c103fb332d02d2db1973e58ec8a9163058c3dfae6fb949d00e"
+    },
+    {
+      "id": "cagematch-user-7323",
+      "rank": 106,
+      "title": "Sami Zayn vs. Shinsuke Nakamura",
+      "wrestlers": [
+        "Sami Zayn",
+        "Shinsuke Nakamura"
+      ],
+      "promotion": "WWE",
+      "event": "WWE NXT TakeOver: Dallas",
+      "date": "2016-04-01",
+      "rating": 4.5,
+      "cagematchScore": 9.38,
+      "matchType": "Singles / tag",
+      "stipulation": null,
+      "championship": null,
+      "venue": null,
+      "description": "",
+      "eyebrow": "",
+      "accent": "amber",
+      "art": "arena-gold",
+      "image": "custom/cagematch-user-7323.jpg",
+      "imageType": "Automatically selected artwork",
+      "shortNames": [
+        "ZAYN",
+        "NAKAMURA"
+      ],
+      "videoFolderAliases": [],
+      "sourceId": "cagematch",
+      "sourceUrl": "https://www.cagematch.net/?id=111&nr=7323",
+      "sourceStatus": "auto-imported",
+      "videoNameGroups": [
+        [
+          "ZAYN",
+          "NAKAMURA"
+        ]
+      ],
+      "imageWidth": 2480,
+      "imageHeight": 3508,
+      "matchDuration": null,
+      "durationSource": null,
+      "artworkHash": "bd6e5e6222c908433536cadf947784ef40673f2d3c3bf132141d35c631a2e4be"
     }
   ]
 }
