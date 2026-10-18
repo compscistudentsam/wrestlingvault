@@ -70,7 +70,7 @@ try {
   await page.getByRole('button', { name: 'Add match', exact: true }).click();
   const form = page.getByRole('dialog');
   await form.getByLabel('CAGEMATCH match link').fill('https://www.cagematch.net/?id=111&nr=6651');
-  await form.getByRole('button', { name: 'Import in app browser', exact: true }).click();
+  await form.getByRole('button', { name: 'Import', exact: true }).click();
   await expect(form.getByRole('img', { name: 'Chosen match artwork' })).toBeVisible();
   expect(await readFile(path.join(videos, 'images', 'cagematch-user-6651.jpg'))).toEqual(artwork);
   expect(await page.evaluate(() => window.vault.getSavedVideoFolder())).toEqual({ name: 'videos' });

@@ -1,4 +1,5 @@
 import { load } from 'cheerio';
+import { parseWonRating } from '../src/shared/won-rating';
 import { cagematchURL, type MatchDraft } from '../src/shared/imports';
 import {
   requestCagematch,
@@ -34,8 +35,8 @@ export function parseCagematch(html: string, sourceUrl: string): Partial<MatchDr
   if (rows.has('promotion')) result.promotion = rows.get('promotion');
   const duration = (rows.get('time') || rows.get('match length') || '').match(/^\d{1,3}:[0-5]\d$/);
   if (duration) result.matchDuration = duration[0];
-  const won = rows.get('wrestling observer rating') || rows.get('won rating');
-  if (won && /^\d+(?:\.\d+)?$/.test(won) && Number(won) <= 10) result.rating = Number(won);
+  const won = parseWonRating(rows.get('wrestling observer rating') || rows.get('won rating'));
+  if (won !== undefined) result.rating = won;
   // Never treat the site's user rating as WON stars.
   const score =
     rows.get('rating') ||
@@ -94,7 +95,7 @@ export async function lookupCagematch(source: string, get: typeof fetch = fetch)
   const robots = await request('https://www.cagematch.net/robots.txt', options);
   if (!robots.ok)
     throw new Error(
-      `CAGEMATCH refused the background lookup (HTTP ${robots.status}). Open the page in your browser and paste its text, or enter the details manually.`,
+      `CAGEMATCH refused the background lookup (HTTP ${robots.status}). Retry Import or use Manual Entry.`,
     );
   const policy = crawlPolicy((await readLimited(robots, 100_000)).toString('utf8'));
   const target = new URL(sourceUrl);
@@ -123,7 +124,7 @@ export async function lookupCagematch(source: string, get: typeof fetch = fetch)
         'CAGEMATCH requires a browser access check. Wait for the match details, then choose Import match details.',
       );
     throw new Error(
-      `CAGEMATCH refused the match lookup (HTTP ${response.status}). Open it in your browser and paste the page text, or enter the details manually.`,
+      `CAGEMATCH refused the match lookup (HTTP ${response.status}). Retry Import or use Manual Entry.`,
     );
   }
   return { draft: readCagematchPage(html, sourceUrl), delay: policy.delay };
@@ -142,7 +143,7 @@ export function readCagematchPage(html: string, sourceUrl: string) {
         'CAGEMATCH is showing a browser access check. Wait for the match details in the browser window, then choose Import match details.',
       );
     throw new Error(
-      'CAGEMATCH returned no readable match details. Open the page in your browser and paste its text, or enter the details manually.',
+      'CAGEMATCH returned no readable match details. Retry Import or use Manual Entry.',
     );
   }
   return draft;

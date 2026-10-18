@@ -4,6 +4,7 @@ import path from 'node:path';
 import { tmpdir } from 'node:os';
 const temporary = await mkdtemp(path.join(tmpdir(), 'vault-lookup-'));
 const html = await readFile('tests/fixtures/cagematch/6651.html', 'utf8');
+const ratedHtml = await readFile('tests/fixtures/cagematch/6851.html', 'utf8');
 const bootstrap = path.join(temporary, 'bootstrap.cjs');
 // Only remote responses are fixtures. Main, preload, Chromium fetch and parsing are real.
 await writeFile(
@@ -24,6 +25,7 @@ app.whenReady().then(()=>{
   if(url.hostname!=='www.cagematch.net')return new Response(null,{status:403});
   if(url.pathname==='/robots.txt')return new Response(null,{status:301,headers:{location:'/robots-live.txt'}});
   if(url.pathname==='/robots-live.txt')return new Response('User-agent: *\\nCrawl-delay: 527');
+  if(url.searchParams.get('nr')==='6851')return new Response(${JSON.stringify(ratedHtml)},{headers:{'Content-Type':'text/html'}});
   if(url.searchParams.get('nr')==='6651')return new Response(${JSON.stringify(html)},{headers:{'Content-Type':'text/html'}});
   if(url.searchParams.get('nr')==='78888888')return new Response('<html><body><div class="g-recaptcha">User verification required</div></body></html>',{headers:{'Content-Type':'text/html'}});
   if(url.searchParams.get('nr')==='79999999'){
@@ -63,7 +65,11 @@ try {
   await page.getByRole('button', { name: 'Add match', exact: true }).click();
   const dialog = page.getByRole('dialog');
   await dialog.getByLabel('CAGEMATCH match link').fill('https://www.cagematch.net/?id=111&nr=6651');
-  await dialog.getByRole('button', { name: 'Look up match', exact: true }).click();
+  const background = await page.evaluate(() =>
+    window.vault.lookupMatch('https://www.cagematch.net/?id=111&nr=6651'),
+  );
+  expect(background.wrestlers).toEqual(['Johnny Mundo', 'Prince Puma']);
+  await dialog.getByRole('button', { name: 'Import', exact: true }).click();
   await expect(dialog.getByLabel('Opponents or teams')).toHaveValue('Johnny Mundo\nPrince Puma');
   await expect(dialog.getByLabel('Company', { exact: true })).toHaveValue('Lucha Underground');
   await expect(dialog.getByLabel('Event', { exact: true })).toHaveValue(
@@ -74,6 +80,10 @@ try {
   await expect(dialog.getByLabel('WON stars')).toHaveValue('');
   const requested = await app.evaluate(() => global.__lookupRequests);
   expect(requested.some((url) => url.endsWith('/robots-live.txt'))).toBe(true);
+  await dialog.getByLabel('CAGEMATCH match link').fill('https://www.cagematch.net/?id=111&nr=6851');
+  await dialog.getByRole('button', { name: 'Import', exact: true }).click();
+  await expect(dialog.getByLabel('WON stars')).toHaveValue('4.75');
+  await expect(dialog.getByLabel('CAGEMATCH score')).toHaveValue('9.43');
   // Advance only the local test's persisted crawl timer before exercising a second lookup.
   const stateFile = path.join(temporary, 'profile', 'personal-library', 'state.json');
   const state = JSON.parse(await readFile(stateFile, 'utf8'));
@@ -107,7 +117,7 @@ try {
   await form
     .getByLabel('CAGEMATCH match link')
     .fill('https://www.cagematch.net/?id=111&nr=79999999');
-  await form.getByRole('button', { name: 'Look up match', exact: true }).click();
+  await form.getByRole('button', { name: 'Import', exact: true }).click();
   await expect.poll(() => app.windows().length).toBe(2);
   const child = app.windows().find((p) => p !== parent);
   const isolation = await child.evaluate(() => ({
@@ -129,7 +139,7 @@ try {
   await form
     .getByLabel('CAGEMATCH match link')
     .fill('https://www.cagematch.net/?id=111&nr=78888888');
-  await form.getByRole('button', { name: 'Import in app browser', exact: true }).click();
+  await form.getByRole('button', { name: 'Import', exact: true }).click();
   await expect.poll(() => app.windows().length).toBe(2);
   await expect
     .poll(() =>
@@ -147,7 +157,7 @@ try {
   await expect.poll(() => app.windows().length).toBe(1);
   await expect(form.locator('.import-error').first()).toContainText('cancelled');
   // Simulate the user finishing the visible check; extraction must resume automatically.
-  await form.getByRole('button', { name: 'Import in app browser', exact: true }).click();
+  await form.getByRole('button', { name: 'Import', exact: true }).click();
   await expect.poll(() => app.windows().length).toBe(2);
   await expect
     .poll(() =>

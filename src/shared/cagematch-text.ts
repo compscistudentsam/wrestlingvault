@@ -1,3 +1,4 @@
+import { parseWonRating } from './won-rating';
 import { cagematchURL, type MatchDraft } from './imports';
 
 /** Parse text the user copied from a match page in their own browser. No page code runs. */
@@ -46,13 +47,8 @@ export function parseMatchPageText(text: string, source: string): Partial<MatchD
   const score =
     value('Average rating', 'Rating').match(/^([0-9]+(?:\.[0-9]+)?)(?:\s|\[|$)/)?.[1] ?? '';
   if (/^\d+(?:\.\d+)?$/.test(score) && Number(score) <= 10) result.cagematchScore = Number(score);
-  const won = value('WON rating', 'Wrestling Observer rating');
-  if (
-    /^\d+(?:\.\d+)?$/.test(won) &&
-    Number(won) <= 10 &&
-    Number(won) * 4 === Math.round(Number(won) * 4)
-  )
-    result.rating = Number(won);
+  const won = parseWonRating(value('WON rating', 'Wrestling Observer rating'));
+  if (won !== undefined) result.rating = won;
   if (!result.wrestlers && !result.event && !result.date)
     throw new Error(
       'No match details were found. Copy the match page after it loads, or enter the details manually.',

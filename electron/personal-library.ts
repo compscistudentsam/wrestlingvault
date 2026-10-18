@@ -183,7 +183,7 @@ export class PersonalLibrary {
         throw new Error(
           error instanceof Error
             ? error.message
-            : 'CAGEMATCH lookup failed. Open the page in your browser and paste its text, or enter the details manually.',
+            : 'CAGEMATCH lookup failed. Retry Import or use Manual Entry.',
         );
       }
     });

@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import type { LibrarySnapshot, LibraryStatus, ChosenArtwork, MatchDraft } from '../shared/imports';
 import { userError } from '../shared/errors';
-import { parseMatchPageText } from '../shared/cagematch-text';
 import { cagematchURL, repository } from '../shared/imports';
 
 const empty = {
@@ -32,8 +31,6 @@ export function AddMatch({
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
   const [token, setToken] = useState('');
-  const [pasteOpen, setPasteOpen] = useState(false);
-  const [pageText, setPageText] = useState('');
   useEffect(() => {
     if (open) dialog.current?.showModal();
     else dialog.current?.close();
@@ -50,8 +47,8 @@ export function AddMatch({
   };
   const message = userError;
   const applyDetails = (found: Partial<MatchDraft>) => {
-    setFields((previous) => ({
-      ...previous,
+    setFields({
+      ...empty,
       ...Object.fromEntries(
         Object.entries(found)
           .filter(([key]) => key !== 'sourceUrl')
@@ -64,29 +61,7 @@ export function AddMatch({
                 : String(value),
           ]),
       ),
-    }));
-  };
-  const readPastedText = () => {
-    setError('');
-    try {
-      applyDetails(parseMatchPageText(pageText, url));
-      setReview(true);
-      setPasteOpen(false);
-      setPageText('');
-      setNotice(
-        'Details read from your pasted text. Review them and fill in anything missing before adding the match.',
-      );
-    } catch (error) {
-      setError(message(error));
-    }
-  };
-  const openMatchPage = async () => {
-    setError('');
-    try {
-      await desktop().openExternal(cagematchURL(url));
-    } catch (error) {
-      setError(message(error));
-    }
+    });
   };
   const findImage = async (source: string, details: Partial<MatchDraft>) => {
     if (!window.vault?.findMatchArtwork) return;
@@ -119,34 +94,14 @@ export function AddMatch({
       setBusy('');
     }
   };
-  const beginReview = async (manual = false) => {
+  const manualEntry = () => {
     setError('');
     setNotice('');
-    let source: string;
     try {
-      source = cagematchURL(url);
-      setUrl(source);
-    } catch (e) {
-      setError(message(e));
-      return;
-    }
-    if (manual) {
+      setUrl(cagematchURL(url));
       setReview(true);
-      return;
-    }
-    setBusy('lookup');
-    try {
-      const found = await desktop().lookupMatch(source);
-      applyDetails(found);
-      setNotice(
-        'Review the retrieved details and fill in anything missing. Ratings are separate; leave unknown values blank.',
-      );
-      await findImage(source, found);
-    } catch (e) {
-      setNotice(message(e));
-    } finally {
-      setReview(true);
-      setBusy('');
+    } catch (error) {
+      setError(message(error));
     }
   };
   const chooseImage = async () => {
@@ -193,8 +148,6 @@ export function AddMatch({
       setFields(empty);
       setUrl('');
       setImage(null);
-      setPageText('');
-      setPasteOpen(false);
       setNotice('');
     } catch (e) {
       setError(message(e));
@@ -306,49 +259,13 @@ export function AddMatch({
               />
             </label>
             <div className="import-actions">
-              <button type="button" className="button" onClick={() => void beginReview()}>
-                {busy === 'lookup' ? 'Looking up…' : 'Look up match'}
-              </button>
-              <button type="button" className="button" onClick={() => void beginReview(true)}>
-                Enter details manually
-              </button>
-            </div>
-            <div className="import-actions">
               <button type="button" className="button" onClick={() => void readInBrowser()}>
-                Import in app browser
+                {busy === 'lookup' ? 'Importing…' : 'Import'}
               </button>
-              <button
-                type="button"
-                className="button"
-                aria-expanded={pasteOpen}
-                onClick={() => setPasteOpen((value) => !value)}
-              >
-                Paste page text
+              <button type="button" className="button" onClick={manualEntry}>
+                Manual Entry
               </button>
             </div>
-            {pasteOpen && (
-              <div className="import-paste">
-                <button type="button" className="button" onClick={() => void openMatchPage()}>
-                  Open CAGEMATCH in browser
-                </button>
-                <p>
-                  Once the match details are visible in your browser, press Ctrl+A, then Ctrl+C.
-                  Paste the copied text below.
-                </p>
-                <label>
-                  Copied CAGEMATCH page text
-                  <textarea
-                    rows={6}
-                    maxLength={200000}
-                    value={pageText}
-                    onChange={(event) => setPageText(event.target.value)}
-                  />
-                </label>
-                <button type="button" className="button" onClick={readPastedText}>
-                  Fill details from text
-                </button>
-              </div>
-            )}
             {notice && (
               <p className="import-notice" role="status">
                 {notice}

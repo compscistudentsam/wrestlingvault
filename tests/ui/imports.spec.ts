@@ -22,6 +22,7 @@ test.beforeEach(async ({ page }) => {
           event: 'All Night Long',
           promotion: 'Lucha Underground',
           date: '2015-04-11',
+          rating: 4.75,
         }),
         lookupMatch: async () => {
           throw new Error(
@@ -80,11 +81,7 @@ async function fill(page: import('@playwright/test').Page) {
   await dialog
     .getByLabel('CAGEMATCH match link')
     .fill('https://www.cagematch.net/?id=111&nr=99999999');
-  await dialog.getByRole('button', { name: 'Look up match' }).click();
-  await expect(dialog.getByRole('status').first()).toContainText('unavailable');
-  await expect(dialog.getByRole('status').first()).not.toContainText(
-    'Error invoking remote method',
-  );
+  await dialog.getByRole('button', { name: 'Manual Entry', exact: true }).click();
   await dialog.getByLabel('Opponents or teams').fill('Test Wrestler\nOther Wrestler');
   await dialog.getByLabel('Event', { exact: true }).fill('Personal Event');
   await dialog.getByLabel('Company', { exact: true }).fill('My Company');
@@ -137,7 +134,7 @@ test('bad links stay on the link step and cancelling does not add a match', asyn
   await page.getByRole('button', { name: 'Add match', exact: true }).click();
   const dialog = page.getByRole('dialog');
   await dialog.getByLabel('CAGEMATCH match link').fill('https://www.cagematch.net/?id=1&nr=123');
-  await dialog.getByRole('button', { name: 'Enter details manually', exact: true }).click();
+  await dialog.getByRole('button', { name: 'Manual Entry', exact: true }).click();
   await expect(dialog.getByRole('alert')).toContainText('match link');
   await expect(dialog.getByLabel('Opponents or teams')).toHaveCount(0);
   await page.keyboard.press('Escape');
@@ -145,25 +142,17 @@ test('bad links stay on the link step and cancelling does not add a match', asyn
   await expect(page.locator('.selection-count')).toContainText('/ 100');
 });
 
-test('browser-copied page text fills the review without another background lookup', async ({
-  page,
-}) => {
+test('only Import and Manual Entry remain as match-entry choices', async ({ page }) => {
   await page.goto('/');
   await page.getByRole('button', { name: 'Add match', exact: true }).click();
   const dialog = page.getByRole('dialog');
-  await dialog.getByLabel('CAGEMATCH match link').fill('https://www.cagematch.net/?id=111&nr=6651');
-  await dialog.getByRole('button', { name: 'Paste page text', exact: true }).click();
-  await dialog
-    .getByLabel('Copied CAGEMATCH page text')
-    .fill(
-      'A Wrestler vs. B Wrestler\nDate: 27.04.2025\nEvent: Test Event\nPromotion: NJPW\nTime: 25:10\nAverage rating: 9.75',
-    );
-  await dialog.getByRole('button', { name: 'Fill details from text', exact: true }).click();
-  await expect(dialog.getByLabel('Opponents or teams')).toHaveValue('A Wrestler\nB Wrestler');
-  await expect(dialog.getByLabel('Event', { exact: true })).toHaveValue('Test Event');
-  await expect(dialog.getByLabel('Date', { exact: true })).toHaveValue('2025-04-27');
-  await expect(dialog.getByLabel('CAGEMATCH score')).toHaveValue('9.75');
-  await expect(dialog.getByLabel('WON stars')).toHaveValue('');
+  await expect(dialog.getByRole('button', { name: 'Import', exact: true })).toBeVisible();
+  await expect(dialog.getByRole('button', { name: 'Manual Entry', exact: true })).toBeVisible();
+  await expect(dialog.getByRole('button', { name: 'Look up match', exact: true })).toHaveCount(0);
+  await expect(dialog.getByRole('button', { name: 'Paste page text', exact: true })).toHaveCount(0);
+  await expect(
+    dialog.getByRole('button', { name: 'Import in app browser', exact: true }),
+  ).toHaveCount(0);
 });
 
 test('direct in-app browser import fills the review without a background request', async ({
@@ -173,7 +162,8 @@ test('direct in-app browser import fills the review without a background request
   await page.getByRole('button', { name: 'Add match', exact: true }).click();
   const dialog = page.getByRole('dialog');
   await dialog.getByLabel('CAGEMATCH match link').fill('https://www.cagematch.net/?id=111&nr=6651');
-  await dialog.getByRole('button', { name: 'Import in app browser', exact: true }).click();
+  await dialog.getByRole('button', { name: 'Import', exact: true }).click();
   await expect(dialog.getByLabel('Opponents or teams')).toHaveValue('Johnny Mundo\nPrince Puma');
   await expect(dialog.getByLabel('Company', { exact: true })).toHaveValue('Lucha Underground');
+  await expect(dialog.getByLabel('WON stars')).toHaveValue('4.75');
 });

@@ -44,7 +44,7 @@ try {
   await dialog
     .getByLabel('CAGEMATCH match link')
     .fill('https://www.cagematch.net/?id=111&nr=99999999');
-  await dialog.getByRole('button', { name: 'Enter details manually', exact: true }).click();
+  await dialog.getByRole('button', { name: 'Manual Entry', exact: true }).click();
   await dialog.getByLabel('Opponents or teams').fill('Test Wrestler\nOther Wrestler');
   await dialog.getByLabel('Event', { exact: true }).fill('Offline Import Test');
   await dialog.getByLabel('Company', { exact: true }).fill('Test Company');
