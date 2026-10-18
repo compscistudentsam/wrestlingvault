@@ -14,7 +14,11 @@ export function Artwork({ match, eager = false }: { match: Match; eager?: boolea
     >
       {!failed && (
         <img
-          src={`./art/${match.image}`}
+          src={
+            match.image.startsWith('custom/')
+              ? `vault-art://local/${match.image.slice(7)}`
+              : `./art/${match.image}`
+          }
           alt=""
           loading={eager ? 'eager' : 'lazy'}
           decoding="async"

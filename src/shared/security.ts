@@ -5,6 +5,7 @@ const allowedHosts = new Set([
   'en.wikipedia.org',
   'www.google.com',
   'www.cagematch.net',
+  'github.com',
 ]);
 
 /** Only the sample dataset's public reference sites are available to the renderer. */
@@ -30,6 +31,11 @@ export function validateExternalURL(value: unknown): string {
     (url.pathname !== '/search' || !url.searchParams.get('q'))
   )
     throw new Error('Only Google search links are allowed.');
+  if (
+    url.hostname === 'github.com' &&
+    (url.pathname !== '/settings/personal-access-tokens/new' || url.search || url.hash)
+  )
+    throw new Error('Only the GitHub token setup page is allowed.');
   return url.href;
 }
 

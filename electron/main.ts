@@ -1,6 +1,18 @@
-import { app, BrowserWindow, ipcMain, session, shell, dialog, protocol } from 'electron';
+import {
+  app,
+  BrowserWindow,
+  ipcMain,
+  session,
+  shell,
+  dialog,
+  protocol,
+  safeStorage,
+} from 'electron';
 import path from 'node:path';
-import { realpath } from 'node:fs/promises';
+import { realpath, readFile, writeFile, rm, stat } from 'node:fs/promises';
+import { PersonalLibrary } from './personal-library';
+import { inspectArtwork } from './artwork';
+import type { ChosenArtwork } from '../src/shared/imports';
 import { randomUUID } from 'node:crypto';
 import { inside } from './videos';
 import { videoResponse } from './video-response';
@@ -10,11 +22,16 @@ import { pathToFileURL } from 'node:url';
 import { isTrustedRendererURL, validateExternalURL } from '../src/shared/security';
 
 protocol.registerSchemesAsPrivileged([
+  { scheme: 'vault-art', privileges: { standard: true, secure: true, supportFetchAPI: true } },
   {
     scheme: 'vault-video',
     privileges: { standard: true, secure: true, stream: true, supportFetchAPI: true },
   },
 ]);
+let library: PersonalLibrary | null = null;
+let libraryError = '';
+let stagedArtwork: { token: string; bytes: Buffer } | null = null;
+const allMatches = () => library?.allMatches() ?? [...matches];
 let videoRoot: string | null = null;
 let videoIndex: VideoIndex = new Map();
 const videoFiles = new Map<string, string>();
@@ -78,7 +95,159 @@ function createWindow() {
   });
 }
 
-void app.whenReady().then(() => {
+void app.whenReady().then(async () => {
+  const libraryRoot = path.join(app.getPath('userData'), 'personal-library');
+  const tokenFile = path.join(libraryRoot, 'github-credential');
+  try {
+    const service = new PersonalLibrary({
+      root: libraryRoot,
+      inspectImage: inspectArtwork,
+      getToken: async () => {
+        let encrypted: Buffer;
+        try {
+          encrypted = await readFile(tokenFile);
+        } catch (error) {
+          if ((error as NodeJS.ErrnoException).code === 'ENOENT') return null;
+          throw error;
+        }
+        if (
+          !safeStorage.isEncryptionAvailable() ||
+          (process.platform === 'linux' && safeStorage.getSelectedStorageBackend() === 'basic_text')
+        )
+          throw new Error('Secure credential storage is unavailable.');
+        return safeStorage.decryptString(encrypted);
+      },
+      setToken: async (token) => {
+        if (
+          !safeStorage.isEncryptionAvailable() ||
+          (process.platform === 'linux' && safeStorage.getSelectedStorageBackend() === 'basic_text')
+        )
+          throw new Error(
+            'Secure credential storage is unavailable. Enable your system keychain before connecting GitHub. Local matches can still be saved.',
+          );
+        await writeFile(tokenFile, safeStorage.encryptString(token), { mode: 0o600 });
+      },
+      clearToken: () => rm(tokenFile, { force: true }),
+    });
+    await service.init();
+    library = service;
+  } catch (error) {
+    libraryError =
+      error instanceof Error ? error.message : 'The saved library could not be loaded.';
+  }
+  const requireLibrary = () => {
+    if (!library) throw new Error(libraryError || 'Library unavailable.');
+    return library;
+  };
+  protocol.handle('vault-art', async (request) => {
+    const url = new URL(request.url);
+    const file =
+      url.hostname === 'local' &&
+      /^\/cagematch-user-[1-9]\d{0,8}\.(png|jpg|webp)$/.test(url.pathname)
+        ? library?.imageFile(url.pathname.slice(1))
+        : null;
+    if (!file || !['GET', 'HEAD'].includes(request.method))
+      return new Response(null, { status: 404 });
+    try {
+      const bytes = await readFile(file);
+      const type = file.endsWith('.png')
+        ? 'image/png'
+        : file.endsWith('.jpg')
+          ? 'image/jpeg'
+          : 'image/webp';
+      return new Response(request.method === 'HEAD' ? null : new Uint8Array(bytes), {
+        headers: { 'Content-Type': type, 'X-Content-Type-Options': 'nosniff' },
+      });
+    } catch {
+      return new Response(null, { status: 404 });
+    }
+  });
+  const noArgs = (args: unknown[]) => {
+    if (args.length) throw new Error('This request takes no arguments.');
+  };
+  ipcMain.handle('vault:library', (event, ...args: unknown[]) => {
+    assertSender(event);
+    noArgs(args);
+    return (
+      library?.snapshot() ?? {
+        records: [],
+        status: {
+          connected: false,
+          pending: 0,
+          syncing: false,
+          error: libraryError,
+          lastSyncedAt: null,
+        },
+      }
+    );
+  });
+  ipcMain.handle('vault:lookup-match', (event, ...args: unknown[]) => {
+    assertSender(event);
+    if (args.length !== 1) throw new Error('Expected one CAGEMATCH link.');
+    return requireLibrary().lookup(args[0]);
+  });
+  ipcMain.handle(
+    'vault:choose-artwork',
+    async (event, ...args: unknown[]): Promise<ChosenArtwork | null> => {
+      assertSender(event);
+      noArgs(args);
+      const choice = await dialog.showOpenDialog(window!, {
+        title: 'Choose match artwork',
+        properties: ['openFile'],
+        filters: [{ name: 'Artwork', extensions: ['png', 'jpg', 'jpeg', 'webp'] }],
+      });
+      if (choice.canceled) return null;
+      const file = choice.filePaths[0];
+      const info = await stat(file);
+      if (info.size > 8_388_608 || !info.isFile())
+        throw new Error('Choose an image smaller than 8 MB.');
+      const bytes = await readFile(file);
+      const image = inspectArtwork(bytes);
+      const token = randomUUID();
+      stagedArtwork = { token, bytes };
+      return {
+        token,
+        preview: `data:image/${image.extension === 'jpg' ? 'jpeg' : image.extension};base64,${bytes.toString('base64')}`,
+        name: path.basename(file),
+        width: image.width,
+        height: image.height,
+      };
+    },
+  );
+  ipcMain.handle('vault:add-match', async (event, ...args: unknown[]) => {
+    assertSender(event);
+    if (
+      args.length !== 2 ||
+      !stagedArtwork ||
+      typeof args[1] !== 'string' ||
+      args[1] !== stagedArtwork.token
+    )
+      throw new Error('Choose your artwork again.');
+    const snapshot = await requireLibrary().add(args[0], stagedArtwork.bytes);
+    stagedArtwork = null;
+    void library?.sync();
+    return snapshot;
+  });
+  ipcMain.handle('vault:connect-github', async (event, ...args: unknown[]) => {
+    assertSender(event);
+    if (args.length !== 1) throw new Error('Expected a GitHub credential.');
+    const snapshot = await requireLibrary().connect(args[0]);
+    void library?.sync();
+    return snapshot;
+  });
+  ipcMain.handle('vault:disconnect-github', (event, ...args: unknown[]) => {
+    assertSender(event);
+    noArgs(args);
+    return requireLibrary().disconnect();
+  });
+  ipcMain.handle('vault:sync-library', (event, ...args: unknown[]) => {
+    assertSender(event);
+    noArgs(args);
+    return requireLibrary().sync();
+  });
+  const syncTimer = setInterval(() => void library?.sync(), 5 * 60 * 1000);
+  syncTimer.unref();
+  void library?.sync();
   // Only our trusted main frame may enter fullscreen; other permissions remain denied.
   const allowsFullscreen = (
     contents: Electron.WebContents | null,
@@ -125,7 +294,7 @@ void app.whenReady().then(() => {
     });
     if (choice.canceled) return videoRoot ? { name: path.basename(videoRoot) } : null;
     const root = await realpath(choice.filePaths[0]);
-    const indexed = await scanVideoFolder(root);
+    const indexed = await scanVideoFolder(root, allMatches());
     videoRoot = root;
     videoIndex = indexed;
     videoFiles.clear();
@@ -134,7 +303,7 @@ void app.whenReady().then(() => {
   ipcMain.handle('vault:match-videos', async (event, ...args: unknown[]) => {
     assertSender(event);
     if (args.length !== 1 || typeof args[0] !== 'string') throw new Error('Expected one match ID.');
-    if (!matches.some((match) => match.id === args[0])) throw new Error('Unknown match.');
+    if (!allMatches().some((match) => match.id === args[0])) throw new Error('Unknown match.');
     if (!videoRoot) return [];
     const files = videoIndex.get(args[0]) ?? [];
     return files.map((file) => {
@@ -148,7 +317,7 @@ void app.whenReady().then(() => {
     if (args.length) throw new Error('Availability takes no arguments.');
     if (!videoRoot) return [];
     const root = videoRoot;
-    const indexed = await scanVideoFolder(root);
+    const indexed = await scanVideoFolder(root, allMatches());
     if (root === videoRoot) videoIndex = indexed;
     return [...videoIndex].filter(([, files]) => files.length > 0).map(([id]) => id);
   });

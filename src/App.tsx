@@ -12,18 +12,67 @@ import {
   LayoutGrid,
 } from 'lucide-react';
 import { Artwork } from './components/Artwork';
+import { AddMatch } from './components/AddMatch';
+import type { LibrarySnapshot, LibraryStatus } from './shared/imports';
 import { CoverFlow } from './components/CoverFlow';
-import { formatDate, formatRating, getSource, matches, type Match } from './data/catalogue';
+import {
+  formatDate,
+  formatRating,
+  getSource,
+  matches as bundledMatches,
+  type Match,
+} from './data/catalogue';
 import { validateExternalURL } from './shared/security';
 import { playTick } from './lib/sounds';
 import './shared/api';
 
-const companies = [
-  ...new Set(
-    matches.flatMap((match) => match.promotion.split('/').map((company) => company.trim())),
-  ),
-].sort();
 export function App() {
+  const [customMatches, setCustomMatches] = useState<Match[]>([]);
+  const [libraryStatus, setLibraryStatus] = useState<LibraryStatus>({
+    connected: false,
+    pending: 0,
+    syncing: false,
+    error: '',
+    lastSyncedAt: null,
+  });
+  const applyLibrary = useCallback((snapshot: LibrarySnapshot) => {
+    setCustomMatches((previous) =>
+      JSON.stringify(previous) === JSON.stringify(snapshot.records) ? previous : snapshot.records,
+    );
+    setLibraryStatus(snapshot.status);
+  }, []);
+  const matches = useMemo(() => [...bundledMatches, ...customMatches], [customMatches]);
+  const companies = useMemo(
+    () =>
+      [
+        ...new Set(
+          matches.flatMap((match) => match.promotion.split('/').map((company) => company.trim())),
+        ),
+      ].sort(),
+    [matches],
+  );
+  useEffect(() => {
+    if (!window.vault?.getLibrary) return;
+    let current = true;
+    const refresh = async () => {
+      try {
+        const snapshot = await window.vault!.getLibrary();
+        if (current) applyLibrary(snapshot);
+      } catch {
+        if (current)
+          setLibraryStatus((previous) => ({
+            ...previous,
+            error: 'Could not read the saved library. Retry from Add match.',
+          }));
+      }
+    };
+    void refresh();
+    const interval = setInterval(() => void refresh(), 2000);
+    return () => {
+      current = false;
+      clearInterval(interval);
+    };
+  }, [applyLibrary]);
   const [folder, setFolder] = useState<string | null>(null);
   const [folderError, setFolderError] = useState('');
   const [choosing, setChoosing] = useState(false);
@@ -53,7 +102,7 @@ export function App() {
           (rating === 'all' ||
             (rating === 'unrated' ? match.rating === null : match.rating === Number(rating))),
       ),
-    [company, rating],
+    [company, rating, matches],
   );
   const selected = visible.find((match) => match.id === selectedId) ?? visible[0] ?? matches[0];
   const words = query.toLowerCase().trim().split(/\s+/).filter(Boolean);
@@ -123,6 +172,19 @@ export function App() {
       setChoosing(false);
     }
   };
+  useEffect(() => {
+    if (!folder || !customMatches.length || !window.vault?.getVideoAvailability) return;
+    let current = true;
+    void window.vault
+      .getVideoAvailability()
+      .then((ids) => {
+        if (current) setDownloaded(new Set(ids));
+      })
+      .catch(() => {});
+    return () => {
+      current = false;
+    };
+  }, [customMatches, folder]);
   const startupPrompted = useRef(false);
   useEffect(() => {
     if (!startupPrompted.current) {
@@ -211,6 +273,7 @@ export function App() {
   }, []);
   useEffect(() => {
     document.title = `${detail?.title ?? 'Library'} · Wrestling Vault`;
+    if (detail) setSelectedId(detail.id);
     main.current?.focus({ preventScroll: true });
     if (!isLibrary || layout === 'covers') main.current?.scrollTo({ top: 0 });
   }, [route, detail?.title]);
@@ -407,6 +470,22 @@ export function App() {
               Downloaded only
             </button>
           </>
+        )}
+        {isLibrary && (
+          <AddMatch
+            status={libraryStatus}
+            onSnapshot={applyLibrary}
+            onAdded={(id) => {
+              stopRandom();
+              setSelectedId(id);
+              setCompany('All companies');
+              setRating('all');
+              setQuery('');
+              setSearchOpen(false);
+              setAnnouncement('Match added locally and queued for GitHub sync.');
+              if (folder) void refreshAvailability();
+            }}
+          />
         )}
         <button
           className="folder-button"
@@ -803,7 +882,15 @@ function MatchDetails({
         {match.event} · {formatDate(match.date)}
       </p>
       <div className="source-box">
-        <span>CAGEMATCH {match.cagematchScore.toFixed(2)} / 10 · Verification pending</span>
+        <span>
+          {match.cagematchScore === null
+            ? 'CAGEMATCH score not supplied'
+            : `CAGEMATCH ${match.cagematchScore.toFixed(2)} / 10`}{' '}
+          ·{' '}
+          {match.sourceStatus === 'user-reviewed'
+            ? 'User-reviewed details'
+            : 'Verification pending'}
+        </span>
         <a
           href={validateExternalURL(source.url)}
           target="_blank"

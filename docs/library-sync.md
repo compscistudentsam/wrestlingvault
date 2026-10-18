@@ -1,0 +1,32 @@
+# Adding matches and syncing your personal library
+
+Open **Add match** in the library toolbar. Paste a CAGEMATCH **match** link (`https://www.cagematch.net/?id=111&nr=…`), choose **Look up match** or **Enter details manually**, review the opponents/teams, event, company and date, and choose a PNG, JPEG or WebP image up to 8 MB. One opponent or team goes on each line; use `&` within a team. WON stars, CAGEMATCH score and match length are optional and independent. Click **Add match** to save immediately and queue an upload. New matches appear after the original ranked 100 and participate in both layouts, filters, search, Random and local video matching.
+
+The artwork's original bytes are preserved. Portrait images that fit the full face use the existing uncropped layout; others keep the inset layout. The match ID shown in the missing-video message is an exact filename option for local videos.
+
+## Connect GitHub once on each computer
+
+In **Add match → GitHub connection**, follow **Create token on GitHub**. Create a fine-grained personal access token for `compscistudentsam/wrestlingvault`, granting **Contents: Read and write**. Paste it into the app's password field and click **Connect GitHub**. Tokens with an expiry will need reconnecting when they expire. Branch protections must permit direct commits to `feature/phase-1-ui`.
+
+The token is stored with Electron `safeStorage` (Windows DPAPI), separately from the library. It is never put in the repo or returned through library snapshots. On Linux, an OS secret store is required; the app refuses the unencrypted `basic_text` fallback. Disconnect removes the saved credential. Credentials encrypted for one computer cannot simply be copied to another. Local browsing and adding matches remain available without a token.
+
+## Repository and local files
+
+- The fixed target is `compscistudentsam/wrestlingvault`, branch `feature/phase-1-ui`.
+- `library/matches.json` is a versioned manifest of additions. The original bundled top-100 data stays separate.
+- `library/art/cagematch-user-<number>.<extension>` contains supplied images. One Git tree and commit publish the image and record together. The branch update is non-forced and retries concurrent updates against the latest tree, preserving unrelated source changes.
+- The app reads additions on startup and every five minutes, and syncs after adding a match or connecting GitHub. **Sync now / retry** starts an immediate attempt.
+- Each computer stores `personal-library/state.json` and `personal-library/art/` under Electron's `userData` directory. On Windows this is normally `%APPDATA%\wrestling-vault\personal-library` (the exact app-name directory depends on the launch/package). Back up the state and artwork together. The queue persists across restarts; a failed upload retains the local match. A damaged state file is kept and reported rather than overwritten.
+- Video files, video paths and credentials are never uploaded. Folder selection remains session-only.
+- Duplicate CAGEMATCH IDs are rejected. If another computer publishes conflicting details for the same queued match, sync keeps the local queue and reports the conflict; resolve the repository record before retrying. There is no edit/delete conflict-resolution interface yet.
+- For this personal prototype, additions are limited to 500 records and the manifest to 900 KB. Artwork downloads verify their SHA-256 hash and dimensions before entering the cached library.
+
+## Metadata lookup limits
+
+CAGEMATCH may block automated requests or omit fields. The app checks robots rules, does not execute page scripts or follow redirects, and spaces lookups by at least 527 seconds (longer if the site's crawl delay requires it), persisted across restarts. Manual entry remains available during that interval and when a lookup fails. Only explicitly labelled numeric WON ratings are read as WON stars; a site's user score is not used as a star rating. All retrieved details require review. No claim is made that historical metadata is complete or verified.
+
+Network operations run in Electron's main process. The renderer still has no arbitrary network/file access. Artwork selection uses a native picker and opaque staged tokens; custom images are served only from catalogue-authorized files through `vault-art:`. GitHub requests use the fixed API host and repository, with bounded downloads and redirects disabled.
+
+## Validation
+
+Unit tests use a simulated GitHub API to cover atomic commits, non-forced conflict retries, encrypted-token boundary dependencies, offline recovery, duplicate/invalid manifests and second-computer downloads. Browser tests cover review/manual entry, unrated additions, shared filters, connection/retry UI and existing controls. `WV_HEADLESS=1 npm run test:import` exercises the real production Electron app with only native picker choices automated and all external requests disabled: local save, exact custom-image bytes, restart recovery, and playback of an imported match. Actual authenticated publishing and Windows DPAPI must be checked on the user's computer after connection; tests do not publish a real match.

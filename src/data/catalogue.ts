@@ -1,9 +1,15 @@
 import records from './matches.json';
 
-export type Match = (typeof records)[number];
-export const matches: readonly Match[] = records;
+export type Match = Omit<(typeof records)[number], 'cagematchScore'> & {
+  cagematchScore: number | null;
+  artworkHash?: string;
+};
+export const matches: readonly (typeof records)[number][] = records;
 export const getSource = (match: Match) => ({
-  name: 'CAGEMATCH · supplied snapshot',
+  name:
+    match.sourceStatus === 'user-reviewed'
+      ? 'CAGEMATCH · user-reviewed details'
+      : 'CAGEMATCH · supplied snapshot',
   url: match.sourceUrl,
 });
 export const formatRating = (rating: number | null) =>

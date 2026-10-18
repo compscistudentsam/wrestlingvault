@@ -13,7 +13,7 @@ npm.cmd ci
 npm.cmd run dev
 ```
 
-The first Electron launch downloads its runtime with checksum verification. Internet access is needed for installation. The app then browses its bundled sample data, fonts and artwork offline. No API keys, accounts, database service, or paid APIs are needed.
+The first Electron launch downloads its runtime with checksum verification. Internet access is needed for installation. The app then browses its bundled sample data, fonts and artwork offline. No account is needed for offline browsing or local additions. Optional GitHub library sync requires a repository-scoped access token; no credentials are bundled with the app.
 
 `npm run dev` builds the main/preload processes, starts Vite and opens the desktop window. Renderer changes reload automatically. Restart the command after main/preload changes. Closing Electron also stops Vite. Port 5173 must be free; the command fails instead of silently using another port.
 
@@ -39,6 +39,12 @@ The library contains 100 supplied match covers in CAGEMATCH rank order. Click a 
 - **Downloaded only** keeps all covers visible but greys out those without a matched local video. Random then chooses only matched videos. Pick a video folder to enable this control; **Rescan videos** updates availability after files are added or removed.
 
 Netflix Sans is the preferred font when installed on the host. No Netflix Sans font files were supplied, so the app uses its bundled Inter fallback when that proprietary font is unavailable. Exact offline bundling requires supplied font files with appropriate reuse rights. No external font request is made.
+
+## Add your own match
+
+Use **Add match** in the toolbar, paste a CAGEMATCH match link, review the details and choose artwork. Unknown ratings can stay blank. The match appears immediately and is saved locally, with uploads queued until GitHub is connected and reachable. In **GitHub connection**, create a fine-grained token for this repository with **Contents: Read and write**, then connect in the app. Details and images sync to `library/` on `feature/phase-1-ui`; the app checks for additions at startup and every five minutes. **Sync now / retry** runs a check immediately. Videos remain local.
+
+See [personal library sync](docs/library-sync.md) for setup, offline recovery, metadata lookup limits and validation. CAGEMATCH lookup can be blocked or incomplete; manual entry is always available. New matches are appended after the original 100 rather than re-ranking that supplied snapshot.
 
 ## Local video playback
 

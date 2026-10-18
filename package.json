@@ -22,10 +22,12 @@
     "check": "npm run typecheck && npm test && npm run build",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "test:player": "node scripts/smoke-player.mjs"
+    "test:player": "node scripts/smoke-player.mjs",
+    "test:import": "node scripts/smoke-import.mjs"
   },
   "dependencies": {
     "@fontsource/inter": "5.3.0",
+    "cheerio": "1.1.2",
     "lucide-react": "1.56.0",
     "motion": "14.2.0",
     "react": "19.3.0",

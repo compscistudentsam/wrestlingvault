@@ -15,7 +15,7 @@ const normalized = (value: string) =>
     .replace(/(\d)([a-z])/g, '$1 $2')
     .replace(/[^a-z0-9]+/g, ' ')
     .trim();
-function score(label: string, match: Match) {
+function score(label: string, match: Match, records: readonly Match[]) {
   const text = ` ${expandEventAbbreviations(normalized(label))} `;
   const participants = ` ${expandVideoAliases(text.trim())} `;
   const compact = text.replaceAll(' ', '');
@@ -42,7 +42,7 @@ function score(label: string, match: Match) {
   const completeEvent = eventKey.length > 6 && compact.includes(eventKey.replaceAll(' ', ''));
   // Repeated opponents require a complete event name or a year plus event clues.
   const repeated =
-    matches.filter(
+    records.filter(
       (other) =>
         other.wrestlers.map(normalized).sort().join('|') ===
         match.wrestlers.map(normalized).sort().join('|'),
@@ -56,8 +56,11 @@ function score(label: string, match: Match) {
     eventHits * 10
   );
 }
-export async function scanVideoFolder(root: string): Promise<VideoIndex> {
-  const index: VideoIndex = new Map(matches.map((match) => [match.id, []]));
+export async function scanVideoFolder(
+  root: string,
+  records: readonly Match[] = matches,
+): Promise<VideoIndex> {
+  const index: VideoIndex = new Map(records.map((match) => [match.id, []]));
   const walk = async (directory: string, depth: number) => {
     for (const entry of await readdir(directory, { withFileTypes: true })) {
       if (entry.isSymbolicLink()) continue;
@@ -78,7 +81,7 @@ export async function scanVideoFolder(root: string): Promise<VideoIndex> {
       const label = relative.slice(0, -path.extname(relative).length);
       // Preserve explicit legacy folder matching before fuzzy filename identification.
       const parent = path.basename(path.dirname(candidate));
-      const legacy = matches.filter(
+      const legacy = records.filter(
         (match) =>
           match.id.toLowerCase() === parent.toLowerCase() ||
           match.videoFolderAliases.some((alias) => alias.toLowerCase() === parent.toLowerCase()),
@@ -86,8 +89,8 @@ export async function scanVideoFolder(root: string): Promise<VideoIndex> {
       let winner: Match | undefined;
       if (legacy.length === 1) winner = legacy[0];
       else {
-        const ranked = matches
-          .map((match) => ({ match, score: score(label, match) }))
+        const ranked = records
+          .map((match) => ({ match, score: score(label, match, records) }))
           .sort((a, b) => b.score - a.score);
         if (ranked[0].score > 0 && ranked[0].score > ranked[1].score) winner = ranked[0].match;
       }

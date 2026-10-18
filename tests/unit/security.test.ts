@@ -40,6 +40,8 @@ describe('external URL boundary', () => {
     'https://user:password@iwnerd.com/',
     'https://iwnerd.com:444/',
     'https://example.com',
+    'https://github.com/attacker/repo',
+    'https://github.com/settings/personal-access-tokens/new?redirect=evil',
     'https://en.wikipedia.org.attacker.example/',
     'https://www.cagematch.net.attacker.example/?id=111',
     'https://www.google.com/url?q=https://example.com',
@@ -50,6 +52,12 @@ describe('external URL boundary', () => {
   ])('rejects invalid or unexpected input %#', (value) => {
     expect(() => validateExternalURL(value)).toThrow();
   });
+});
+
+it('allows only the fixed GitHub credential setup destination', () => {
+  expect(validateExternalURL('https://github.com/settings/personal-access-tokens/new')).toBe(
+    'https://github.com/settings/personal-access-tokens/new',
+  );
 });
 
 describe('trusted renderer boundary', () => {
