@@ -1,6 +1,10 @@
 import { BrowserWindow, Menu, dialog, type Session } from 'electron';
 import { cagematchURL, type MatchDraft } from '../src/shared/imports';
-import { isCagematchAddress, cagematchConnectionError } from './cagematch-request';
+import {
+  CagematchRateLimitError,
+  isCagematchAddress,
+  cagematchConnectionError,
+} from './cagematch-request';
 import { readCagematchPage } from './cagematch';
 
 /** Render normally in an isolated background browser; surface only for user interaction. */
@@ -117,6 +121,15 @@ export function importFromCagematchBrowser(
         finished = true;
         reject(new Error('Browser lookup cancelled. You can retry or enter the details manually.'));
       }
+    });
+    browser.webContents.on('did-navigate', (_event, _url, statusCode) => {
+      if (statusCode !== 429 || finished) return;
+      finished = true;
+      cleanup();
+      reject(
+        new CagematchRateLimitError('CAGEMATCH is limiting requests (HTTP 429). Retry later.'),
+      );
+      browser.close();
     });
     browser.webContents.on('did-finish-load', () => void read());
     polling = setInterval(() => void read(), 400);

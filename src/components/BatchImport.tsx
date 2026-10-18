@@ -8,7 +8,6 @@ export function BatchImport() {
   const [state, setState] = useState<BatchState>({
     running: false,
     stopping: false,
-    nextAt: null,
     items: [],
   });
   const [error, setError] = useState('');
@@ -128,12 +127,6 @@ export function BatchImport() {
                   ? ` · ${cancelled} cancelled`
                   : ''}
             </p>
-            {state.nextAt && state.running && (
-              <p role="status">
-                Waiting for CAGEMATCH cooldown: next request in{' '}
-                {Math.max(0, Math.ceil((state.nextAt - Date.now()) / 1000))} seconds.
-              </p>
-            )}
             <ol className="batch-results">
               {state.items.map((item, index) => (
                 <li key={index}>

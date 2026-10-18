@@ -220,9 +220,6 @@ export class PersonalLibrary {
       return this.snapshot();
     });
   }
-  nextLookupAt() {
-    return this.state.nextLookup;
-  }
   async lookupInBrowser(source: unknown) {
     const url = cagematchURL(source);
     if (this.allMatches().some((m) => cagematchURL(m.sourceUrl) === url))

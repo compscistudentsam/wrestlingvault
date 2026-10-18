@@ -50,7 +50,7 @@ Open a match and choose **Edit entry** to change its opponents, event, company, 
 
 Use **Batch upload** to paste up to 50 CAGEMATCH match URLs (one per line), then choose **Import all**. Each valid match is imported, given automatically selected artwork and saved without an entry-review step. Existing and repeated links are skipped; failures are listed without stopping later entries. Missing required metadata or artwork is reported rather than guessed. Batch entries are labelled automatically imported and remain editable.
 
-The queue respects the CAGEMATCH request cooldown (currently at least 527 seconds between background lookups), displaying a countdown when it must wait. You can close the batch dialog and keep browsing, or choose **Stop after current match**. Keep the app open until the batch finishes; unfinished batches do not resume after an application restart. Completed matches are saved durably and queued for GitHub sync as each finishes. Website consent or access checks may still require browser interaction.
+The queue uses the in-app browser and starts each next match as soon as the previous one finishes, without an app-enforced cooldown. An actual CAGEMATCH HTTP 429 rate-limit response stops the batch. You can close the batch dialog and keep browsing, or choose **Stop after current match**. Keep the app open until the batch finishes; unfinished batches do not resume after an application restart. Completed matches are saved durably and queued for GitHub sync as each finishes. Website consent or access checks may still require browser interaction.
 
 ## Local video playback
 

@@ -1,5 +1,6 @@
 import { cagematchURL, validateDraft, type MatchDraft } from '../src/shared/imports';
 import type { BatchState } from '../src/shared/batch-import';
+import { CagematchRateLimitError } from './cagematch-request';
 import { userError } from '../src/shared/errors';
 
 type Dependencies = {
@@ -7,12 +8,10 @@ type Dependencies = {
   lookup: (url: string) => Promise<Partial<MatchDraft>>;
   artwork: (draft: MatchDraft) => Promise<Buffer | null>;
   save: (draft: MatchDraft, image: Buffer) => Promise<unknown>;
-  cooldown: () => number;
   sync: () => void;
-  wait?: (ms: number) => Promise<void>;
 };
 export class BatchImporter {
-  private state: BatchState = { running: false, stopping: false, nextAt: null, items: [] };
+  private state: BatchState = { running: false, stopping: false, items: [] };
   private work: Promise<void> = Promise.resolve();
   constructor(private dependencies: Dependencies) {}
   snapshot(): BatchState {
@@ -37,7 +36,7 @@ export class BatchImporter {
         return { url: value.slice(0, 500), status: 'failed', message: userError(error) };
       }
     });
-    this.state = { running: true, stopping: false, nextAt: null, items };
+    this.state = { running: true, stopping: false, items };
     this.work = this.run();
     return this.snapshot();
   }
@@ -59,14 +58,6 @@ export class BatchImporter {
           item.message = 'Already in your vault.';
           continue;
         }
-        while (!this.state.stopping && Date.now() < this.dependencies.cooldown()) {
-          this.state.nextAt = this.dependencies.cooldown();
-          await (
-            this.dependencies.wait ?? ((ms) => new Promise((resolve) => setTimeout(resolve, ms)))
-          )(Math.min(1000, this.state.nextAt - Date.now()));
-        }
-        if (this.state.stopping) break;
-        this.state.nextAt = null;
         item.status = 'importing';
         try {
           const found = await this.dependencies.lookup(item.url);
@@ -86,6 +77,7 @@ export class BatchImporter {
         } catch (error) {
           item.status = 'failed';
           item.message = userError(error);
+          if (error instanceof CagematchRateLimitError) this.state.stopping = true;
         }
       }
     } catch (error) {
@@ -97,7 +89,6 @@ export class BatchImporter {
     } finally {
       for (const item of this.state.items) if (item.status === 'queued') item.status = 'cancelled';
       this.state.running = false;
-      this.state.nextAt = null;
     }
   }
 }

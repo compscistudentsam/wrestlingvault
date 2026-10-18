@@ -7,6 +7,5 @@ export type BatchItem = {
 export type BatchState = {
   running: boolean;
   stopping: boolean;
-  nextAt: number | null;
   items: BatchItem[];
 };

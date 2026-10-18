@@ -1,4 +1,5 @@
 import { expect, it, vi } from 'vitest';
+import { CagematchRateLimitError } from '../../electron/cagematch-request';
 import { BatchImporter } from '../../electron/batch-import';
 import type { MatchDraft } from '../../src/shared/imports';
 const url = (id: number) => `https://www.cagematch.net/?id=111&nr=${id}`;
@@ -19,7 +20,6 @@ function setup(overrides: Partial<ConstructorParameters<typeof BatchImporter>[0]
     artwork,
     save,
     sync,
-    cooldown: () => 0,
     ...overrides,
   });
   return { importer, save, lookup, artwork, sync };
@@ -71,37 +71,41 @@ it('finishes the current match on stop, cancels the remainder, and prevents conc
   expect(result.items.map((item) => item.status)).toEqual(['imported', 'cancelled']);
   expect(save).toHaveBeenCalledTimes(1);
 });
-it('shows the site cooldown and can cancel while waiting without issuing a request', async () => {
-  let release!: () => void;
-  const nextAt = Date.now() + 527000;
-  const { importer, lookup } = setup({
-    cooldown: () => nextAt,
-    wait: () =>
-      new Promise((resolve) => {
-        release = resolve;
-      }),
+it('starts each subsequent lookup as soon as the previous entry is saved, without a timer', async () => {
+  const order: string[] = [];
+  const { importer } = setup({
+    lookup: async (source) => {
+      order.push(`lookup ${source}`);
+      return details;
+    },
+    save: async (draft) => {
+      order.push(`save ${draft.sourceUrl}`);
+    },
   });
-  importer.start(url(1));
-  expect(importer.snapshot().nextAt).toBe(nextAt);
-  expect(lookup).not.toHaveBeenCalled();
-  importer.stop();
-  release();
-  expect((await importer.settled()).items[0].status).toBe('cancelled');
+  importer.start(`${url(1)}\n${url(2)}`);
+  await importer.settled();
+  expect(order).toEqual([
+    `lookup ${url(1)}`,
+    `save ${url(1)}`,
+    `lookup ${url(2)}`,
+    `save ${url(2)}`,
+  ]);
 });
-it('waits out a cooldown before importing and never silently saves incomplete metadata', async () => {
-  let cooldown = Date.now() + 10000;
-  const wait = vi.fn(async () => {
-    cooldown = 0;
+it('stops on an actual CAGEMATCH rate-limit response instead of repeatedly requesting more pages', async () => {
+  const lookup = vi.fn(async () => {
+    throw new CagematchRateLimitError('HTTP 429');
   });
-  const { importer, save } = setup({
-    cooldown: () => cooldown,
-    wait,
-    lookup: async () => ({ event: 'Incomplete' }),
-  });
-  importer.start(url(1));
+  const { importer, save } = setup({ lookup });
+  importer.start(`${url(1)}\n${url(2)}`);
   const result = await importer.settled();
-  expect(wait).toHaveBeenCalledTimes(1);
-  expect(result.items[0].status).toBe('failed');
+  expect(result.items.map((item) => item.status)).toEqual(['failed', 'cancelled']);
+  expect(lookup).toHaveBeenCalledTimes(1);
+  expect(save).not.toHaveBeenCalled();
+});
+it('never silently saves incomplete metadata', async () => {
+  const { importer, save } = setup({ lookup: async () => ({ event: 'Incomplete' }) });
+  importer.start(url(1));
+  expect((await importer.settled()).items[0].status).toBe('failed');
   expect(save).not.toHaveBeenCalled();
 });
 it('bounds batch input and sanitizes invocation errors in per-entry results', async () => {

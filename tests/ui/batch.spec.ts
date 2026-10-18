@@ -1,13 +1,12 @@
 import { test, expect } from '@playwright/test';
 
-test('batch progress survives closing its dialog and exposes a stop action during cooldown', async ({
+test('batch progress survives closing its dialog and exposes a stop action during an import', async ({
   page,
 }) => {
   await page.addInitScript(() => {
     let batch = {
       running: false,
       stopping: false,
-      nextAt: null as number | null,
       items: [] as { url: string; status: string }[],
     };
     Object.assign(window, {
@@ -22,7 +21,6 @@ test('batch progress survives closing its dialog and exposes a stop action durin
           batch = {
             running: true,
             stopping: false,
-            nextAt: Date.now() + 527000,
             items: urls.split('\n').map((url) => ({ url, status: 'queued' })),
           };
           return batch;
@@ -32,7 +30,6 @@ test('batch progress survives closing its dialog and exposes a stop action durin
             ...batch,
             running: false,
             stopping: true,
-            nextAt: null,
             items: batch.items.map((item) => ({ ...item, status: 'cancelled' })),
           };
           return batch;
@@ -47,7 +44,8 @@ test('batch progress survives closing its dialog and exposes a stop action durin
     .getByLabel('CAGEMATCH match URLs')
     .fill('https://www.cagematch.net/?id=111&nr=6651\nhttps://www.cagematch.net/?id=111&nr=6851');
   await dialog.getByRole('button', { name: 'Import all', exact: true }).click();
-  await expect(dialog.getByText(/Waiting for CAGEMATCH cooldown/)).toBeVisible();
+  await expect(dialog.getByRole('status').first()).toContainText('Importing batch');
+  await expect(dialog.getByText(/Waiting for CAGEMATCH cooldown/)).toHaveCount(0);
   await dialog.getByRole('button', { name: 'Close batch upload', exact: true }).click();
   await expect(dialog).not.toBeVisible();
   await page.getByRole('button', { name: 'Batch upload (0/2)', exact: true }).click();

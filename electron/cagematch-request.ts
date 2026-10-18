@@ -1,4 +1,5 @@
 export class CagematchBrowserRequired extends Error {}
+export class CagematchRateLimitError extends Error {}
 const hosts = new Set(['www.cagematch.net', 'cagematch.net']);
 export function isCagematchAddress(value: string) {
   try {

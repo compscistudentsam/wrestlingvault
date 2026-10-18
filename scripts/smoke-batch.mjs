@@ -16,7 +16,7 @@ const {app,session,dialog,BrowserWindow}=require('electron');
 app.disableHardwareAcceleration();app.setPath('userData',${JSON.stringify(path.join(temporary, 'profile'))});
 global.fetch=async()=>{throw new Error('Node fetch must not be used for CAGEMATCH');};
 global.__folderPrompts=0;dialog.showOpenDialog=async()=>{global.__folderPrompts++;return {canceled:false,filePaths:[${JSON.stringify(videos)}]};};
-global.__searches=[];global.__browserShows=0;
+global.__searches=[];global.__browserShows=0;global.__lookupRequests=[];
 require('node:dns/promises').lookup=async()=>[{address:'8.8.8.8',family:4}];
 app.on('browser-window-created',(_event,window)=>{if(window.getParentWindow())window.on('show',()=>global.__browserShows++);});
 app.whenReady().then(()=>{
@@ -24,6 +24,8 @@ app.whenReady().then(()=>{
  lookup.protocol.handle('https',request=>{
   const url=new URL(request.url);
   if(url.hostname!=='www.cagematch.net')return new Response(null,{status:403});
+  global.__lookupRequests.push(request.url);
+  if(url.searchParams.get('nr')==='78888888')return new Response('<html><body>Too many requests</body></html>',{status:429,headers:{'Content-Type':'text/html'}});
   return new Response(${JSON.stringify(html)},{headers:{'Content-Type':'text/html'}});
  });
  session.fromPartition('persist:google-artwork').protocol.handle('https',request=>{
@@ -67,6 +69,10 @@ try {
   });
   const page = await app.firstWindow();
   await expect(page.getByRole('button', { name: 'Video folder: videos' })).toBeVisible();
+  // Seed the legacy HTTP-reader cooldown: browser batches must ignore it.
+  await page.evaluate(() =>
+    window.vault.lookupMatch('https://www.cagematch.net/?id=111&nr=99999996'),
+  );
   await page.getByRole('button', { name: 'Batch upload', exact: true }).click();
   const form = page.getByRole('dialog', { name: 'Batch upload', exact: true });
   await form
@@ -74,6 +80,7 @@ try {
     .fill(
       [
         'https://www.cagematch.net/?id=111&nr=6651',
+        'https://www.cagematch.net/?id=111&nr=99999997',
         'https://www.cagematch.net/?id=111&nr=6651',
         'https://www.cagematch.net/?id=111&nr=8034',
         'https://www.cagematch.net/?id=1&nr=999',
@@ -81,21 +88,35 @@ try {
     );
   await form.getByRole('button', { name: 'Import all', exact: true }).click();
   await expect(form.getByRole('status').first()).toContainText(
-    'Batch finished: 1 imported · 2 skipped · 1 failed',
+    'Batch finished: 2 imported · 2 skipped · 1 failed',
     { timeout: 20000 },
   );
   const snapshot = await page.evaluate(() => window.vault.getLibrary());
-  expect(snapshot.records).toHaveLength(1);
+  expect(snapshot.records).toHaveLength(2);
   expect(snapshot.records[0].title).toBe('Johnny Mundo vs. Prince Puma');
   expect(snapshot.records[0].sourceStatus).toBe('auto-imported');
-  expect(snapshot.status.pending).toBe(1);
+  expect(snapshot.status.pending).toBe(2);
   expect(await readFile(path.join(videos, 'images', 'cagematch-user-6651.jpg'))).toEqual(artwork);
   expect(await app.evaluate(() => global.__browserShows)).toBe(0);
+  await form
+    .getByLabel('CAGEMATCH match URLs')
+    .fill(
+      'https://www.cagematch.net/?id=111&nr=78888888\nhttps://www.cagematch.net/?id=111&nr=99999995',
+    );
+  await form.getByRole('button', { name: 'Import all', exact: true }).click();
+  await expect(form.getByRole('status').first()).toContainText(
+    'Batch finished: 0 imported · 0 skipped · 1 failed',
+  );
+  await expect(form.locator('.batch-results li').first()).toContainText('HTTP 429');
+  await expect(form.locator('.batch-results li').nth(1)).toContainText('cancelled');
+  expect(
+    (await app.evaluate(() => global.__lookupRequests)).some((url) => url.includes('nr=99999995')),
+  ).toBe(false);
   await form.getByRole('button', { name: 'Close batch upload', exact: true }).click();
-  await expect(page.locator('.selection-count')).toContainText('/ 101');
+  await expect(page.locator('.selection-count')).toContainText('/ 102');
   await expect(page.getByRole('dialog', { name: 'Add your own match' })).not.toBeVisible();
   console.log(
-    'Electron batch passed: one-click automatic metadata/artwork/save, duplicate and existing-entry skipping, invalid-URL reporting, queued GitHub sync and no per-entry confirmation. All remote responses were local fixtures.',
+    'Electron batch passed: sequential multi-entry import without fixed delays even with a pre-existing cooldown, stopping on a real HTTP 429 fixture, one-click automatic metadata/artwork/save, duplicate and existing-entry skipping, invalid-URL reporting, queued GitHub sync and no per-entry confirmation. All remote responses were local fixtures.',
   );
 } finally {
   await app?.close();

@@ -329,10 +329,9 @@ void app.whenReady().then(async () => {
       requireLibrary()
         .allMatches()
         .some((match) => cagematchURL(match.sourceUrl) === url),
-    lookup: (url) => requireLibrary().lookup(url),
+    lookup: (url) => requireLibrary().lookupInBrowser(url),
     artwork: async (draft) => (await findArtwork(draft.sourceUrl, draft))?.bytes ?? null,
     save: (draft, image) => requireLibrary().add(draft, image, false),
-    cooldown: () => requireLibrary().nextLookupAt(),
     sync: () => {
       void requireLibrary().sync();
     },
