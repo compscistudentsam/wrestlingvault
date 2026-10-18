@@ -1,3 +1,4 @@
+export class CagematchBrowserRequired extends Error {}
 const hosts = new Set(['www.cagematch.net', 'cagematch.net']);
 export function isCagematchAddress(value: string) {
   try {
@@ -12,16 +13,31 @@ export function isCagematchAddress(value: string) {
 /** Follow ordinary site redirects without permitting arbitrary hosts or HTTPS downgrades. */
 export async function requestCagematch(url: string, options: RequestInit, get: typeof fetch) {
   let current = url;
+  const visited = new Set<string>();
   for (let hop = 0; hop <= 3; hop++) {
     if (!isCagematchAddress(current))
       throw new Error('CAGEMATCH redirected outside its approved HTTPS addresses.');
+    if (visited.has(current))
+      throw new CagematchBrowserRequired(
+        'CAGEMATCH repeated a redirect. Continue in the in-app browser, then choose Import match details.',
+      );
+    visited.add(current);
     const response = await get(current, { ...options, redirect: 'manual' });
     if (![301, 302, 303, 307, 308].includes(response.status)) return response;
     const location = response.headers.get('location');
     await response.body?.cancel();
-    if (!location || hop === 3)
-      throw new Error('CAGEMATCH returned an invalid or repeated redirect.');
-    current = new URL(location, current).href;
+    if (!location)
+      throw new CagematchBrowserRequired(
+        'CAGEMATCH returned a redirect without a destination. Continue in the in-app browser.',
+      );
+    const next = new URL(location, current).href;
+    if (!isCagematchAddress(next))
+      throw new Error('CAGEMATCH redirected outside its approved HTTPS addresses.');
+    if (hop === 3)
+      throw new CagematchBrowserRequired(
+        'CAGEMATCH repeated redirects. Continue in the in-app browser, then choose Import match details.',
+      );
+    current = next;
   }
   throw new Error('CAGEMATCH redirect limit reached.');
 }

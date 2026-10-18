@@ -17,6 +17,12 @@ test.beforeEach(async ({ page }) => {
       vault: {
         chooseVideoFolder: async () => null,
         getLibrary: async () => ({ records, status }),
+        lookupMatchInBrowser: async () => ({
+          wrestlers: ['Johnny Mundo', 'Prince Puma'],
+          event: 'All Night Long',
+          promotion: 'Lucha Underground',
+          date: '2015-04-11',
+        }),
         lookupMatch: async () => {
           throw new Error(
             "Error invoking remote method 'vault:lookup-match': Error: CAGEMATCH is unavailable. Enter the details manually.",
@@ -158,4 +164,16 @@ test('browser-copied page text fills the review without another background looku
   await expect(dialog.getByLabel('Date', { exact: true })).toHaveValue('2025-04-27');
   await expect(dialog.getByLabel('CAGEMATCH score')).toHaveValue('9.75');
   await expect(dialog.getByLabel('WON stars')).toHaveValue('');
+});
+
+test('direct in-app browser import fills the review without a background request', async ({
+  page,
+}) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Add match', exact: true }).click();
+  const dialog = page.getByRole('dialog');
+  await dialog.getByLabel('CAGEMATCH match link').fill('https://www.cagematch.net/?id=111&nr=6651');
+  await dialog.getByRole('button', { name: 'Import in app browser', exact: true }).click();
+  await expect(dialog.getByLabel('Opponents or teams')).toHaveValue('Johnny Mundo\nPrince Puma');
+  await expect(dialog.getByLabel('Company', { exact: true })).toHaveValue('Lucha Underground');
 });

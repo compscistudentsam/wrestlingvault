@@ -26,7 +26,7 @@ app.whenReady().then(()=>{
   if(url.searchParams.get('nr')==='6651')return new Response(${JSON.stringify(html)},{headers:{'Content-Type':'text/html'}});
   if(url.searchParams.get('nr')==='79999999'){
    challengeRequests++;
-   if(challengeRequests===1)return new Response('<html><body>Javascript is required. Please enable javascript before you are allowed to see this page.</body></html>',{headers:{'Content-Type':'text/html'}});
+   if(challengeRequests===1)return new Response(null,{status:302,headers:{location:request.url}});
    return new Response('<html><body><p>Loading match...</p><script>setTimeout(()=>{document.body.innerHTML='+${JSON.stringify(JSON.stringify(html))}+'},100);</script></body></html>',{headers:{'Content-Type':'text/html'}});
   }
   return new Response(null,{status:404});
@@ -120,8 +120,17 @@ try {
   });
   await expect(form.getByLabel('Opponents or teams')).toHaveValue('Johnny Mundo\nPrince Puma');
   await expect.poll(() => app.windows().length).toBe(1);
+  // The direct browser action remains usable during the automated lookup cooldown.
+  await form.getByRole('button', { name: 'Import in app browser', exact: true }).click();
+  await expect.poll(() => app.windows().length).toBe(2);
+  await app.evaluate(({ BrowserWindow }) => {
+    const browser = BrowserWindow.getAllWindows().find((w) => w.getParentWindow());
+    browser.__lookupMenu.items[2].click();
+  });
+  await expect.poll(() => app.windows().length).toBe(1);
+  await expect(form.locator('.import-error').first()).toContainText('cancelled');
   console.log(
-    'Real Electron lookup passed: Chromium networking instead of Node fetch, approved robots redirect, fixture metadata, and isolated JavaScript browser import. All website responses were local fixtures; no live CAGEMATCH connection was claimed.',
+    'Real Electron lookup passed: Chromium networking instead of Node fetch, approved robots redirect, fixture metadata, redirect-loop fallback, isolated JavaScript browser import, and direct browser cancellation during cooldown. All website responses were local fixtures; no live CAGEMATCH connection was claimed.',
   );
 } catch (error) {
   if (app) {

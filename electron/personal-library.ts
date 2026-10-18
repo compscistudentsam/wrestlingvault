@@ -149,6 +149,15 @@ export class PersonalLibrary {
       return this.snapshot();
     });
   }
+  async lookupInBrowser(source: unknown) {
+    const url = cagematchURL(source);
+    if (this.allMatches().some((m) => cagematchURL(m.sourceUrl) === url))
+      throw new Error('This match is already in your library.');
+    if (!this.dependencies.browserLookup)
+      throw new Error('In-app browser lookup is available in the desktop app.');
+    // Explicit human browsing is separate from the rate-limited background crawler.
+    return this.serial(() => this.dependencies.browserLookup!(url));
+  }
   async lookup(source: unknown) {
     const url = cagematchURL(source);
     if (this.allMatches().some((m) => cagematchURL(m.sourceUrl) === url))

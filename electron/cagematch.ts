@@ -1,6 +1,10 @@
 import { load } from 'cheerio';
 import { cagematchURL, type MatchDraft } from '../src/shared/imports';
-import { requestCagematch, cagematchConnectionError } from './cagematch-request';
+import {
+  requestCagematch,
+  cagematchConnectionError,
+  CagematchBrowserRequired,
+} from './cagematch-request';
 import { readLimited } from './library-http';
 
 export function parseCagematch(html: string, sourceUrl: string): Partial<MatchDraft> {
@@ -83,6 +87,7 @@ export async function lookupCagematch(source: string, get: typeof fetch = fetch)
     try {
       return await requestCagematch(url, init, get);
     } catch (error) {
+      if (error instanceof CagematchBrowserRequired) throw error;
       throw new Error(cagematchConnectionError(error));
     }
   };
@@ -123,7 +128,7 @@ export async function lookupCagematch(source: string, get: typeof fetch = fetch)
   }
   return { draft: readCagematchPage(html, sourceUrl), delay: policy.delay };
 }
-export class CagematchBrowserRequired extends Error {}
+export { CagematchBrowserRequired } from './cagematch-request';
 function isBrowserCheck(html: string) {
   return /javascript is required|enable javascript before you are allowed|checking your browser|just a moment/i.test(
     load(html)('body').text(),

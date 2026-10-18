@@ -5,6 +5,7 @@ export interface VaultAPI {
   getVideoAvailability(): Promise<string[]>;
   getVersion(): Promise<string>;
   getLibrary(): Promise<LibrarySnapshot>;
+  lookupMatchInBrowser(url: string): Promise<Partial<MatchDraft>>;
   lookupMatch(url: string): Promise<Partial<MatchDraft>>;
   chooseMatchArtwork(): Promise<ChosenArtwork | null>;
   addMatch(draft: MatchDraft, artworkToken: string): Promise<LibrarySnapshot>;

@@ -88,6 +88,22 @@ export function AddMatch({
       setError(message(error));
     }
   };
+  const readInBrowser = async () => {
+    setError('');
+    setNotice('');
+    setBusy('lookup');
+    try {
+      const source = cagematchURL(url);
+      setUrl(source);
+      applyDetails(await desktop().lookupMatchInBrowser(source));
+      setReview(true);
+      setNotice('Details imported from the browser. Review them and fill in anything missing.');
+    } catch (error) {
+      setError(message(error));
+    } finally {
+      setBusy('');
+    }
+  };
   const beginReview = async (manual = false) => {
     setError('');
     setNotice('');
@@ -282,8 +298,8 @@ export function AddMatch({
               </button>
             </div>
             <div className="import-actions">
-              <button type="button" className="button" onClick={() => void openMatchPage()}>
-                Open CAGEMATCH in browser
+              <button type="button" className="button" onClick={() => void readInBrowser()}>
+                Import in app browser
               </button>
               <button
                 type="button"
@@ -296,6 +312,9 @@ export function AddMatch({
             </div>
             {pasteOpen && (
               <div className="import-paste">
+                <button type="button" className="button" onClick={() => void openMatchPage()}>
+                  Open CAGEMATCH in browser
+                </button>
                 <p>
                   Once the match details are visible in your browser, press Ctrl+A, then Ctrl+C.
                   Paste the copied text below.

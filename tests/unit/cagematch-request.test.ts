@@ -46,8 +46,8 @@ it('rejects off-site redirects, credentials, HTTPS downgrades and redirect loops
   const loop = vi.fn(
     async () => new Response(null, { status: 302, headers: { location: url } }),
   ) as typeof fetch;
-  await expect(requestCagematch(url, {}, loop)).rejects.toThrow('repeated redirect');
-  expect(loop).toHaveBeenCalledTimes(4);
+  await expect(requestCagematch(url, {}, loop)).rejects.toThrow('repeated a redirect');
+  expect(loop).toHaveBeenCalledTimes(1);
   expect(isCagematchAddress('https://www.cagematch.net.attacker.example/')).toBe(false);
 });
 it('keeps diagnostic codes while hiding arbitrary network messages and secrets', () => {
@@ -82,4 +82,15 @@ it('recognises an access-check error response but does not bypass HTTP rate limi
       status === 429 ? 'HTTP 429' : 'browser access check',
     );
   }
+});
+
+it('preserves redirect-loop classification so the service can open its browser fallback', async () => {
+  const { CagematchBrowserRequired } = await import('../../electron/cagematch-request');
+  const get = vi.fn(async (input: RequestInfo | URL) =>
+    String(input).endsWith('/robots.txt')
+      ? new Response('User-agent: *\nCrawl-delay: 527')
+      : new Response(null, { status: 302, headers: { location: String(input) } }),
+  ) as typeof fetch;
+  await expect(lookupCagematch(url, get)).rejects.toBeInstanceOf(CagematchBrowserRequired);
+  expect(get).toHaveBeenCalledTimes(2);
 });

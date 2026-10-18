@@ -200,6 +200,11 @@ void app.whenReady().then(async () => {
       }
     );
   });
+  ipcMain.handle('vault:lookup-browser', (event, ...args: unknown[]) => {
+    assertSender(event);
+    if (args.length !== 1) throw new Error('Expected one CAGEMATCH link.');
+    return requireLibrary().lookupInBrowser(args[0]);
+  });
   ipcMain.handle('vault:lookup-match', (event, ...args: unknown[]) => {
     assertSender(event);
     if (args.length !== 1) throw new Error('Expected one CAGEMATCH link.');

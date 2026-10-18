@@ -7,6 +7,7 @@ const api: VaultAPI = Object.freeze({
   getMatchVideos: (id: string) => ipcRenderer.invoke('vault:match-videos', id),
   getVideoAvailability: () => ipcRenderer.invoke('vault:video-availability'),
   getLibrary: () => ipcRenderer.invoke('vault:library'),
+  lookupMatchInBrowser: (url: string) => ipcRenderer.invoke('vault:lookup-browser', url),
   lookupMatch: (url: string) => ipcRenderer.invoke('vault:lookup-match', url),
   chooseMatchArtwork: () => ipcRenderer.invoke('vault:choose-artwork'),
   addMatch: (draft: MatchDraft, artworkToken: string) =>
