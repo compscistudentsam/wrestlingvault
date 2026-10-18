@@ -86,6 +86,49 @@
       "matchDuration": null,
       "durationSource": null,
       "artworkHash": "53ca2e64c68c2a328ebdd02de1a65345f8fe48aba44a75237ab5c70ced38e3df"
+    },
+    {
+      "id": "cagematch-user-405",
+      "rank": 103,
+      "title": "Mick Foley vs. Randy Orton",
+      "wrestlers": [
+        "Mick Foley",
+        "Randy Orton"
+      ],
+      "promotion": "World Wrestling Entertainment",
+      "event": "WWE Backlash 2004",
+      "date": "2004-04-18",
+      "rating": 4.5,
+      "cagematchScore": 9.38,
+      "matchType": "Singles / tag",
+      "stipulation": null,
+      "championship": null,
+      "venue": null,
+      "description": "",
+      "eyebrow": "",
+      "accent": "amber",
+      "art": "arena-gold",
+      "image": "custom/cagematch-user-405.jpg",
+      "imageType": "User-supplied artwork",
+      "shortNames": [
+        "FOLEY",
+        "ORTON"
+      ],
+      "videoFolderAliases": [],
+      "sourceId": "cagematch",
+      "sourceUrl": "https://www.cagematch.net/?id=111&nr=405",
+      "sourceStatus": "user-reviewed",
+      "videoNameGroups": [
+        [
+          "FOLEY",
+          "ORTON"
+        ]
+      ],
+      "imageWidth": 1191,
+      "imageHeight": 1684,
+      "matchDuration": null,
+      "durationSource": null,
+      "artworkHash": "7f8eacb4ac907ad1cab015adf9a52b4473f72537550371cd43a6549bce33907a"
     }
   ]
 }
