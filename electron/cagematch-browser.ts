@@ -8,7 +8,6 @@ export function importFromCagematchBrowser(
   parent: BrowserWindow,
   browsing: Session,
   source: string,
-  onPage?: (html: string) => void,
 ): Promise<Partial<MatchDraft>> {
   const sourceUrl = cagematchURL(source);
   return new Promise((resolve, reject) => {
@@ -85,7 +84,6 @@ export function importFromCagematchBrowser(
         if (typeof page.html !== 'string' || Buffer.byteLength(page.html) > 2_000_000)
           throw new Error('This page is too large to import.');
         const result = readCagematchPage(page.html, sourceUrl);
-        onPage?.(page.html);
         partial = result;
         if (manual || (result.wrestlers && result.event && result.date)) complete(result);
       } catch (error) {

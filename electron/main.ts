@@ -14,7 +14,9 @@ import { cagematchNetwork } from './cagematch-network';
 import { importFromCagematchBrowser } from './cagematch-browser';
 import { isCagematchAddress } from './cagematch-request';
 import { PersonalLibrary } from './personal-library';
-import { pageArtwork } from './page-artwork';
+import { googleImageSearch, publicImageURL } from './google-images';
+import { searchGoogleImages, googleBrowserURL } from './google-images-browser';
+import { downloadImage } from './image-download';
 import { cagematchURL } from '../src/shared/imports';
 import { inspectArtwork } from './artwork';
 import type { ChosenArtwork } from '../src/shared/imports';
@@ -33,7 +35,6 @@ protocol.registerSchemesAsPrivileged([
     privileges: { standard: true, secure: true, stream: true, supportFetchAPI: true },
   },
 ]);
-const lookupPages = new Map<string, string>();
 let library: PersonalLibrary | null = null;
 let libraryError = '';
 let stagedArtwork: { token: string; bytes: Buffer } | null = null;
@@ -113,6 +114,31 @@ void app.whenReady().then(async () => {
   cagematchSession.webRequest.onBeforeRequest({ urls: ['<all_urls>'] }, (details, callback) => {
     callback({ cancel: !isCagematchAddress(details.url) });
   });
+  const googleSession = session.fromPartition('persist:google-artwork');
+  googleSession.setPermissionRequestHandler((_contents, _permission, callback) => callback(false));
+  googleSession.setPermissionCheckHandler(() => false);
+  googleSession.on('will-download', (event) => event.preventDefault());
+  googleSession.webRequest.onBeforeRequest({ urls: ['<all_urls>'] }, (details, callback) => {
+    let allowed = googleBrowserURL(details.url);
+    try {
+      const url = new URL(details.url);
+      allowed ||=
+        url.protocol === 'https:' &&
+        !url.port &&
+        ['gstatic.com', 'googleusercontent.com', 'google.com'].some(
+          (host) => url.hostname === host || url.hostname.endsWith(`.${host}`),
+        );
+    } catch {
+      /* Deny unrecognised resources. */
+    }
+    callback({ cancel: !allowed });
+  });
+  const imageSession = session.fromPartition('artwork-downloads');
+  imageSession.setPermissionRequestHandler((_contents, _permission, callback) => callback(false));
+  imageSession.setPermissionCheckHandler(() => false);
+  imageSession.webRequest.onBeforeRequest({ urls: ['<all_urls>'] }, (details, callback) =>
+    callback({ cancel: !publicImageURL(details.url) }),
+  );
   const libraryRoot = path.join(app.getPath('userData'), 'personal-library');
   const tokenFile = path.join(libraryRoot, 'github-credential');
   try {
@@ -122,10 +148,7 @@ void app.whenReady().then(async () => {
       lookupRequest: cagematchNetwork(cagematchSession),
       browserLookup: (url) => {
         if (!window) throw new Error('Open the application window before looking up a match.');
-        return importFromCagematchBrowser(window, cagematchSession, url, (html) => {
-          lookupPages.clear();
-          lookupPages.set(url, html);
-        });
+        return importFromCagematchBrowser(window, cagematchSession, url);
       },
       getToken: async () => {
         let encrypted: Buffer;
@@ -217,71 +240,72 @@ void app.whenReady().then(async () => {
       throw new Error('The images folder must be inside your chosen video folder.');
     return directory;
   };
-  const boundedPageFetch = async (url: string, limit: number) => {
-    const response = await cagematchSession.fetch(url, {
-      redirect: 'error',
-      signal: AbortSignal.timeout(15000),
-    });
-    if (!response.ok || !response.body) throw new Error('Could not retrieve page artwork.');
-    const reader = response.body.getReader();
-    const chunks: Uint8Array[] = [];
-    let length = 0;
-    try {
-      while (true) {
-        const next = await reader.read();
-        if (next.done) break;
-        length += next.value.length;
-        if (length > limit) throw new Error('Page artwork exceeds the size limit.');
-        chunks.push(next.value);
-      }
-    } finally {
-      await reader.cancel();
-    }
-    return Buffer.concat(chunks);
-  };
   ipcMain.handle(
     'vault:find-artwork',
     async (event, ...args: unknown[]): Promise<ChosenArtwork | null> => {
       assertSender(event);
-      if (args.length !== 1) throw new Error('Expected one match link.');
+      if (args.length !== 2 || !args[1] || typeof args[1] !== 'object')
+        throw new Error('Expected match details for image search.');
       const source = cagematchURL(args[0]);
+      const details = args[1] as Record<string, unknown>;
+      if (
+        !Array.isArray(details.wrestlers) ||
+        details.wrestlers.length < 2 ||
+        details.wrestlers.length > 8 ||
+        details.wrestlers.some((value) => typeof value !== 'string' || value.length > 150) ||
+        typeof details.event !== 'string' ||
+        !details.event.trim() ||
+        details.event.length > 200 ||
+        typeof details.date !== 'string' ||
+        !/^\d{4}-\d{2}-\d{2}$/.test(details.date)
+      )
+        throw new Error('Enter opponents, event and date before searching for artwork.');
       const directory = await imageFolder();
-      if (!lookupPages.has(source)) await requireLibrary().lookupInBrowser(source);
-      const html = lookupPages.get(source);
-      if (!html) return null;
-      const page = pageArtwork(html, source);
-      if (page.eventUrl) {
-        try {
-          const eventHtml = await boundedPageFetch(page.eventUrl, 2_000_000);
-          page.images.push(...pageArtwork(eventHtml.toString(), page.eventUrl).images);
-        } catch {
-          /* Match-page images remain available when the event cannot be read. */
-        }
-      }
-      for (const url of [...new Set(page.images)].slice(0, 16)) {
-        try {
-          const bytes = await boundedPageFetch(url, 8_388_608);
-          const image = inspectArtwork(bytes);
-          if (image.width < 300 || image.height < 300) continue;
-          const name = `cagematch-user-${new URL(source).searchParams.get('nr')}.${image.extension}`;
-          const file = path.join(directory, name);
+      for (const kind of ['poster', 'graphic', 'photo'] as const) {
+        const searchUrl = googleImageSearch(
+          details.wrestlers as string[],
+          details.event,
+          details.date,
+          kind,
+        );
+        const candidates = await searchGoogleImages(window!, googleSession, searchUrl);
+        for (const url of candidates) {
           try {
-            await writeFile(file, bytes, { flag: 'wx' });
-          } catch (error) {
-            if ((error as NodeJS.ErrnoException).code !== 'EEXIST') throw error;
-            if (!(await readFile(file)).equals(bytes)) continue;
+            const bytes = await downloadImage(imageSession, url);
+            const image = inspectArtwork(bytes);
+            if (image.width < 300 || image.height < 300) continue;
+            const base = `cagematch-user-${new URL(source).searchParams.get('nr')}`;
+            let name = `${base}.${image.extension}`;
+            let file = path.join(directory, name);
+            try {
+              await writeFile(file, bytes, { flag: 'wx' });
+            } catch (error) {
+              if ((error as NodeJS.ErrnoException).code !== 'EEXIST') throw error;
+              if ((await lstat(file)).isSymbolicLink() || !(await readFile(file)).equals(bytes)) {
+                name = `${base}-${randomUUID()}.${image.extension}`;
+                file = path.join(directory, name);
+                await writeFile(file, bytes, { flag: 'wx' });
+              }
+            }
+            await writeFile(
+              `${file}.source.json`,
+              JSON.stringify({ matchUrl: source, searchUrl, imageUrl: url, kind }, null, 2),
+              { flag: 'wx' },
+            ).catch((error: NodeJS.ErrnoException) => {
+              if (error.code !== 'EEXIST') throw error;
+            });
+            const token = randomUUID();
+            stagedArtwork = { token, bytes };
+            return {
+              token,
+              name,
+              width: image.width,
+              height: image.height,
+              preview: `data:image/${image.extension === 'jpg' ? 'jpeg' : image.extension};base64,${bytes.toString('base64')}`,
+            };
+          } catch {
+            /* Try another result if the source refuses access or the image is unsuitable. */
           }
-          const token = randomUUID();
-          stagedArtwork = { token, bytes };
-          return {
-            token,
-            name,
-            width: image.width,
-            height: image.height,
-            preview: `data:image/${image.extension === 'jpg' ? 'jpeg' : image.extension};base64,${bytes.toString('base64')}`,
-          };
-        } catch {
-          /* Try the next candidate rather than selecting an invalid image. */
         }
       }
       return null;

@@ -4,7 +4,8 @@ import type { VaultAPI } from '../src/shared/api';
 
 const api: VaultAPI = Object.freeze({
   getSavedVideoFolder: () => ipcRenderer.invoke('vault:saved-video-folder'),
-  findMatchArtwork: (url: string) => ipcRenderer.invoke('vault:find-artwork', url),
+  findMatchArtwork: (url: string, details: Partial<MatchDraft>) =>
+    ipcRenderer.invoke('vault:find-artwork', url, details),
   chooseVideoFolder: () => ipcRenderer.invoke('vault:choose-video-folder'),
   getMatchVideos: (id: string) => ipcRenderer.invoke('vault:match-videos', id),
   getVideoAvailability: () => ipcRenderer.invoke('vault:video-availability'),

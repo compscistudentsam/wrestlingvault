@@ -88,14 +88,14 @@ export function AddMatch({
       setError(message(error));
     }
   };
-  const findImage = async (source: string) => {
+  const findImage = async (source: string, details: Partial<MatchDraft>) => {
     if (!window.vault?.findMatchArtwork) return;
     try {
-      const found = await desktop().findMatchArtwork(source);
+      const found = await desktop().findMatchArtwork(source, details);
       if (found) setImage(found);
       else
         setNotice(
-          (notice) => `${notice} No suitable page artwork was found. Choose an image manually.`,
+          (notice) => `${notice} No suitable Google image was found. Choose an image manually.`,
         );
     } catch (error) {
       setNotice((notice) => `${notice} ${message(error)}`);
@@ -108,10 +108,11 @@ export function AddMatch({
     try {
       const source = cagematchURL(url);
       setUrl(source);
-      applyDetails(await desktop().lookupMatchInBrowser(source));
+      const found = await desktop().lookupMatchInBrowser(source);
+      applyDetails(found);
       setReview(true);
       setNotice('Details imported from the browser. Review them and fill in anything missing.');
-      await findImage(source);
+      await findImage(source, found);
     } catch (error) {
       setError(message(error));
     } finally {
@@ -140,7 +141,7 @@ export function AddMatch({
       setNotice(
         'Review the retrieved details and fill in anything missing. Ratings are separate; leave unknown values blank.',
       );
-      await findImage(source);
+      await findImage(source, found);
     } catch (e) {
       setNotice(message(e));
     } finally {
