@@ -889,7 +889,6 @@ function MatchDetails({
           </div>
         </>
       )}
-      {editor}
       <h1>{match.title}</h1>
       <p className="detail-event">
         {match.event} · {formatDate(match.date)}
@@ -914,6 +913,7 @@ function MatchDetails({
         </a>
       </div>
       {error && <p role="alert">{error}</p>}
+      {editor}
     </div>
   );
 }
