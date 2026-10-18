@@ -1,4 +1,48 @@
 {
   "version": 1,
-  "records": []
+  "records": [
+    {
+      "id": "cagematch-user-139957",
+      "rank": 101,
+      "title": "Kazuchika Okada vs. Konosuke Takeshita",
+      "wrestlers": [
+        "Kazuchika Okada",
+        "Konosuke Takeshita"
+      ],
+      "promotion": "All Elite Wrestling",
+      "event": "AEW Double Or Nothing 2026",
+      "date": "2026-05-24",
+      "rating": null,
+      "cagematchScore": 9.43,
+      "matchType": "Singles / tag",
+      "stipulation": null,
+      "championship": null,
+      "venue": null,
+      "description": "",
+      "eyebrow": "",
+      "accent": "amber",
+      "art": "arena-gold",
+      "image": "custom/cagematch-user-139957.jpg",
+      "imageType": "User-supplied artwork",
+      "shortNames": [
+        "OKADA",
+        "TAKESHITA"
+      ],
+      "videoFolderAliases": [],
+      "sourceId": "cagematch",
+      "sourceUrl": "https://www.cagematch.net/?id=111&nr=139957",
+      "sourceStatus": "user-reviewed",
+      "videoNameGroups": [
+        [
+          "OKADA",
+          "TAKESHITA"
+        ]
+      ],
+      "imageWidth": 640,
+      "imageHeight": 800,
+      "matchDuration": null,
+      "durationSource": null,
+      "artworkHash": "2a09ba0f124e7c0d57e17bc3d437b46cddfb346e8104f7187672741aa465cf11"
+    }
+  ]
 }
