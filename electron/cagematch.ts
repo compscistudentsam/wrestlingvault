@@ -1,4 +1,5 @@
 import { load } from 'cheerio';
+import { normalizePromotion } from '../src/shared/promotions';
 import { parseWonRating } from '../src/shared/won-rating';
 import { cagematchURL, type MatchDraft } from '../src/shared/imports';
 import {
@@ -32,7 +33,7 @@ export function parseCagematch(html: string, sourceUrl: string): Partial<MatchDr
   const date = rows.get('date')?.match(/\b(\d{2})\.(\d{2})\.(\d{4})\b/);
   if (date) result.date = `${date[3]}-${date[2]}-${date[1]}`;
   if (rows.has('event')) result.event = rows.get('event');
-  if (rows.has('promotion')) result.promotion = rows.get('promotion');
+  if (rows.has('promotion')) result.promotion = normalizePromotion(rows.get('promotion')!);
   const duration = (rows.get('time') || rows.get('match length') || '').match(/^\d{1,3}:[0-5]\d$/);
   if (duration) result.matchDuration = duration[0];
   const won = parseWonRating(rows.get('wrestling observer rating') || rows.get('won rating'));

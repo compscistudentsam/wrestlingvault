@@ -1,3 +1,4 @@
+import { normalizePromotion } from './promotions';
 import { parseWonRating } from './won-rating';
 import { cagematchURL, type MatchDraft } from './imports';
 
@@ -41,7 +42,7 @@ export function parseMatchPageText(text: string, source: string): Partial<MatchD
   const event = value('Event');
   if (event && event.length <= 200) result.event = event;
   const promotion = value('Promotion', 'Company');
-  if (promotion && promotion.length <= 100) result.promotion = promotion;
+  if (promotion && promotion.length <= 100) result.promotion = normalizePromotion(promotion);
   const duration = value('Time', 'Match length', 'Duration').match(/^\d{1,3}:[0-5]\d$/);
   if (duration) result.matchDuration = duration[0];
   const score =

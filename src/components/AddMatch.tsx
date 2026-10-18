@@ -1,6 +1,7 @@
 import type { Match } from '../data/catalogue';
 import { useEffect, useRef, useState } from 'react';
 import type { LibrarySnapshot, LibraryStatus, ChosenArtwork, MatchDraft } from '../shared/imports';
+import { normalizePromotion } from '../shared/promotions';
 import { userError } from '../shared/errors';
 import { cagematchURL, repository } from '../shared/imports';
 
@@ -60,9 +61,11 @@ export function AddMatch({
             key,
             key === 'wrestlers'
               ? (value as string[]).join('\n')
-              : value === null
-                ? ''
-                : String(value),
+              : key === 'promotion'
+                ? normalizePromotion(String(value))
+                : value === null
+                  ? ''
+                  : String(value),
           ]),
       ),
     });
@@ -330,6 +333,12 @@ export function AddMatch({
                       required
                       maxLength={100}
                       value={fields.promotion}
+                      onBlur={() =>
+                        setFields((previous) => ({
+                          ...previous,
+                          promotion: normalizePromotion(previous.promotion),
+                        }))
+                      }
                       onChange={(event) => setFields({ ...fields, promotion: event.target.value })}
                     />
                   </label>

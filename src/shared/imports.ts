@@ -1,3 +1,4 @@
+import { normalizePromotion } from './promotions';
 import type { Match } from '../data/catalogue';
 
 export const repository = {
@@ -102,7 +103,7 @@ export function validateDraft(value: unknown): MatchDraft {
     sourceUrl: cagematchURL(d.sourceUrl),
     wrestlers,
     event: text(d.event, 'event'),
-    promotion: text(d.promotion, 'company', 100),
+    promotion: normalizePromotion(text(d.promotion, 'company', 100)),
     date,
     rating,
     cagematchScore: optionalNumber(d.cagematchScore, 10, 'CAGEMATCH score'),

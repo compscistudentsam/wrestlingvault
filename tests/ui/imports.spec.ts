@@ -204,3 +204,36 @@ test('edits an existing entry with prefilled values, supports cancellation, and 
   await expect(page.locator('.flow-cover.is-selected')).toHaveAccessibleName(/Edited Event/);
   await expect(page.locator('.flow-cover.is-selected .cover-bottom')).toContainText('4.75');
 });
+
+test('full CAGEMATCH company names reuse existing abbreviated filter categories', async ({
+  page,
+}) => {
+  await page.goto('/');
+  await page.evaluate(() => {
+    Object.assign(window.vault!, {
+      lookupMatchInBrowser: async () => ({
+        wrestlers: ['Test Wrestler', 'Other Wrestler'],
+        event: 'Imported Event',
+        promotion: 'New Japan Pro-Wrestling',
+        date: '2025-04-27',
+      }),
+    });
+  });
+  await page.getByRole('button', { name: 'Add match', exact: true }).click();
+  const dialog = page.getByRole('dialog');
+  await dialog
+    .getByLabel('CAGEMATCH match link')
+    .fill('https://www.cagematch.net/?id=111&nr=99999999');
+  await dialog.getByRole('button', { name: 'Import', exact: true }).click();
+  await expect(dialog.getByLabel('Company', { exact: true })).toHaveValue('NJPW');
+  await dialog.getByRole('button', { name: 'Choose artwork', exact: true }).click();
+  await dialog.getByRole('button', { name: 'Add match', exact: true }).click();
+  await expect(dialog).not.toBeVisible();
+  const company = page.getByRole('combobox', { name: 'Company', exact: true });
+  await expect(company.locator('option', { hasText: /^NJPW$/ })).toHaveCount(1);
+  await expect(company.locator('option', { hasText: /New Japan/ })).toHaveCount(0);
+  await company.selectOption('NJPW');
+  await expect(page.locator('.flow-cover.is-selected')).toHaveAccessibleName(
+    /Test Wrestler.*Imported Event/,
+  );
+});

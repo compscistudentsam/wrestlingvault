@@ -1,6 +1,11 @@
+import { normalizePromotion } from './promotions';
 import { matches as bundled, type Match } from '../data/catalogue';
 /** Keep bundled identity, rank and video aliases when a saved entry overrides its metadata. */
-export function libraryMatches(records: Match[]): Match[] {
+export function libraryMatches(saved: Match[]): Match[] {
+  const records = saved.map((record) => ({
+    ...record,
+    promotion: normalizePromotion(record.promotion),
+  }));
   const overrides = new Map(records.map((record) => [record.sourceUrl, record]));
   const sources = new Set(bundled.map((record) => record.sourceUrl));
   return [
