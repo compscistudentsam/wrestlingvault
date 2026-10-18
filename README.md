@@ -1,8 +1,14 @@
 # Wrestling Vault
 
-A wrestling match library with cover art for Windows, built with Electron, React and TypeScript. This is **Phase 1: the visual foundation and desktop prototype**, not the complete archive.
+A personal wrestling match library for Windows, built with Electron, React and TypeScript.
 
-## Run on Windows 10/11
+## Install on Windows
+
+Download the `.exe` from [GitHub Releases](https://github.com/compscistudentsam/wrestlingvault/releases/tag/v0.1.0), run it and follow the installer. This Windows x64 build includes Electron: no Node.js or Git is required. The initial personal-use release is unsigned, so Windows may show an Unknown Publisher or SmartScreen warning.
+
+Choose your local video folder on first launch. Optional GitHub library sync is connected inside the app with your own repository-scoped token. Updates are installed by downloading and running a newer installer; application code does not update automatically. Local settings and saved matches live in `%APPDATA%\wrestling-vault` and are preserved by upgrades/uninstall. See [Windows release notes and validation](docs/windows-release.md).
+
+## Run from source on Windows 10/11
 
 Install [Node.js 24 LTS](https://nodejs.org/) and Git, then open PowerShell:
 
@@ -24,7 +30,7 @@ npm.cmd run build
 npm.cmd start
 ```
 
-This is a local application launch, **not an installer**. Windows installer configuration, Windows CI and distribution remain in Phase 6. No release is published automatically. Signing and Windows SmartScreen behaviour must be assessed during release work.
+These commands launch the source checkout. `npm run dist:win` builds the Windows installer using `electron-builder.yml`; release tags run the Windows build and packaged-app checks before publishing installer assets. See [Windows release setup](docs/windows-release.md).
 
 ## Browse
 
@@ -119,12 +125,12 @@ tests/unit/               Data-integrity and security-boundary tests
 tests/ui/                 Browser interaction, responsive and screenshot checks
 ```
 
-Electron 44, React 19, Vite 8, TypeScript 5.9, Tailwind 4, Motion for React and Lucide are pinned in `package-lock.json`. The installed Node 24 runtime satisfies all engine requirements. Tailwind 4's CSS-first configuration lives in `src/styles.css`; there is no legacy Tailwind config file. Semantic native controls are used where a component library would add no benefit. Recharts and a SQLite driver are intentionally deferred until their phases. Electron-builder is available as development tooling; release configuration is deferred.
+Electron 44, React 19, Vite 8, TypeScript 5.9, Tailwind 4, Motion for React and Lucide are pinned in `package-lock.json`. The installed Node 24 runtime satisfies all engine requirements. Tailwind 4's CSS-first configuration lives in `src/styles.css`; there is no legacy Tailwind config file. Semantic native controls are used where a component library would add no benefit. Recharts and a SQLite driver are intentionally deferred until their phases. Electron-builder produces the Windows x64 NSIS installer, with release configuration in `electron-builder.yml`.
 
 No installation step edits sample data or other source files. Dependencies and generated build outputs are ignored. Secrets, local databases and environment files must remain untracked.
 
 ## Approval gate
 
-Work lives on `feature/phase-1-ui`. **Do not merge into `main` or begin Phase 2 without explicit user approval.** Passing checks does not supply approval. Visual revisions remain part of Phase 1. The full requested product direction is recorded in [the development brief](docs/development-brief.md).
+App development and library sync use `feature/phase-1-ui`; Windows packaging uses `feature/phase-6-release`. **Do not merge into `main` or begin Phase 2 without explicit user approval.** Passing checks does not supply approval. Visual revisions remain part of Phase 1. The full requested product direction is recorded in [the development brief](docs/development-brief.md).
 
 The original Vault mark and favicon are restored. The WWF logo has been removed.

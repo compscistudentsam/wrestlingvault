@@ -2,7 +2,7 @@
   "name": "wrestling-vault",
   "version": "0.1.0",
   "private": true,
-  "description": "A cinematic, offline-first wrestling match archive. Phase 1 desktop prototype.",
+  "description": "A personal wrestling match archive with local video playback.",
   "author": "Wrestling Vault",
   "type": "module",
   "main": "dist-electron/main.cjs",
@@ -26,7 +26,10 @@
     "test:import": "node scripts/smoke-import.mjs",
     "test:lookup": "node scripts/smoke-lookup.mjs",
     "test:artwork": "node scripts/smoke-artwork.mjs",
-    "test:batch": "node scripts/smoke-batch.mjs"
+    "test:batch": "node scripts/smoke-batch.mjs",
+    "dist:win": "npm run build && node scripts/collect-licenses.mjs && electron-builder --win nsis --x64 --publish never",
+    "pack:dir": "npm run build && node scripts/collect-licenses.mjs && electron-builder --dir --publish never",
+    "test:packaged": "node scripts/smoke-packaged.mjs"
   },
   "dependencies": {
     "@fontsource/inter": "5.3.0",

@@ -11,6 +11,6 @@
 - **Electron:** Electron contributors; MIT, with Chromium and other component notices distributed in Electron's `LICENSE` and `LICENSES.chromium.html`.
 - **Tailwind CSS:** Tailwind Labs and contributors; MIT.
 
-This list identifies primary runtime/UI assets, not a replacement for the complete transitive-dependency notices. Source packages retain their licence files in `node_modules`. During the release phase, collect and ship applicable notices with the installer. No user-selectable project-wide licence is presumed by this prototype.
+This list identifies primary runtime/UI assets, not a replacement for the complete transitive-dependency notices. Source packages retain their licence files in `node_modules`. The Windows build collects production-package and Electron/Tailwind notices into `THIRD_PARTY_LICENSES.txt` beside the installed executable; Electron also supplies its runtime licence notices. No user-selectable project-wide licence is presumed by this prototype.
 
 Match, wrestler and promotion names identify their respective subjects; no affiliation or endorsement is implied. The supplied collection cites CAGEMATCH match records as its ranking and rating references, with independent verification pending. No third-party article text or match footage is bundled.

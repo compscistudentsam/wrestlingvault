@@ -29,6 +29,10 @@ import { matches } from '../src/data/catalogue';
 import { pathToFileURL } from 'node:url';
 import { isTrustedRendererURL, validateExternalURL } from '../src/shared/security';
 
+// Keep the installed app on the same profile as the development app.
+if (app.isPackaged) app.setPath('userData', path.join(app.getPath('appData'), 'wrestling-vault'));
+if (process.platform === 'win32') app.setAppUserModelId('com.wrestlingvault.app');
+
 protocol.registerSchemesAsPrivileged([
   { scheme: 'vault-art', privileges: { standard: true, secure: true, supportFetchAPI: true } },
   {
