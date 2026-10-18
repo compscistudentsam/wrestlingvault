@@ -43,6 +43,49 @@
       "matchDuration": null,
       "durationSource": null,
       "artworkHash": "2a09ba0f124e7c0d57e17bc3d437b46cddfb346e8104f7187672741aa465cf11"
+    },
+    {
+      "id": "cagematch-user-6851",
+      "rank": 102,
+      "title": "AJ Styles vs. Hiroshi Tanahashi",
+      "wrestlers": [
+        "AJ Styles",
+        "Hiroshi Tanahashi"
+      ],
+      "promotion": "New Japan Pro Wrestling",
+      "event": "NJPW G1 Climax 25 - Tag 17",
+      "date": "2015-08-14",
+      "rating": null,
+      "cagematchScore": 9.42,
+      "matchType": "Singles / tag",
+      "stipulation": null,
+      "championship": null,
+      "venue": null,
+      "description": "",
+      "eyebrow": "",
+      "accent": "amber",
+      "art": "arena-gold",
+      "image": "custom/cagematch-user-6851.jpg",
+      "imageType": "User-supplied artwork",
+      "shortNames": [
+        "STYLES",
+        "TANAHASHI"
+      ],
+      "videoFolderAliases": [],
+      "sourceId": "cagematch",
+      "sourceUrl": "https://www.cagematch.net/?id=111&nr=6851",
+      "sourceStatus": "user-reviewed",
+      "videoNameGroups": [
+        [
+          "STYLES",
+          "TANAHASHI"
+        ]
+      ],
+      "imageWidth": 500,
+      "imageHeight": 333,
+      "matchDuration": null,
+      "durationSource": null,
+      "artworkHash": "53ca2e64c68c2a328ebdd02de1a65345f8fe48aba44a75237ab5c70ced38e3df"
     }
   ]
 }
