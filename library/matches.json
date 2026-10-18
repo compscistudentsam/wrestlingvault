@@ -172,6 +172,49 @@
       "matchDuration": null,
       "durationSource": null,
       "artworkHash": "9c06ae701ba47bdd2ffe46bf54e60573d11f58c2f151f5c67fe265e7c402b67a"
+    },
+    {
+      "id": "cagematch-user-6867",
+      "rank": 105,
+      "title": "Bayley vs. Sasha Banks",
+      "wrestlers": [
+        "Bayley",
+        "Sasha Banks"
+      ],
+      "promotion": "WWE",
+      "event": "WWE NXT TakeOver: Brooklyn",
+      "date": "2015-08-22",
+      "rating": 4.5,
+      "cagematchScore": 9.38,
+      "matchType": "Singles / tag",
+      "stipulation": null,
+      "championship": null,
+      "venue": null,
+      "description": "",
+      "eyebrow": "",
+      "accent": "amber",
+      "art": "arena-gold",
+      "image": "custom/cagematch-user-6867.jpg",
+      "imageType": "Automatically selected artwork",
+      "shortNames": [
+        "BAYLEY",
+        "BANKS"
+      ],
+      "videoFolderAliases": [],
+      "sourceId": "cagematch",
+      "sourceUrl": "https://www.cagematch.net/?id=111&nr=6867",
+      "sourceStatus": "auto-imported",
+      "videoNameGroups": [
+        [
+          "BAYLEY",
+          "BANKS"
+        ]
+      ],
+      "imageWidth": 600,
+      "imageHeight": 862,
+      "matchDuration": null,
+      "durationSource": null,
+      "artworkHash": "f09552f0e3f503c103fb332d02d2db1973e58ec8a9163058c3dfae6fb949d00e"
     }
   ]
 }
