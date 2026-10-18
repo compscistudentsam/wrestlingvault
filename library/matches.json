@@ -129,6 +129,49 @@
       "matchDuration": null,
       "durationSource": null,
       "artworkHash": "7f8eacb4ac907ad1cab015adf9a52b4473f72537550371cd43a6549bce33907a"
+    },
+    {
+      "id": "cagematch-user-9862",
+      "rank": 104,
+      "title": "WALTER vs. Zack Sabre Jr.",
+      "wrestlers": [
+        "WALTER",
+        "Zack Sabre Jr."
+      ],
+      "promotion": "PROGRESS Wrestling",
+      "event": "PROGRESS Chapter 77: Pumpkin Spice PROGRESS",
+      "date": "2018-10-28",
+      "rating": null,
+      "cagematchScore": 9.4,
+      "matchType": "Singles / tag",
+      "stipulation": null,
+      "championship": null,
+      "venue": null,
+      "description": "",
+      "eyebrow": "",
+      "accent": "amber",
+      "art": "arena-gold",
+      "image": "custom/cagematch-user-9862.jpg",
+      "imageType": "Automatically selected artwork",
+      "shortNames": [
+        "WALTER",
+        "JR."
+      ],
+      "videoFolderAliases": [],
+      "sourceId": "cagematch",
+      "sourceUrl": "https://www.cagematch.net/?id=111&nr=9862",
+      "sourceStatus": "auto-imported",
+      "videoNameGroups": [
+        [
+          "WALTER",
+          "JR."
+        ]
+      ],
+      "imageWidth": 640,
+      "imageHeight": 360,
+      "matchDuration": null,
+      "durationSource": null,
+      "artworkHash": "9c06ae701ba47bdd2ffe46bf54e60573d11f58c2f151f5c67fe265e7c402b67a"
     }
   ]
 }
