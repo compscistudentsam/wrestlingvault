@@ -23,7 +23,8 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test:player": "node scripts/smoke-player.mjs",
-    "test:import": "node scripts/smoke-import.mjs"
+    "test:import": "node scripts/smoke-import.mjs",
+    "test:lookup": "node scripts/smoke-lookup.mjs"
   },
   "dependencies": {
     "@fontsource/inter": "5.3.0",

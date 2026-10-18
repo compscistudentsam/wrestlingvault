@@ -1,5 +1,6 @@
 import { load } from 'cheerio';
 import { cagematchURL, type MatchDraft } from '../src/shared/imports';
+import { requestCagematch, cagematchConnectionError } from './cagematch-request';
 import { readLimited } from './library-http';
 
 export function parseCagematch(html: string, sourceUrl: string): Partial<MatchDraft> {
@@ -7,12 +8,17 @@ export function parseCagematch(html: string, sourceUrl: string): Partial<MatchDr
   const rows = new Map<string, string>();
   $('.InformationBoxRow').each((_, el) => {
     const key = $(el).find('.InformationBoxTitle').text().trim().replace(/:$/, '').toLowerCase();
-    const value = $(el).find('.InformationBoxContents').text().replace(/\s+/g, ' ').trim();
+    const contents = $(el).find('.InformationBoxContents');
+    const value = (
+      key === 'event' ? contents.find('a').first().text() || contents.text() : contents.text()
+    )
+      .replace(/\s+/g, ' ')
+      .trim();
     if (key && value) rows.set(key, value);
   });
   const result: Partial<MatchDraft> = { sourceUrl: cagematchURL(sourceUrl) };
   const heading = ($('h1.TextHeader').first().text() || $('title').text().split('«')[0]).trim();
-  const title = rows.get('match') || heading;
+  const title = rows.get('fixture') || rows.get('match') || heading;
   if (/\s+vs\.?\s+/i.test(title)) {
     const names = title.split(/\s+vs\.?\s+/i).map((v) => v.trim());
     if (names.length >= 2 && names.length <= 8 && names.every((v) => v.length <= 150))
@@ -27,7 +33,14 @@ export function parseCagematch(html: string, sourceUrl: string): Partial<MatchDr
   const won = rows.get('wrestling observer rating') || rows.get('won rating');
   if (won && /^\d+(?:\.\d+)?$/.test(won) && Number(won) <= 10) result.rating = Number(won);
   // Never treat the site's user rating as WON stars.
-  const score = rows.get('rating');
+  const score =
+    rows.get('rating') ||
+    $('.Ratings')
+      .text()
+      .match(/Average rating:\s*([0-9.]+)/i)?.[1] ||
+    $('body')
+      .text()
+      .match(/Average rating:\s*([0-9.]+)(?:\s|\[|$)/i)?.[1];
   if (score && /^\d+(?:\.\d+)?$/.test(score) && Number(score) <= 10)
     result.cagematchScore = Number(score);
   return result;
@@ -68,11 +81,9 @@ export async function lookupCagematch(source: string, get: typeof fetch = fetch)
   };
   const request = async (url: string, init: RequestInit) => {
     try {
-      return await get(url, init);
-    } catch {
-      throw new Error(
-        'Could not connect to CAGEMATCH. Open the page in your browser and paste its text, or enter the details manually.',
-      );
+      return await requestCagematch(url, init, get);
+    } catch (error) {
+      throw new Error(cagematchConnectionError(error));
     }
   };
   const robots = await request('https://www.cagematch.net/robots.txt', options);
@@ -95,27 +106,39 @@ export async function lookupCagematch(source: string, get: typeof fetch = fetch)
       'CAGEMATCH does not allow automated lookup here. Enter the match details manually.',
     );
   const response = await request(sourceUrl, { ...options, signal: AbortSignal.timeout(15000) });
-  if (!response.ok)
-    throw new Error(
-      `CAGEMATCH refused the match lookup (HTTP ${response.status}). Open it in your browser and paste the page text, or enter the details manually.`,
-    );
   const bytes = await readLimited(response, 2_000_000);
   const charset = response.headers.get('content-type')?.includes('iso-8859-1')
     ? 'windows-1252'
     : 'utf-8';
   const html = new TextDecoder(charset).decode(bytes);
-  if (
-    /javascript is required|enable javascript before you are allowed|checking your browser|just a moment/i.test(
-      load(html)('body').text(),
-    )
-  )
+  if (!response.ok) {
+    // Some access-check pages use an error status despite being human-readable.
+    if ([403, 503].includes(response.status) && isBrowserCheck(html))
+      throw new CagematchBrowserRequired(
+        'CAGEMATCH requires a browser access check. Wait for the match details, then choose Import match details.',
+      );
     throw new Error(
-      'CAGEMATCH is showing a browser access check. Open the page in your browser, wait for the match details, then paste the page text here.',
+      `CAGEMATCH refused the match lookup (HTTP ${response.status}). Open it in your browser and paste the page text, or enter the details manually.`,
     );
+  }
+  return { draft: readCagematchPage(html, sourceUrl), delay: policy.delay };
+}
+export class CagematchBrowserRequired extends Error {}
+function isBrowserCheck(html: string) {
+  return /javascript is required|enable javascript before you are allowed|checking your browser|just a moment/i.test(
+    load(html)('body').text(),
+  );
+}
+export function readCagematchPage(html: string, sourceUrl: string) {
   const draft = parseCagematch(html, sourceUrl);
-  if (!draft.wrestlers && !draft.event && !draft.date)
+  if (!draft.wrestlers && !draft.event && !draft.date) {
+    if (isBrowserCheck(html))
+      throw new CagematchBrowserRequired(
+        'CAGEMATCH is showing a browser access check. Wait for the match details in the browser window, then choose Import match details.',
+      );
     throw new Error(
       'CAGEMATCH returned no readable match details. Open the page in your browser and paste its text, or enter the details manually.',
     );
-  return { draft, delay: policy.delay };
+  }
+  return draft;
 }

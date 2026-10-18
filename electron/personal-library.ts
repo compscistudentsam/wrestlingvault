@@ -7,9 +7,10 @@ import {
   cagematchURL,
   validateDraft,
   type LibrarySnapshot,
+  type MatchDraft,
 } from '../src/shared/imports';
 import { recordFromDraft, parseManifest, mergeRecords } from './import-records';
-import { lookupCagematch } from './cagematch';
+import { lookupCagematch, CagematchBrowserRequired } from './cagematch';
 import { readLimited, GitHubError } from './library-http';
 
 const manifestPath = 'library/matches.json';
@@ -26,6 +27,8 @@ type State = {
 type Dependencies = {
   root: string;
   request?: typeof fetch;
+  lookupRequest?: typeof fetch;
+  browserLookup?: (url: string) => Promise<Partial<MatchDraft>>;
   getToken: () => Promise<string | null>;
   setToken: (token: string) => Promise<void>;
   clearToken: () => Promise<void>;
@@ -158,11 +161,16 @@ export class PersonalLibrary {
       this.state.nextLookup = Date.now() + 527_000;
       await this.save();
       try {
-        const result = await lookupCagematch(url, this.dependencies.request);
+        const result = await lookupCagematch(
+          url,
+          this.dependencies.lookupRequest ?? this.dependencies.request,
+        );
         this.state.nextLookup = Date.now() + result.delay * 1000;
         await this.save();
         return result.draft;
       } catch (error) {
+        if (error instanceof CagematchBrowserRequired && this.dependencies.browserLookup)
+          return this.dependencies.browserLookup(url);
         throw new Error(
           error instanceof Error
             ? error.message

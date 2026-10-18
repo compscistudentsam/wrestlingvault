@@ -10,6 +10,9 @@ import {
 } from 'electron';
 import path from 'node:path';
 import { realpath, readFile, writeFile, rm, stat } from 'node:fs/promises';
+import { cagematchNetwork } from './cagematch-network';
+import { importFromCagematchBrowser } from './cagematch-browser';
+import { isCagematchAddress } from './cagematch-request';
 import { PersonalLibrary } from './personal-library';
 import { inspectArtwork } from './artwork';
 import type { ChosenArtwork } from '../src/shared/imports';
@@ -96,12 +99,28 @@ function createWindow() {
 }
 
 void app.whenReady().then(async () => {
+  // Dedicated browser networking: honours the desktop proxy/certificate configuration,
+  // without opening internet access to the app renderer or sharing GitHub credentials.
+  const cagematchSession = session.fromPartition('persist:cagematch-lookup');
+  cagematchSession.setPermissionRequestHandler((_contents, _permission, callback) =>
+    callback(false),
+  );
+  cagematchSession.setPermissionCheckHandler(() => false);
+  cagematchSession.on('will-download', (event) => event.preventDefault());
+  cagematchSession.webRequest.onBeforeRequest({ urls: ['<all_urls>'] }, (details, callback) => {
+    callback({ cancel: !isCagematchAddress(details.url) });
+  });
   const libraryRoot = path.join(app.getPath('userData'), 'personal-library');
   const tokenFile = path.join(libraryRoot, 'github-credential');
   try {
     const service = new PersonalLibrary({
       root: libraryRoot,
       inspectImage: inspectArtwork,
+      lookupRequest: cagematchNetwork(cagematchSession),
+      browserLookup: (url) => {
+        if (!window) throw new Error('Open the application window before looking up a match.');
+        return importFromCagematchBrowser(window, cagematchSession, url);
+      },
       getToken: async () => {
         let encrypted: Buffer;
         try {
